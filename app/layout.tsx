@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
+import StyledJsxRegistry from "./styled-jsx-registry";
 
 export const metadata: Metadata = {
   title: "Haga FaceID",
@@ -22,7 +23,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
           fontFamily: '"Public Sans", "Segoe UI", sans-serif',
         }}
       >
-        {children}
+        <StyledJsxRegistry>{children}</StyledJsxRegistry>
       </body>
     </html>
   );
