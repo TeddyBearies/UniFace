@@ -2,6 +2,9 @@
 
 import type { FormEvent } from "react";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { createClient } from "@/lib/supabase/client";
+import { hasSupabasePublicEnv } from "@/lib/supabase/config";
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const BACKGROUND_PATTERN =
@@ -148,12 +151,16 @@ const QUICK_ACCESS_OPTIONS = [
 ];
 
 const FOOTER_LINKS = ["Privacy Policy", "Terms of Service", "Support"];
+const IS_SUPABASE_CONFIGURED = hasSupabasePublicEnv();
 
 export default function LoginPage() {
+  const router = useRouter();
+  const [supabase] = useState(() => (IS_SUPABASE_CONFIGURED ? createClient() : null));
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
-  const [messageTone, setMessageTone] = useState<"error" | "info">("error");
+  const [messageTone, setMessageTone] = useState<"error" | "info" | "success">("error");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const clearMessage = () => {
     if (message) {
@@ -161,7 +168,7 @@ export default function LoginPage() {
     }
   };
 
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     const trimmedEmail = email.trim();
@@ -179,12 +186,36 @@ export default function LoginPage() {
       return;
     }
 
+    if (!IS_SUPABASE_CONFIGURED || !supabase) {
+      setMessageTone("error");
+      setMessage("Supabase keys are not configured yet. Add them to .env.local and restart the dev server.");
+      return;
+    }
+
+    setIsSubmitting(true);
     setMessageTone("info");
-    setMessage("Login is not connected yet. This page is ready for backend integration.");
+    setMessage("Signing you in...");
+
+    const { error } = await supabase.auth.signInWithPassword({
+      email: trimmedEmail,
+      password: trimmedPassword,
+    });
+
+    if (error) {
+      setMessageTone("error");
+      setMessage(error.message);
+      setIsSubmitting(false);
+      return;
+    }
+
+    setMessageTone("success");
+    setMessage("Login successful. Redirecting to the current dashboard placeholder...");
+    router.replace("/student/dashboard");
+    router.refresh();
   };
 
   return (
-    <div className="pageShell">
+    <div className="pageShell login-page">
       <header className="topBar">
         <div className="topBarInner">
           <Logo />
@@ -212,6 +243,7 @@ export default function LoginPage() {
                   autoComplete="username"
                   placeholder="name@university.edu"
                   value={email}
+                  disabled={isSubmitting}
                   onChange={(event) => {
                     setEmail(event.target.value);
                     clearMessage();
@@ -243,6 +275,7 @@ export default function LoginPage() {
                   autoComplete="current-password"
                   placeholder="........"
                   value={password}
+                  disabled={isSubmitting}
                   onChange={(event) => {
                     setPassword(event.target.value);
                     clearMessage();
@@ -259,8 +292,8 @@ export default function LoginPage() {
               {message || "\u00a0"}
             </p>
 
-            <button className="loginButton" type="submit">
-              Login
+            <button className="loginButton" type="submit" disabled={isSubmitting}>
+              {isSubmitting ? "Signing in..." : "Login"}
             </button>
           </form>
 
@@ -275,6 +308,7 @@ export default function LoginPage() {
                   key={option.label}
                   type="button"
                   className="quickAccessButton"
+                  disabled={isSubmitting}
                   onClick={(event) => event.preventDefault()}
                 >
                   {option.icon}
@@ -301,346 +335,6 @@ export default function LoginPage() {
       <footer className="copyright">
         <p>©2024 EduScan Platform. All rights reserved.</p>
       </footer>
-
-      <style jsx>{`
-        .pageShell {
-          --accent: #1098ae;
-          --accent-dark: #0b7f94;
-          --accent-faint: #dff4f7;
-          --text: #16213d;
-          --muted: #727b8d;
-          --line: #e8ecef;
-          min-height: 100vh;
-          background-color: #ffffff;
-          color: var(--text);
-        }
-
-        .topBar {
-          position: relative;
-          background:
-            radial-gradient(circle at 24px 24px, rgba(16, 152, 174, 0.025) 0, rgba(16, 152, 174, 0.025) 18px, transparent 18px),
-            #ffffff;
-          background-size: 72px 72px;
-          border-bottom: 1px solid #eef2f5;
-        }
-
-        .topBarInner {
-          max-width: 1760px;
-          margin: 0 auto;
-          padding: 16px 56px 14px;
-          min-height: 76px;
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          gap: 24px;
-        }
-
-        .portalText {
-          margin: 0;
-          color: #6d7688;
-          font-size: 15px;
-          font-weight: 500;
-        }
-
-        .mainArea {
-          position: relative;
-          overflow: hidden;
-          min-height: calc(100vh - 77px);
-          padding: 24px 20px 64px;
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          background-color: #ffffff;
-        }
-
-        .mainArea::before {
-          content: "";
-          position: absolute;
-          inset: 0;
-          background-image: url("${BACKGROUND_PATTERN}");
-          background-repeat: repeat;
-          background-size: 116px 116px;
-          background-position: center 0;
-          opacity: 0.66;
-          pointer-events: none;
-        }
-
-        .loginCard {
-          position: relative;
-          z-index: 1;
-          width: min(100%, 520px);
-          margin-top: 8px;
-          padding: 42px 42px 34px;
-          border-radius: 12px;
-          background: #ffffff;
-          box-shadow: 0 10px 28px rgba(15, 23, 42, 0.12);
-          border: 1px solid #eef2f4;
-        }
-
-        .cardHeading {
-          text-align: center;
-          margin-bottom: 28px;
-        }
-
-        .cardHeading h1 {
-          margin: 0;
-          font-size: 34px;
-          line-height: 1.1;
-          letter-spacing: -0.03em;
-          font-weight: 800;
-          color: #101a39;
-        }
-
-        .cardHeading p {
-          margin: 14px 0 0;
-          font-size: 15px;
-          line-height: 1.55;
-          color: var(--muted);
-        }
-
-        .loginForm {
-          display: flex;
-          flex-direction: column;
-        }
-
-        .fieldGroup {
-          display: flex;
-          flex-direction: column;
-          gap: 10px;
-        }
-
-        .fieldLabel {
-          color: #2f3a52;
-          font-size: 14px;
-          font-weight: 700;
-        }
-
-        .inputShell {
-          display: flex;
-          align-items: center;
-          gap: 12px;
-          height: 52px;
-          padding: 0 16px;
-          border: 1px solid #e5e9ef;
-          background: #ffffff;
-          transition:
-            border-color 0.15s ease,
-            box-shadow 0.15s ease;
-        }
-
-        .inputShell:focus-within {
-          border-color: #aadfe7;
-          box-shadow: 0 0 0 2px rgba(16, 152, 174, 0.1);
-        }
-
-        input {
-          width: 100%;
-          padding: 0;
-          border: 0;
-          outline: 0;
-          background: transparent;
-          color: #374151;
-          font: inherit;
-          font-size: 15px;
-        }
-
-        input::placeholder {
-          color: #939fb1;
-        }
-
-        .passwordHeader {
-          margin-top: 28px;
-          margin-bottom: 10px;
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          gap: 16px;
-        }
-
-        .forgotLink {
-          color: var(--accent);
-          font-size: 14px;
-          font-weight: 700;
-          text-decoration: none;
-          white-space: nowrap;
-        }
-
-        .forgotLink:hover {
-          text-decoration: underline;
-        }
-
-        .message {
-          min-height: 20px;
-          margin: 12px 0 14px;
-          font-size: 13px;
-          line-height: 1.5;
-          color: transparent;
-        }
-
-        .message.visible.error {
-          color: #c0362c;
-        }
-
-        .message.visible.info {
-          color: #2f6e79;
-        }
-
-        .loginButton {
-          height: 52px;
-          border: 0;
-          border-radius: 2px;
-          background: var(--accent);
-          color: #ffffff;
-          font: inherit;
-          font-size: 16px;
-          font-weight: 700;
-          cursor: pointer;
-          box-shadow: 0 3px 10px rgba(16, 152, 174, 0.25);
-          transition: background-color 0.15s ease;
-        }
-
-        .loginButton:hover {
-          background: var(--accent-dark);
-        }
-
-        .quickAccess {
-          margin-top: 42px;
-        }
-
-        .divider {
-          position: relative;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          margin-bottom: 28px;
-          color: #747d8b;
-          font-size: 12px;
-          letter-spacing: 0.04em;
-          text-align: center;
-        }
-
-        .divider::before,
-        .divider::after {
-          content: "";
-          flex: 1;
-          border-top: 1px solid #eceff2;
-        }
-
-        .divider span {
-          padding: 0 12px;
-          white-space: nowrap;
-        }
-
-        .quickAccessList {
-          display: flex;
-          flex-direction: column;
-          gap: 16px;
-        }
-
-        .quickAccessButton {
-          display: flex;
-          align-items: center;
-          gap: 14px;
-          width: 100%;
-          min-height: 54px;
-          padding: 0 18px;
-          border: 1px solid #d3edf1;
-          background: #f7fcfd;
-          color: #16213d;
-          font: inherit;
-          font-size: 15px;
-          font-weight: 700;
-          text-align: left;
-          cursor: pointer;
-        }
-
-        .quickAccessButton:hover {
-          background: #f1fafb;
-        }
-
-        .supportLinks {
-          position: relative;
-          z-index: 1;
-          margin-top: 18px;
-          display: inline-flex;
-          align-items: center;
-          justify-content: center;
-          gap: 36px;
-          padding: 16px 30px;
-          border-radius: 16px;
-          background: #ffffff;
-          box-shadow: 0 8px 22px rgba(15, 23, 42, 0.12);
-        }
-
-        .supportLinks a {
-          color: #374151;
-          font-size: 15px;
-          text-decoration: none;
-        }
-
-        .supportLinks a:hover {
-          color: var(--accent-dark);
-        }
-
-        .copyright {
-          margin-top: -42px;
-          padding: 0 20px 18px;
-          text-align: center;
-          pointer-events: none;
-        }
-
-        .copyright p {
-          margin: 0;
-          color: #6c7383;
-          font-size: 14px;
-        }
-
-        @media (max-width: 680px) {
-          .topBarInner {
-            padding: 14px 18px 12px;
-            min-height: 72px;
-          }
-
-          .logoGraphic {
-            width: 88px;
-          }
-
-          .portalText {
-            font-size: 13px;
-            text-align: right;
-          }
-
-          .mainArea {
-            padding: 20px 14px 42px;
-          }
-
-          .loginCard {
-            padding: 28px 20px 24px;
-          }
-
-          .cardHeading h1 {
-            font-size: 28px;
-          }
-
-          .passwordHeader {
-            flex-direction: column;
-            align-items: flex-start;
-            gap: 8px;
-          }
-
-          .supportLinks {
-            width: calc(100% - 28px);
-            gap: 18px;
-            padding: 14px 18px;
-            flex-wrap: wrap;
-          }
-
-          .copyright {
-            margin-top: -18px;
-            padding-bottom: 14px;
-          }
-        }
-      `}</style>
     </div>
   );
 }
