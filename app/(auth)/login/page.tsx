@@ -153,6 +153,16 @@ const QUICK_ACCESS_OPTIONS = [
 const FOOTER_LINKS = ["Privacy Policy", "Terms of Service", "Support"];
 const IS_SUPABASE_CONFIGURED = hasSupabasePublicEnv();
 
+function getDashboardPathForRole(role: string | null | undefined) {
+  const normalizedRole = role?.trim().toLowerCase();
+
+  if (normalizedRole === "instructor" || normalizedRole === "admin") {
+    return "/instructor/dashboard";
+  }
+
+  return "/student/dashboard";
+}
+
 export default function LoginPage() {
   const router = useRouter();
   const [supabase] = useState(() => (IS_SUPABASE_CONFIGURED ? createClient() : null));
@@ -196,7 +206,10 @@ export default function LoginPage() {
     setMessageTone("info");
     setMessage("Signing you in...");
 
-    const { error } = await supabase.auth.signInWithPassword({
+    const {
+      data: signInData,
+      error,
+    } = await supabase.auth.signInWithPassword({
       email: trimmedEmail,
       password: trimmedPassword,
     });
@@ -208,9 +221,31 @@ export default function LoginPage() {
       return;
     }
 
+    const userId = signInData.user?.id;
+
+    if (!userId) {
+      setMessageTone("error");
+      setMessage("Login succeeded, but the user profile could not be loaded.");
+      setIsSubmitting(false);
+      return;
+    }
+
+    const { data: profile, error: profileError } = await supabase
+      .from("profiles")
+      .select("role")
+      .eq("id", userId)
+      .maybeSingle();
+
+    if (profileError) {
+      setMessageTone("error");
+      setMessage(profileError.message);
+      setIsSubmitting(false);
+      return;
+    }
+
     setMessageTone("success");
-    setMessage("Login successful. Redirecting to the current dashboard placeholder...");
-    router.replace("/student/dashboard");
+    setMessage("Login successful. Redirecting to your dashboard...");
+    router.replace(getDashboardPathForRole(profile?.role));
     router.refresh();
   };
 

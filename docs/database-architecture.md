@@ -2,11 +2,13 @@
 
 ## Current state
 
-As of 2026-03-24, the repository does not contain a live database client, SQL query code, schema, or migrations.
+As of 2026-03-26, the repository now has:
 
-That means there is no active SQL injection risk in the codebase today.
+- shared Supabase client helpers under `lib/supabase/`
+- a first SQL migration under `supabase/migrations/`
+- a real login flow wired to Supabase email/password auth
 
-It also means this is the best time to lock in the database architecture before backend code starts spreading across pages and features.
+There is still no raw SQL in app code, so the main SQL injection surface remains limited to controlled migration SQL instead of runtime query construction.
 
 ## Recommendation
 
@@ -31,8 +33,7 @@ Why it fits this stage:
 
 ### `profiles`
 
-- `id`
-- `auth_user_id`
+- `id` (same UUID as `auth.users.id`)
 - `email`
 - `full_name`
 - `role` (`student`, `instructor`, `admin`)
@@ -87,10 +88,17 @@ Why it fits this stage:
 
 - `id`
 - `profile_id`
-- `template_version`
-- `embedding_ref`
 - `enrollment_status`
 - `last_enrolled_at`
+- `created_at`
+- `updated_at`
+
+### `face_templates`
+
+- `id`
+- `face_profile_id`
+- `storage_object_path`
+- `template_version`
 - `created_at`
 - `updated_at`
 
@@ -99,6 +107,7 @@ Notes:
 - Keep raw face files separate from relational records.
 - If images are stored, save them in a private bucket and keep only object references in the database.
 - If embeddings are stored in Postgres, keep the table tightly restricted and avoid exposing it directly to browser clients.
+- The current repo migration creates a private `face-templates` bucket for admin-managed template files.
 
 ## Security baseline
 
@@ -121,8 +130,8 @@ For the current repo state, none of those concerns are visible yet.
 
 ## Suggested next implementation order
 
-1. Add Supabase clients under `lib/supabase/`.
-2. Implement Auth and role-aware profile loading.
-3. Create migrations for `profiles`, `courses`, and enrollment tables.
-4. Add RLS before connecting any page to live data.
-5. Add secure face-enrollment storage and server-only reset flows last.
+1. Run the initial migration in your Supabase project.
+2. Create a first user through Supabase Auth.
+3. Promote instructor and admin accounts by updating `profiles.role`.
+4. Start connecting pages to role-aware profile loading.
+5. Add secure face-enrollment storage and reset flows last.

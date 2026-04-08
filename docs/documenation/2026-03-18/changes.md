@@ -2,7 +2,7 @@
 
 This file records project changes in chronological order. Each date gets its own section. If more than one change happens on the same day, list them in the order they happened.
 
-## 2026-03-18
+## 2026-03-18 
 
 1. Planned and created the initial application file structure.
    - Purpose: establish a clean, organized foundation before writing feature code so routing, responsibilities, and shared resources stay easy to understand as the project grows.
@@ -28,7 +28,7 @@ This file records project changes in chronological order. Each date gets its own
    - Outcome: the project now has a functional login interface that looks complete from the front end and is ready to be wired to real auth logic later.
    - Notes: the page intentionally blocks the default form submit behavior for now so the UX can be tested without a backend.
 
-## 2026-03-21
+## 2026-03-21 
 
 1. Added `app/styled-jsx-registry.tsx` to support styled-jsx with the App Router.
    - Purpose: make server-rendered `styled-jsx` styles work correctly in the Next.js App Router, where styles need to be collected and injected during rendering.
@@ -100,3 +100,65 @@ This file records project changes in chronological order. Each date gets its own
    - Scope: added `app/globals.css`, updated `app/layout.tsx` to load it from the root, removed embedded `<style jsx>` blocks from both `app/(auth)/login/page.tsx` and `app/(student)/student/dashboard/page.tsx`, and switched those pages to scoped wrapper classes such as `login-page` and `dashboard-page`.
    - Outcome: styling for the main screens is now centralized, easier to maintain, and easier to extend without repeating long inline CSS blocks across page components.
    - Notes: this was documented as one change because the stylesheet file, layout import, and page refactors all belong to the same styling-architecture shift rather than separate product features.
+
+7. Added the first Supabase migration in `supabase/migrations/20260326170000_initial_schema.sql`.
+   - Purpose: define the first real database layer so authentication, profiles, courses, attendance, and face-enrollment metadata all have a consistent schema before page-level data work begins.
+   - Scope: added enums, tables, indexes, update triggers, an auth-user profile bootstrap trigger, and baseline RLS policies for students, instructors, and admins.
+   - Outcome: the repo now has a reproducible starting schema that can be applied to a Supabase project instead of creating tables manually in the dashboard.
+
+8. Added Supabase setup notes in `supabase/README.md`.
+   - Purpose: keep the database folder self-explanatory so migration files and setup expectations stay easy to find later.
+   - Scope: documented what the `supabase/` folder contains, the recommended migration flow, and the simplest sequence for creating users and assigning roles after signup.
+   - Outcome: the backend setup path is now clearer for future work and for anyone joining the project later.
+
+9. Added a minimal server-side auth helper in `features/auth/profile.ts`.
+   - Purpose: create a simple shared entry point for reading the signed-in user and matching profile without duplicating Supabase query code across pages.
+   - Scope: added `getCurrentProfile()`, which reads the current authenticated user from the server client and fetches the corresponding row from `profiles`.
+   - Outcome: role-aware page wiring now has a small, reusable helper ready for the next integration step.
+
+10. Added a private storage migration for face-template files.
+   - Purpose: move sensitive face-template file handling into Supabase Storage instead of leaving that part undefined while only relational tables exist.
+   - Scope: added `supabase/migrations/20260327110000_face_storage.sql`, which creates a private `face-templates` bucket and admin-only storage policies on `storage.objects`.
+   - Outcome: the Supabase backend definition now covers both relational data and the first secure storage layer needed for a FaceID workflow.
+
+
+## 2026-03-27
+
+1. Updated `docs/database-architecture.md` to reflect the implemented Supabase baseline.
+   - Purpose: bring the architecture guide back in sync with the codebase now that Supabase helpers, a first migration, and a real login flow are present instead of keeping the document in the earlier pre-database planning state.
+   - Scope: changed the current-state section from "no live database client or migrations" to a description of the actual repo contents, clarified that SQL risk is still mostly limited to controlled migration files rather than runtime query building, updated the `profiles` model to use the auth user UUID directly, split face-enrollment storage details into a separate `face_templates` table, and revised the recommended next steps to focus on running the migration, creating initial users, assigning roles, and then wiring pages to real profile data.
+   - Outcome: the database reference now better matches the schema and auth approach the project is actually using, which reduces the chance of future implementation work following outdated design notes.
+
+2. Removed `.env.example` from the repository.
+   - Purpose: remove the tracked example environment template from the current repo state.
+   - Scope: deleted the file that previously documented the expected public Supabase URL and key variables, server-only secret variables, and optional direct database connection string.
+   - Outcome: the project no longer ships a checked-in example environment file, so environment setup guidance now depends on other documentation such as the README or local team knowledge.
+
+## 2026-04-08
+
+1. Added the instructor dashboard page at `app/(instructor)/instructor/dashboard/page.tsx`.
+   - Purpose: create the first dedicated instructor landing screen so teaching staff have a central dashboard after login rather than sharing student-facing placeholders.
+   - Scope: added an instructor sidebar with role-specific navigation links, a top bar with session/profile indicators, a welcome section, and a large quick-actions area that points to future instructor tools such as taking attendance, enrolling students, reviewing class attendance, and generating reports.
+   - UI details: the quick-action cards use custom SVG illustrations and descriptive copy so the page already communicates the intended instructor workflow even before the downstream pages are fully built.
+   - Outcome: the project now has a role-specific instructor entry point that matches the broader app structure and creates a clear home for future instructor operations.
+
+2. Added the student attendance-history page at `app/(student)/student/attendance-history/page.tsx`.
+   - Purpose: give students a dedicated place to review historical attendance data instead of keeping history as a placeholder link with no destination.
+   - Scope: built a full attendance-history screen with student navigation, filter controls for course and date range, an empty-state table area for future records, and summary cards for present rate, absent rate, and late check-ins.
+   - UI details: the page is intentionally designed to work even before real backend data is connected, using empty-state messaging and zeroed summary metrics to show what information will appear later.
+   - Outcome: the student experience now includes a second functional route beyond the dashboard, which makes the student section feel more complete and ready for live data wiring.
+
+3. Updated shared navigation and styling to support the new instructor and student routes.
+   - Purpose: connect the new screens into the existing UI flow so navigation is usable and the new pages match the established visual system.
+   - Scope: updated `app/(student)/student/dashboard/page.tsx` to use real `next/link` navigation for sidebar items and the attendance-history call-to-action, and expanded `app/globals.css` with new style blocks for the instructor dashboard and student attendance-history layouts, including responsive behavior and link-safe navigation styling.
+   - Outcome: both the new pages and the existing student dashboard now behave like connected application routes instead of isolated mock screens, while still sharing one centralized styling system.
+
+4. Connected the instructor dashboard to live Supabase-backed overview data.
+   - Purpose: move the instructor dashboard beyond a static mock so it can reflect the signed-in instructor's assigned courses and attendance activity directly from the backend.
+   - Scope: added `features/attendance/instructor-dashboard.ts` as a server-side data helper that reads the current authenticated profile, fetches instructor course assignments, counts active enrollments, summarizes attendance sessions, and returns a dashboard-ready data shape; updated `app/(instructor)/instructor/dashboard/page.tsx` to become an async server page that uses this helper, redirects unauthenticated or unauthorized users, personalizes the header with the instructor name, renders overview stat cards, and lists assigned courses with session metadata; expanded `app/globals.css` with styling for the new overview, courses, and empty-state sections.
+   - Outcome: the instructor dashboard now has a real data path from Supabase to the UI, which makes it useful as an actual role-aware landing page instead of only a visual placeholder.
+
+5. Fixed the Supabase public-key environment fallback in `lib/supabase/config.ts`.
+   - Purpose: resolve a configuration bug where the app could still fail to initialize Supabase even when a valid public key was present under an alternate environment variable name.
+   - Scope: added support for `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY` as an additional fallback when resolving the browser-safe Supabase key, kept the legacy anon-key fallback in place, and updated the thrown error message so it correctly lists all accepted fallback variables.
+   - Outcome: the Supabase config layer is now more tolerant of the environment naming used in local setup, which reduces startup and login failures caused by mismatched variable names.

@@ -1,8 +1,10 @@
 "use client";
 
+import Link from "next/link";
+
 const NAV_ITEMS = [
-  { label: "Dashboard", active: true },
-  { label: "Attendance History", active: false },
+  { label: "Dashboard", href: "/student/dashboard", active: true },
+  { label: "Attendance History", href: "/student/attendance-history", active: false },
 ];
 
 function DashboardIcon({ color = "#1098ae", size = 18 }: { color?: string; size?: number }) {
@@ -187,9 +189,9 @@ export default function StudentDashboardPage() {
 
         <nav className="navList" aria-label="Student navigation">
           {NAV_ITEMS.map((item) => (
-            <button
+            <Link
               key={item.label}
-              type="button"
+              href={item.href}
               className={`navItem ${item.active ? "active" : ""}`}
             >
               {item.active ? (
@@ -198,7 +200,7 @@ export default function StudentDashboardPage() {
                 <HistoryIcon />
               )}
               <span>{item.label}</span>
-            </button>
+            </Link>
           ))}
         </nav>
 
@@ -259,10 +261,10 @@ export default function StudentDashboardPage() {
             </article>
           </section>
 
-          <button type="button" className="historyButton">
+          <Link href="/student/attendance-history" className="historyButton">
             <CalendarIcon />
             <span>View Attendance History</span>
-          </button>
+          </Link>
         </main>
       </div>
     </div>
