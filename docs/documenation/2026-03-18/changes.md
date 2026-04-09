@@ -162,3 +162,27 @@ This file records project changes in chronological order. Each date gets its own
    - Purpose: resolve a configuration bug where the app could still fail to initialize Supabase even when a valid public key was present under an alternate environment variable name.
    - Scope: added support for `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY` as an additional fallback when resolving the browser-safe Supabase key, kept the legacy anon-key fallback in place, and updated the thrown error message so it correctly lists all accepted fallback variables.
    - Outcome: the Supabase config layer is now more tolerant of the environment naming used in local setup, which reduces startup and login failures caused by mismatched variable names.
+
+## 2026-04-09
+
+1. Added a reusable instructor tool layout in `components/InstructorPageFrame.tsx`.
+   - Purpose: avoid duplicating the instructor sidebar, navigation icons, and workspace shell across every instructor tool page as more routes are added.
+   - Scope: created a shared frame component with typed navigation keys, role-specific nav links, reusable instructor icons, the instructor sidebar shell, and a workspace area that accepts page content through `children`.
+   - Outcome: new instructor tools can now share one consistent navigation and layout wrapper, which makes the instructor area easier to scale and maintain.
+
+2. Added the instructor take-attendance page at `app/(instructor)/instructor/take-attendance/page.tsx`.
+   - Purpose: create a dedicated instructor workflow screen for running classroom attendance sessions instead of leaving the dashboard quick action without a real destination.
+   - Scope: built a page with course selection, session control buttons, a large camera-feed placeholder, an awaiting-scan panel, and a footer summary area for scan session counts and latest scan status.
+   - UI details: the screen is structured as a real attendance-control interface, with a clear step order and placeholder states that make it ready for future camera, QR, and attendance-session logic.
+   - Outcome: the instructor area now includes a focused route for attendance-taking operations rather than only a top-level dashboard.
+
+3. Added the instructor student-enrollment page at `app/(instructor)/instructor/enroll-student/page.tsx`.
+   - Purpose: create a dedicated registration workflow for adding new students and capturing their face enrollment data.
+   - Scope: built a two-panel page with student-detail inputs, course selection, enrollment start and capture actions, a biometric camera placeholder, and a three-step instructional section explaining the enrollment flow.
+   - UI details: the page is designed to communicate a structured registration process even before backend validation, camera integration, and storage wiring are finished.
+   - Outcome: instructors now have a dedicated enrollment route that matches the intended FaceID registration workflow and provides a clear base for future implementation.
+
+4. Expanded `app/globals.css` to support the new instructor tool pages.
+   - Purpose: style the shared instructor frame and the new attendance/enrollment screens inside the same centralized CSS system used elsewhere in the app.
+   - Scope: added layout, form, panel, action-button, camera-placeholder, footer, and responsive rules for the `instructor-tool-page`, `take-attendance-page`, and `enroll-student-page` screen families.
+   - Outcome: the new instructor routes now share a coherent visual system and responsive behavior without reintroducing large page-local style blocks.

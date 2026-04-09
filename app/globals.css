@@ -13,6 +13,703 @@ body {
   text-decoration: none;
 }
 
+.instructor-tool-page.pageShell {
+  --accent: #1098ae;
+  --accent-dark: #0d8699;
+  --border: #e6ebf1;
+  --text: #101a39;
+  --muted: #667085;
+  display: flex;
+  min-height: 100vh;
+  background: #f7f8fc;
+  color: var(--text);
+}
+
+.instructor-tool-page .sidebar {
+  width: 192px;
+  display: flex;
+  flex-direction: column;
+  background: #ffffff;
+  border-right: 1px solid var(--border);
+}
+
+.instructor-tool-page .brandArea {
+  display: flex;
+  align-items: center;
+  padding: 18px 18px 16px;
+  min-height: 68px;
+  border-bottom: 1px solid var(--border);
+}
+
+.instructor-tool-page .navList {
+  padding: 22px 0 0;
+}
+
+.instructor-tool-page .navItem {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  min-height: 32px;
+  padding: 0 16px;
+  color: #475467;
+  font-size: 14px;
+  font-weight: 500;
+  text-decoration: none;
+  box-sizing: border-box;
+}
+
+.instructor-tool-page .navItem + .navItem {
+  margin-top: 24px;
+}
+
+.instructor-tool-page .navItem.active {
+  min-height: 44px;
+  border-radius: 0 10px 10px 0;
+  background: var(--accent);
+  color: #ffffff;
+}
+
+.instructor-tool-page .logoutStrip {
+  margin-top: auto;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  min-height: 54px;
+  padding: 0 16px;
+  border: 0;
+  border-top: 1px solid var(--border);
+  background: #ffffff;
+  color: #4b5563;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-align: left;
+}
+
+.instructor-tool-page .workspace {
+  flex: 1;
+  min-width: 0;
+}
+
+.instructor-page-content {
+  padding: 28px 48px 36px;
+}
+
+.instructor-page-content .pageHeader h1 {
+  margin: 0;
+  font-size: 38px;
+  line-height: 1.08;
+  letter-spacing: -0.04em;
+  font-weight: 800;
+  color: #101a39;
+}
+
+.instructor-page-content .pageHeader p {
+  margin: 12px 0 0;
+  color: #6b7280;
+  font-size: 15px;
+  line-height: 1.45;
+}
+
+.instructor-page-content .selectField {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 52px;
+  padding: 0 16px;
+  border: 1px solid #dfe5ee;
+  border-radius: 4px;
+  background: #ffffff;
+  box-sizing: border-box;
+}
+
+.instructor-page-content .selectField select {
+  width: 100%;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: #1f2937;
+  font: inherit;
+  font-size: 15px;
+  appearance: none;
+}
+
+.instructor-page-content .primaryAction {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 54px;
+  border: 0;
+  border-radius: 4px;
+  background: var(--accent);
+  color: #ffffff;
+  font: inherit;
+  font-size: 15px;
+  font-weight: 700;
+  box-shadow: 0 4px 12px rgba(16, 152, 174, 0.22);
+  cursor: pointer;
+}
+
+.instructor-tool-page .navItem:hover,
+.instructor-tool-page .logoutStrip:hover,
+.instructor-page-content .primaryAction:hover,
+.instructor-page-content .secondaryAction:hover {
+  filter: brightness(0.985);
+}
+
+.take-attendance-page .takeGrid {
+  display: grid;
+  grid-template-columns: 382px minmax(0, 1fr);
+  gap: 42px;
+  margin-top: 26px;
+  max-width: 1240px;
+}
+
+.take-attendance-page .takeControlsColumn {
+  display: flex;
+  flex-direction: column;
+  gap: 38px;
+}
+
+.take-attendance-page .controlCard {
+  padding: 32px 34px 34px;
+  border: 1px solid #e5eaf0;
+  border-radius: 12px;
+  background: #ffffff;
+  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.04);
+}
+
+.take-attendance-page .mutedCard {
+  min-height: 234px;
+}
+
+.take-attendance-page .sectionTitle {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.take-attendance-page .sectionTitle h2 {
+  margin: 0;
+  font-size: 17px;
+  line-height: 1.15;
+  font-weight: 800;
+  color: #101a39;
+}
+
+.take-attendance-page .stepBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 999px;
+  background: #edf9fc;
+  color: #5baebd;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.take-attendance-page .stepBadge.muted {
+  background: #f5f7fb;
+  color: #cbd5e1;
+}
+
+.take-attendance-page .fieldBlock {
+  margin-top: 28px;
+}
+
+.take-attendance-page .fieldBlock label {
+  display: block;
+  margin-bottom: 12px;
+  color: #344054;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.take-attendance-page .primaryAction {
+  width: 100%;
+  margin-top: 24px;
+  min-height: 60px;
+  font-size: 17px;
+}
+
+.take-attendance-page .secondaryAction {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  min-height: 54px;
+  border-radius: 4px;
+  background: #ffffff;
+  font: inherit;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.take-attendance-page .disabledAction {
+  margin-top: 28px;
+  border: 1px solid #eef2f6;
+  color: #d2d8e3;
+  cursor: not-allowed;
+}
+
+.take-attendance-page .dangerAction {
+  margin-top: 18px;
+  border: 1px solid #f6d7d7;
+  color: #e48a8a;
+}
+
+.take-attendance-page .scanColumn {
+  display: flex;
+  flex-direction: column;
+  gap: 36px;
+}
+
+.take-attendance-page .cameraCard {
+  position: relative;
+  min-height: 445px;
+  border: 1px solid #dfe5ee;
+  border-radius: 6px;
+  background: #020202;
+  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.08);
+  overflow: hidden;
+}
+
+.take-attendance-page .cameraStatus {
+  position: absolute;
+  top: 32px;
+  left: 40px;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: #f4f4f5;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+}
+
+.take-attendance-page .statusDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: #90a7d1;
+}
+
+.take-attendance-page .cameraPlaceholder {
+  min-height: 445px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.take-attendance-page .cameraPlaceholder h3 {
+  margin: 14px 0 0;
+  color: #6b6b6b;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.take-attendance-page .cameraPlaceholder p {
+  margin: 8px 0 0;
+  color: #696969;
+  font-size: 13px;
+}
+
+.take-attendance-page .awaitCard {
+  min-height: 309px;
+  border: 2px dashed #c7eaef;
+  border-radius: 10px;
+  background: #eff7fb;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.take-attendance-page .awaitIconBox {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 78px;
+  height: 78px;
+  border-radius: 18px;
+  background: #ffffff;
+  box-shadow: 0 4px 10px rgba(15, 23, 42, 0.05);
+}
+
+.take-attendance-page .awaitCard h3 {
+  margin: 28px 0 0;
+  color: #8c99b2;
+  font-size: 22px;
+  line-height: 1.1;
+  font-weight: 800;
+}
+
+.take-attendance-page .awaitCard p {
+  margin: 18px 0 0;
+  color: #6d7b91;
+  font-size: 15px;
+  line-height: 1.45;
+}
+
+.take-attendance-page .scanFooterBar {
+  margin-top: 44px;
+  max-width: 1240px;
+  padding-top: 34px;
+  border-top: 1px solid #e7ebf0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.take-attendance-page .scanFooterStats {
+  display: flex;
+  align-items: center;
+  gap: 30px;
+}
+
+.take-attendance-page .footerStat {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: #6c778b;
+  font-size: 14px;
+}
+
+.take-attendance-page .footerDot {
+  width: 11px;
+  height: 11px;
+  border-radius: 999px;
+}
+
+.take-attendance-page .footerDot.present {
+  background: #22c55e;
+}
+
+.take-attendance-page .footerDot.enrolled {
+  background: #d7ddeb;
+}
+
+.take-attendance-page .lastScanText {
+  margin: 0;
+  color: #98a2b3;
+  font-size: 14px;
+}
+
+.enroll-student-page .infoPill {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 16px;
+  min-height: 34px;
+  padding: 0 16px;
+  border-radius: 999px;
+  background: #eef6fa;
+  color: #2aa0b2;
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+}
+
+.enroll-student-page .enrollGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 638px;
+  gap: 40px;
+  margin-top: 44px;
+  max-width: 1320px;
+}
+
+.enroll-student-page .panelCard {
+  min-height: 652px;
+  padding: 46px 44px 38px;
+  border: 1px solid #e5eaf0;
+  border-radius: 12px;
+  background: #ffffff;
+  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.04);
+  box-sizing: border-box;
+}
+
+.enroll-student-page .panelTitle {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.enroll-student-page .panelTitle h2 {
+  margin: 0;
+  font-size: 18px;
+  line-height: 1.1;
+  font-weight: 800;
+  color: #101a39;
+}
+
+.enroll-student-page .formGroup {
+  margin-top: 36px;
+}
+
+.enroll-student-page .formGroup label {
+  display: block;
+  margin-bottom: 12px;
+  color: #344054;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.enroll-student-page .formGroup input {
+  width: 100%;
+  height: 54px;
+  padding: 0 24px;
+  border: 1px solid #dfe5ee;
+  border-radius: 4px;
+  background: #ffffff;
+  box-sizing: border-box;
+  color: #1f2937;
+  font: inherit;
+  font-size: 15px;
+}
+
+.enroll-student-page .formGroup input::placeholder {
+  color: #7c8798;
+}
+
+.enroll-student-page .largeAction {
+  width: 100%;
+  margin-top: 34px;
+  min-height: 60px;
+  font-size: 17px;
+}
+
+.enroll-student-page .enrollCameraFrame {
+  position: relative;
+  min-height: 336px;
+  margin-top: 46px;
+  border: 2px dashed #d3dae5;
+  border-radius: 12px;
+  background: #eff4fa;
+  overflow: hidden;
+}
+
+.enroll-student-page .frameCorner {
+  position: absolute;
+  width: 42px;
+  height: 42px;
+  border-color: #8ed0dd;
+  border-style: solid;
+  pointer-events: none;
+}
+
+.enroll-student-page .frameCorner.topLeft {
+  top: 22px;
+  left: 22px;
+  border-width: 3px 0 0 3px;
+}
+
+.enroll-student-page .frameCorner.topRight {
+  top: 22px;
+  right: 22px;
+  border-width: 3px 3px 0 0;
+}
+
+.enroll-student-page .frameCorner.bottomLeft {
+  bottom: 22px;
+  left: 22px;
+  border-width: 0 0 3px 3px;
+}
+
+.enroll-student-page .frameCorner.bottomRight {
+  right: 22px;
+  bottom: 22px;
+  border-width: 0 3px 3px 0;
+}
+
+.enroll-student-page .cameraInnerContent {
+  min-height: 336px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.enroll-student-page .cameraInnerContent h3 {
+  margin: 14px 0 0;
+  color: #8592a8;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.enroll-student-page .cameraInnerContent p {
+  margin: 8px 0 0;
+  color: #95a1b6;
+  font-size: 13px;
+}
+
+.enroll-student-page .helperText {
+  margin: 34px 0 0;
+  color: #6c778b;
+  font-size: 14px;
+  line-height: 1.5;
+  text-align: center;
+}
+
+.enroll-student-page .stepsGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 30px;
+  margin-top: 30px;
+  max-width: 1320px;
+}
+
+.enroll-student-page .stepCard {
+  min-height: 162px;
+  padding: 24px 28px 22px;
+  border-radius: 6px;
+  background: #edf4fa;
+  box-sizing: border-box;
+}
+
+.enroll-student-page .stepHeader {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.enroll-student-page .stepHeader h3 {
+  margin: 0;
+  color: #101a39;
+  font-size: 16px;
+  line-height: 1.1;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+}
+
+.enroll-student-page .stepSquare {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border: 2px solid #2aa0b2;
+  border-radius: 4px;
+  color: #2aa0b2;
+  font-size: 16px;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.enroll-student-page .stepCard p {
+  margin: 16px 0 0;
+  color: #4b5563;
+  font-size: 15px;
+  line-height: 1.45;
+}
+
+@media (max-width: 1400px) {
+  .enroll-student-page .enrollGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .enroll-student-page .stepsGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 1260px) {
+  .take-attendance-page .takeGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 900px) {
+  .instructor-tool-page.pageShell {
+    flex-direction: column;
+  }
+
+  .instructor-tool-page .sidebar {
+    width: 100%;
+    border-right: 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .instructor-tool-page .brandArea {
+    min-height: auto;
+  }
+
+  .instructor-tool-page .navList {
+    display: flex;
+    gap: 8px;
+    padding: 14px;
+    overflow-x: auto;
+  }
+
+  .instructor-tool-page .navItem {
+    width: auto;
+    min-width: max-content;
+    padding: 0 14px;
+  }
+
+  .instructor-tool-page .navItem + .navItem {
+    margin-top: 0;
+  }
+
+  .instructor-tool-page .navItem.active {
+    border-radius: 8px;
+  }
+
+  .instructor-tool-page .logoutStrip {
+    display: none;
+  }
+
+  .instructor-page-content {
+    padding: 24px 20px 28px;
+  }
+
+  .take-attendance-page .scanFooterBar {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+@media (max-width: 640px) {
+  .instructor-page-content .pageHeader h1 {
+    font-size: 31px;
+  }
+
+  .take-attendance-page .controlCard,
+  .enroll-student-page .panelCard {
+    padding: 24px 20px 24px;
+  }
+
+  .take-attendance-page .cameraCard,
+  .take-attendance-page .cameraPlaceholder {
+    min-height: 320px;
+  }
+
+  .take-attendance-page .awaitCard {
+    min-height: 240px;
+    padding: 20px;
+  }
+
+  .enroll-student-page .enrollCameraFrame,
+  .enroll-student-page .cameraInnerContent {
+    min-height: 280px;
+  }
+
+  .enroll-student-page .stepCard {
+    min-height: auto;
+  }
+}
+
 .instructor-dashboard-page.pageShell {
   --accent: #1098ae;
   --accent-dark: #0d8699;
