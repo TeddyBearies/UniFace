@@ -186,3 +186,33 @@ This file records project changes in chronological order. Each date gets its own
    - Purpose: style the shared instructor frame and the new attendance/enrollment screens inside the same centralized CSS system used elsewhere in the app.
    - Scope: added layout, form, panel, action-button, camera-placeholder, footer, and responsive rules for the `instructor-tool-page`, `take-attendance-page`, and `enroll-student-page` screen families.
    - Outcome: the new instructor routes now share a coherent visual system and responsive behavior without reintroducing large page-local style blocks.
+
+5. Added the first face-recognition client utilities under `features/face/`.
+   - Purpose: create a reusable client and server foundation for biometric enrollment and live attendance recognition instead of embedding all face-processing logic directly inside page components.
+   - Scope: added `features/face/useFaceApi.ts` to load `face-api.js` models from the CDN, manage webcam startup and shutdown, and expose single-face and multi-face detection helpers; added `features/face/face.service.ts` with server actions for enrolling student face templates into Supabase Storage, loading enrolled course templates for recognition, and marking attendance events for matched students.
+   - Outcome: the project now has a dedicated face-recognition feature layer that separates camera/model behavior from Supabase persistence and attendance writes, making future biometric work easier to extend and debug.
+
+6. Wired the instructor enrollment and attendance pages to the FaceID workflow.
+   - Purpose: move the instructor tools from static placeholders to interactive biometric screens that can begin exercising the real enrollment and recognition flow.
+   - Scope: updated `app/(instructor)/instructor/enroll-student/page.tsx` into a client page that tracks form state, loads face models, activates the webcam, captures one face descriptor, and saves the template through the enrollment server action; updated `app/(instructor)/instructor/take-attendance/page.tsx` into a client page that loads course templates, starts a webcam-backed session, runs repeated face comparisons in the browser, and records matches through the attendance server action while updating live UI counters and status text.
+   - Outcome: the instructor tool pages now behave like the first working version of the FaceID flow rather than static mock screens, providing a concrete base for real course data, production thresholds, and hardware testing.
+
+7. Added local testing guidance for the FaceID workflow and installed the required dependency.
+   - Purpose: make the new biometric flow testable by documenting the expected Supabase state and adding the browser-side library needed to run recognition.
+   - Scope: added `docs/testing-face-id.md` with a step-by-step local testing guide for student enrollment and live attendance scanning, and updated `package.json` plus `package-lock.json` to install `face-api.js` and its supporting dependency tree.
+   - Outcome: the project now includes both the runtime dependency and the written testing path needed to verify the FaceID workflow in a local development environment.
+
+8. Added a migration to support student lookup by university ID.
+   - Purpose: give instructors a practical identifier for face enrollment instead of requiring raw internal profile UUIDs during manual testing and registration.
+   - Scope: added `supabase/migrations/20260409111500_add_university_id.sql`, which introduces a unique `university_id` column on `public.profiles` and creates an index for fast lookups by that value.
+   - Outcome: the database now supports the 8-digit university ID flow used by the enrollment screen and the FaceID testing guide.
+
+9. Added server-side service helpers for instructor course loading and attendance session lifecycle.
+   - Purpose: move course/session logic out of page components so instructor tools can rely on reusable server actions instead of hardcoded or page-local database behavior.
+   - Scope: added `features/courses/course.service.ts` to load the signed-in instructor's assigned courses, and added `features/attendance/attendance.service.ts` to create or reuse open attendance sessions and close them when scanning ends.
+   - Outcome: course retrieval and attendance-session management now live in focused service files, which makes the instructor workflow easier to maintain and reuse across future pages.
+
+10. Updated the instructor FaceID pages to use real course data and persisted attendance sessions.
+   - Purpose: improve the first biometric workflow so it relies less on mock values and better matches the intended production behavior.
+   - Scope: updated `app/(instructor)/instructor/take-attendance/page.tsx` to load the instructor's assigned courses dynamically, start a real open attendance session in the database before scanning, and close that session through a server action when the instructor ends it; updated `app/(instructor)/instructor/enroll-student/page.tsx` so enrollment is driven by the face utilities and uses the entered university ID as the lookup key for saving biometric data.
+   - Outcome: the instructor biometric tools now follow a more realistic end-to-end path through Supabase, reducing reliance on hardcoded course placeholders and making the flow closer to a true app workflow.

@@ -1,4 +1,9 @@
+"use client";
+
 import InstructorPageFrame from "@/components/InstructorPageFrame";
+import { useState } from "react";
+import { useFaceApi } from "@/features/face/useFaceApi";
+import { enrollStudentFaceAction } from "@/features/face/face.service";
 
 function InfoIcon() {
   return (
@@ -149,6 +154,70 @@ function StepSquare({ number }: { number: string }) {
 }
 
 export default function InstructorEnrollStudentPage() {
+  const {
+    isModelLoaded,
+    isLoading: isFaceApiLoading,
+    error: faceApiError,
+    videoRef,
+    loadWebcam,
+    stopWebcam,
+    detectSingleFace,
+  } = useFaceApi();
+
+  const [studentId, setStudentId] = useState("");
+  const [studentName, setStudentName] = useState("");
+  const [course, setCourse] = useState("");
+
+  const [cameraActive, setCameraActive] = useState(false);
+  const [enrollStatus, setEnrollStatus] = useState<"idle" | "capturing" | "captured" | "saving" | "success" | "error">("idle");
+  const [enrollMessage, setEnrollMessage] = useState("");
+  const [descriptor, setDescriptor] = useState<Float32Array | null>(null);
+
+  const handleStartScan = async () => {
+    if (!studentId || !studentName) {
+      setEnrollMessage("Please enter an 8-digit student ID and name first.");
+      setEnrollStatus("error");
+      return;
+    }
+    setEnrollStatus("idle");
+    setEnrollMessage("");
+    await loadWebcam();
+    setCameraActive(true);
+  };
+
+  const handleCapture = async () => {
+    setEnrollStatus("capturing");
+    setEnrollMessage("Scanning face...");
+    try {
+      const { descriptor } = await detectSingleFace();
+      setDescriptor(descriptor);
+      setEnrollStatus("captured");
+      setEnrollMessage("Face captured successfully! Ready to save.");
+      stopWebcam();
+      setCameraActive(false);
+    } catch (err: any) {
+      setEnrollStatus("error");
+      setEnrollMessage(err.message || "Failed to capture face.");
+    }
+  };
+
+  const handleSave = async () => {
+    if (!descriptor) return;
+    setEnrollStatus("saving");
+    setEnrollMessage("Saving biometric data...");
+    try {
+      await enrollStudentFaceAction(studentId, Array.from(descriptor));
+      setEnrollStatus("success");
+      setEnrollMessage("Student face enrolled securely.");
+      setDescriptor(null);
+      setStudentId("");
+      setStudentName("");
+    } catch (err: any) {
+      setEnrollStatus("error");
+      setEnrollMessage(err.message || "Failed to save face template.");
+    }
+  };
+
   return (
     <InstructorPageFrame activeNav="enroll-student">
       <div className="enroll-student-page instructor-page-content">
@@ -166,30 +235,32 @@ export default function InstructorEnrollStudentPage() {
               <DetailsIcon />
               <h2>Student Details</h2>
             </div>
+            
+            {faceApiError && <p style={{ color: "var(--danger-red)", marginBottom: "1rem", fontSize: "0.875rem" }}>{faceApiError}</p>}
+            {isFaceApiLoading && <p style={{ color: "var(--accent-teal)", marginBottom: "1rem", fontSize: "0.875rem" }}>Loading AI Models...</p>}
 
             <div className="formGroup">
               <label htmlFor="student-id">Student ID</label>
-              <input id="student-id" name="studentId" type="text" placeholder="Enter 8-digit ID" />
+              <input id="student-id" name="studentId" type="text" placeholder="Enter 8-digit ID" value={studentId} onChange={(e) => setStudentId(e.target.value)} />
             </div>
 
             <div className="formGroup">
               <label htmlFor="student-name">Student Name</label>
-              <input id="student-name" name="studentName" type="text" placeholder="Enter full name" />
+              <input id="student-name" name="studentName" type="text" placeholder="Enter full name" value={studentName} onChange={(e) => setStudentName(e.target.value)} />
             </div>
 
             <div className="formGroup">
-              <label htmlFor="student-course">Course / Group</label>
+              <label htmlFor="student-course">Course / Group (Optional)</label>
               <div className="selectField">
-                <select id="student-course" name="course" defaultValue="">
-                  <option value="" disabled>
-                    Select course
-                  </option>
+                <select id="student-course" name="course" value={course} onChange={(e) => setCourse(e.target.value)}>
+                  <option value="" disabled>Select course</option>
+                  <option value="general">General Registry</option>
                 </select>
                 <ChevronDownIcon />
               </div>
             </div>
 
-            <button type="button" className="primaryAction largeAction">
+            <button type="button" className="primaryAction largeAction" onClick={handleStartScan} disabled={isFaceApiLoading || !isModelLoaded || cameraActive}>
               <StartEnrollIcon />
               <span>Start Enrollment Scan</span>
             </button>
@@ -201,23 +272,59 @@ export default function InstructorEnrollStudentPage() {
               <h2>Biometric Registration</h2>
             </div>
 
-            <div className="enrollCameraFrame">
+            <div className="enrollCameraFrame" style={{ position: "relative", overflow: "hidden" }}>
               <span className="frameCorner topLeft" />
               <span className="frameCorner topRight" />
               <span className="frameCorner bottomLeft" />
               <span className="frameCorner bottomRight" />
 
-              <div className="cameraInnerContent">
-                <CameraOffIcon />
-                <h3>Camera Feed Placeholder</h3>
-                <p>Ready for face capture</p>
-              </div>
-            </div>
+              {!cameraActive && enrollStatus !== "captured" && (
+                <div className="cameraInnerContent">
+                  <CameraOffIcon />
+                  <h3>Camera Feed Placeholder</h3>
+                  <p>Ready for face capture</p>
+                </div>
+              )}
+              
+              {enrollStatus === "captured" && !cameraActive && (
+                 <div className="cameraInnerContent">
+                   <FaceIcon />
+                   <h3 style={{ marginTop: "1rem" }}>Face Captured Successfully</h3>
+                   <p>Proceed to save data</p>
+                 </div>
+              )}
 
-            <button type="button" className="primaryAction largeAction">
-              <CaptureIcon />
-              <span>Capture Face and Save</span>
-            </button>
+              <video 
+                ref={videoRef}
+                style={{
+                  width: "100%",
+                  height: "100%",
+                  objectFit: "cover",
+                  display: cameraActive ? "block" : "none",
+                  transform: "scaleX(-1)"
+                }}
+                muted
+                playsInline
+              />
+            </div>
+            
+            {enrollMessage && (
+              <p style={{ marginTop: '1rem', color: enrollStatus === 'error' ? 'var(--danger-red)' : 'var(--accent-teal)', textAlign: 'center', fontWeight: 600, fontSize: "0.9rem" }}>
+                {enrollMessage}
+              </p>
+            )}
+
+            {enrollStatus === "captured" || enrollStatus === "saving" || enrollStatus === "success" ? (
+              <button type="button" className="primaryAction largeAction" onClick={handleSave} disabled={enrollStatus === 'saving' || enrollStatus === 'success'}>
+                <CaptureIcon />
+                <span>{enrollStatus === 'saving' ? 'Saving...' : enrollStatus === 'success' ? 'Saved' : 'Save Face Data'}</span>
+              </button>
+            ) : (
+              <button type="button" className="primaryAction largeAction" onClick={handleCapture} disabled={!cameraActive || enrollStatus === 'capturing'}>
+                 <CaptureIcon />
+                 <span>{enrollStatus === 'capturing' ? 'Processing...' : 'Capture Face and Save'}</span>
+              </button>
+            )}
 
             <p className="helperText">
               Ensure the student is in a well-lit area and looking directly at the
@@ -228,41 +335,27 @@ export default function InstructorEnrollStudentPage() {
         </div>
 
         <section className="stepsGrid" aria-label="Enrollment steps">
-          <article className="stepCard">
-            <div className="stepHeader">
-              <StepSquare number="1" />
-              <h3>STEP 1</h3>
-            </div>
-            <p>
-              Enter correct institutional student
-              <br />
-              identification details.
-            </p>
-          </article>
-
-          <article className="stepCard">
-            <div className="stepHeader">
-              <StepSquare number="2" />
-              <h3>STEP 2</h3>
-            </div>
-            <p>
-              Position student within the camera
-              <br />
-              frame for optimal capture.
-            </p>
-          </article>
-
-          <article className="stepCard">
-            <div className="stepHeader">
-              <StepSquare number="3" />
-              <h3>STEP 3</h3>
-            </div>
-            <p>
-              Capture face and save to encrypted
-              <br />
-              biometric database.
-            </p>
-          </article>
+           <article className="stepCard">
+             <div className="stepHeader">
+               <StepSquare number="1" />
+               <h3>STEP 1</h3>
+             </div>
+             <p>Enter correct institutional student<br />identification details.</p>
+           </article>
+           <article className="stepCard">
+             <div className="stepHeader">
+               <StepSquare number="2" />
+               <h3>STEP 2</h3>
+             </div>
+             <p>Position student within the camera<br />frame for optimal capture.</p>
+           </article>
+           <article className="stepCard">
+             <div className="stepHeader">
+               <StepSquare number="3" />
+               <h3>STEP 3</h3>
+             </div>
+             <p>Capture face and save to encrypted<br />biometric database.</p>
+           </article>
         </section>
       </div>
     </InstructorPageFrame>
