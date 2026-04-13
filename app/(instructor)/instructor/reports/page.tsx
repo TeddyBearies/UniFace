@@ -1,4 +1,6 @@
 import InstructorPageFrame from "@/components/InstructorPageFrame";
+import { requireCurrentProfile } from "@/features/auth/guards";
+import { getInstructorReportData } from "@/features/attendance/instructor-records.service";
 
 function ChevronDownIcon() {
   return (
@@ -95,7 +97,32 @@ function FadedBarIcon() {
   );
 }
 
-export default function InstructorReportsPage() {
+export default async function InstructorReportsPage({
+  searchParams,
+}: {
+  searchParams?: {
+    courseId?: string;
+    fromDate?: string;
+    toDate?: string;
+    generate?: string;
+  };
+}) {
+  await requireCurrentProfile(["instructor", "admin"]);
+
+  const selectedCourseId = searchParams?.courseId || "";
+  const selectedFromDate = searchParams?.fromDate || "";
+  const selectedToDate = searchParams?.toDate || "";
+  const shouldGenerate = searchParams?.generate === "1";
+
+  const reportData = await getInstructorReportData({
+    courseId: selectedCourseId,
+    fromDate: selectedFromDate,
+    toDate: selectedToDate,
+    generated: shouldGenerate,
+  });
+
+  const hasReportRows = reportData.csvRows.length > 0;
+
   return (
     <InstructorPageFrame activeNav="reports">
       <div className="reports-page instructor-page-content">
@@ -104,14 +131,17 @@ export default function InstructorReportsPage() {
           <p>Generate and export attendance reports for your courses.</p>
         </header>
 
-        <section className="reportsFiltersCard" aria-label="Report filters">
+        <form className="reportsFiltersCard" aria-label="Report filters" method="get">
           <div className="reportFilterGroup courseGroup">
             <label htmlFor="report-course">Select Course</label>
             <div className="selectField">
-              <select id="report-course" defaultValue="">
-                <option value="" disabled>
-                  Choose a course...
-                </option>
+              <select id="report-course" name="courseId" defaultValue={reportData.selectedCourseId}>
+                <option value="">All Courses</option>
+                {reportData.courses.map((course) => (
+                  <option key={course.id} value={course.id}>
+                    {course.code} - {course.title}
+                  </option>
+                ))}
               </select>
               <ChevronDownIcon />
             </div>
@@ -121,25 +151,47 @@ export default function InstructorReportsPage() {
             <label>Date Range</label>
             <div className="reportDateRow">
               <div className="reportDateField">
-                <input type="text" aria-label="Start date" placeholder="mm/dd/yyyy" />
+                <input
+                  type="date"
+                  name="fromDate"
+                  aria-label="Start date"
+                  defaultValue={reportData.selectedFromDate}
+                />
               </div>
               <span className="dateConnector">to</span>
               <div className="reportDateField">
-                <input type="text" aria-label="End date" placeholder="mm/dd/yyyy" />
+                <input
+                  type="date"
+                  name="toDate"
+                  aria-label="End date"
+                  defaultValue={reportData.selectedToDate}
+                />
               </div>
             </div>
           </div>
 
           <div className="reportActionGroup">
-            <button type="button" className="primaryAction reportPrimaryAction">
+            <button
+              type="submit"
+              className="primaryAction reportPrimaryAction"
+              name="generate"
+              value="1"
+            >
               <GenerateIcon />
               <span>Generate Report</span>
             </button>
-            <button type="button" className="downloadAction" aria-label="Download report">
+            <button
+              type="submit"
+              className="downloadAction"
+              formAction="/api/instructor/reports"
+              formMethod="get"
+              aria-label="Download report"
+              disabled={!hasReportRows}
+            >
               <DownloadIcon />
             </button>
           </div>
-        </section>
+        </form>
 
         <section className="reportPanel" aria-label="Attendance report summary">
           <div className="reportEmptyState">
@@ -147,12 +199,40 @@ export default function InstructorReportsPage() {
               <EmptyStateIcon />
             </div>
 
-            <h2>No data available</h2>
-            <p>
-              Please select a course and date range above to
-              <br />
-              generate an attendance report summary.
-            </p>
+            {!reportData.generated && (
+              <>
+                <h2>No data available</h2>
+                <p>
+                  Please select a course and date range above to
+                  <br />
+                  generate an attendance report summary.
+                </p>
+              </>
+            )}
+
+            {reportData.generated && !hasReportRows && (
+              <>
+                <h2>No records found</h2>
+                <p>
+                  The selected filters returned no attendance records.
+                  <br />
+                  Try widening the date range or selecting another course.
+                </p>
+              </>
+            )}
+
+            {reportData.generated && hasReportRows && (
+              <>
+                <h2>Report ready</h2>
+                <p>
+                  Sessions: {reportData.totals.totalSessions} | Expected Check-Ins:{" "}
+                  {reportData.totals.expectedCheckIns}
+                  <br />
+                  Recorded Check-Ins: {reportData.totals.recordedCheckIns} | Attendance Rate:{" "}
+                  {reportData.totals.attendanceRate}%
+                </p>
+              </>
+            )}
 
             <div className="reportDecorRow" aria-hidden="true">
               <FadedBarIcon />
@@ -162,10 +242,15 @@ export default function InstructorReportsPage() {
           </div>
         </section>
 
-        <button type="button" className="exportCsvLink">
-          <DownloadIcon color="#6c7a91" />
-          <span>Export CSV</span>
-        </button>
+        <form action="/api/instructor/reports" method="get">
+          <input type="hidden" name="courseId" value={reportData.selectedCourseId} />
+          <input type="hidden" name="fromDate" value={reportData.selectedFromDate} />
+          <input type="hidden" name="toDate" value={reportData.selectedToDate} />
+          <button type="submit" className="exportCsvLink" disabled={!hasReportRows}>
+            <DownloadIcon color="#6c7a91" />
+            <span>Export CSV</span>
+          </button>
+        </form>
       </div>
     </InstructorPageFrame>
   );

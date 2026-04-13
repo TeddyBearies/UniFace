@@ -3,6 +3,7 @@
 import InstructorPageFrame from "@/components/InstructorPageFrame";
 import { useState, useRef, useEffect, useCallback } from "react";
 import { useFaceApi } from "@/features/face/useFaceApi";
+import { useClientRoleGuard } from "@/features/auth/useClientRoleGuard";
 import { getCourseFaceTemplatesAction, markAttendanceAction } from "@/features/face/face.service";
 import { getInstructorCoursesAction } from "@/features/courses/course.service";
 import { startAttendanceSessionAction, closeAttendanceSessionAction } from "@/features/attendance/attendance.service";
@@ -121,103 +122,217 @@ function ScanAwaitIcon() {
 }
 
 export default function InstructorTakeAttendancePage() {
-  const { isModelLoaded, videoRef, loadWebcam, stopWebcam, detectFaces, isLoading: isFaceApiLoading } = useFaceApi();
+  const {
+    isModelLoaded,
+    videoRef,
+    loadWebcam,
+    stopWebcam,
+    detectFaces,
+    isLoading: isFaceApiLoading,
+  } = useFaceApi();
+  const { isChecking: isRoleChecking, isAuthorized } = useClientRoleGuard([
+    "instructor",
+    "admin",
+  ]);
 
   const [courseId, setCourseId] = useState("");
   const [sessionActive, setSessionActive] = useState(false);
-  const [templates, setTemplates] = useState<any[]>([]);
+  const [templates, setTemplates] = useState<
+    Array<{ studentProfileId: string; fullName: string; descriptorArray: number[] }>
+  >([]);
   const [presentIds, setPresentIds] = useState<Set<string>>(new Set());
   const [lastScanName, setLastScanName] = useState("None");
   const [statusMessage, setStatusMessage] = useState("");
   const [isStarting, setIsStarting] = useState(false);
 
-  const [instructorCourses, setInstructorCourses] = useState<{id: string, title: string, code: string}[]>([]);
+  const [instructorCourses, setInstructorCourses] = useState<
+    { id: string; title: string; code: string }[]
+  >([]);
+
+  const loopRef = useRef<number | null>(null);
+  const loopTimeoutRef = useRef<number | null>(null);
+  const templatesRef = useRef(templates);
+  const presentIdsRef = useRef(presentIds);
+  const markingIdsRef = useRef<Set<string>>(new Set());
+  const sessionActiveRef = useRef(sessionActive);
+  const courseIdRef = useRef(courseId);
+
+  useEffect(() => {
+    templatesRef.current = templates;
+  }, [templates]);
+
+  useEffect(() => {
+    presentIdsRef.current = presentIds;
+  }, [presentIds]);
+
+  useEffect(() => {
+    sessionActiveRef.current = sessionActive;
+  }, [sessionActive]);
+
+  useEffect(() => {
+    courseIdRef.current = courseId;
+  }, [courseId]);
 
   // Load instructor's assigned courses on mount
   useEffect(() => {
     let mounted = true;
+
     async function loadCourses() {
       try {
         const courses = await getInstructorCoursesAction();
-        if (mounted) setInstructorCourses(courses);
+        if (mounted) {
+          setInstructorCourses(courses);
+        }
       } catch (err) {
         console.error(err);
+        if (mounted) {
+          setStatusMessage("Failed to load assigned courses.");
+        }
       }
     }
-    loadCourses();
-    return () => { mounted = false; };
+
+    if (!isRoleChecking) {
+      loadCourses();
+    }
+
+    return () => {
+      mounted = false;
+    };
+  }, [isRoleChecking]);
+
+  const stopRecognitionLoop = useCallback(() => {
+    if (loopRef.current !== null) {
+      cancelAnimationFrame(loopRef.current);
+      loopRef.current = null;
+    }
+
+    if (loopTimeoutRef.current !== null) {
+      window.clearTimeout(loopTimeoutRef.current);
+      loopTimeoutRef.current = null;
+    }
   }, []);
 
   // Recognition loop
-  const loopRef = useRef<number>();
-  
   const runRecognition = useCallback(async () => {
-    if (!sessionActive) return;
-    try {
-       const detections = await detectFaces();
-       if (detections && detections.length > 0) {
-          for (const det of detections) {
-             let bestMatch = null;
-             let minDistance = 0.45; // strict threshold
-             for (const t of templates) {
-                const distance = faceapi.euclideanDistance(det.descriptor, new Float32Array(t.descriptorArray));
-                if (distance < minDistance) {
-                   minDistance = distance;
-                   bestMatch = t;
-                }
-             }
-
-             if (bestMatch && !presentIds.has(bestMatch.studentProfileId)) {
-                // Found a new person!
-                setPresentIds(prev => new Set(prev).add(bestMatch.studentProfileId));
-                setLastScanName(bestMatch.fullName);
-                // Call server in background
-                markAttendanceAction(courseId, bestMatch.studentProfileId, 1 - minDistance).catch(e => console.error(e));
-             }
-          }
-       }
-    } catch(err) {
-       console.error("Recognition error", err);
+    if (!sessionActiveRef.current) {
+      return;
     }
-    
-    // schedule next frame loop
-    // slight delay helps avoid locking up browser UI
-    setTimeout(() => {
-      if (sessionActive) loopRef.current = requestAnimationFrame(runRecognition);
-    }, 200);
-  }, [sessionActive, detectFaces, templates, presentIds, courseId]);
+
+    try {
+      const detections = await detectFaces();
+      if (!detections || detections.length === 0) {
+        return;
+      }
+
+      for (const detection of detections) {
+        let bestMatch: (typeof templatesRef.current)[number] | null = null;
+        let minDistance = 0.45;
+
+        for (const template of templatesRef.current) {
+          const distance = faceapi.euclideanDistance(
+            detection.descriptor,
+            new Float32Array(template.descriptorArray),
+          );
+          if (distance < minDistance) {
+            minDistance = distance;
+            bestMatch = template;
+          }
+        }
+
+        if (!bestMatch) {
+          continue;
+        }
+
+        const matchedStudentId = bestMatch.studentProfileId;
+        if (
+          presentIdsRef.current.has(matchedStudentId) ||
+          markingIdsRef.current.has(matchedStudentId)
+        ) {
+          continue;
+        }
+
+        markingIdsRef.current.add(matchedStudentId);
+
+        try {
+          await markAttendanceAction(
+            courseIdRef.current,
+            matchedStudentId,
+            Math.max(0, 1 - minDistance),
+          );
+          presentIdsRef.current = new Set(presentIdsRef.current).add(matchedStudentId);
+          setPresentIds(new Set(presentIdsRef.current));
+          setLastScanName(bestMatch.fullName);
+        } catch (error: any) {
+          console.error("Failed to mark attendance:", error);
+          setStatusMessage(error?.message || "Failed to mark attendance for a detected face.");
+        } finally {
+          markingIdsRef.current.delete(matchedStudentId);
+        }
+      }
+    } catch (error) {
+      console.error("Recognition error:", error);
+    } finally {
+      if (sessionActiveRef.current) {
+        loopTimeoutRef.current = window.setTimeout(() => {
+          loopRef.current = requestAnimationFrame(runRecognition);
+        }, 200);
+      }
+    }
+  }, [detectFaces]);
 
   useEffect(() => {
     if (sessionActive) {
       loopRef.current = requestAnimationFrame(runRecognition);
-    } else if (loopRef.current) {
-      cancelAnimationFrame(loopRef.current);
+    } else {
+      stopRecognitionLoop();
     }
+
     return () => {
-      if (loopRef.current) cancelAnimationFrame(loopRef.current);
+      stopRecognitionLoop();
     };
-  }, [sessionActive, runRecognition]);
+  }, [runRecognition, sessionActive, stopRecognitionLoop]);
+
+  useEffect(() => {
+    return () => {
+      stopRecognitionLoop();
+      stopWebcam();
+    };
+  }, [stopRecognitionLoop, stopWebcam]);
 
   const handleStartSession = async () => {
+    if (!isAuthorized) {
+      setStatusMessage("Your session is not authorized for attendance scanning.");
+      return;
+    }
+
     if (!courseId) {
       setStatusMessage("Please select a course first.");
       return;
     }
+
     setIsStarting(true);
+    presentIdsRef.current = new Set();
+    setPresentIds(new Set());
+    setLastScanName("None");
     setStatusMessage("Fetching face templates for course...");
+    let openedNewSession = false;
+
     try {
       // 1. Fetch the embedded descriptors securely
       const fetchedTemplates = await getCourseFaceTemplatesAction(courseId);
       if (fetchedTemplates.length === 0) {
         setStatusMessage("No enrolled student faces found for this course.");
-        setIsStarting(false);
+        templatesRef.current = [];
+        setTemplates([]);
         return;
       }
+      templatesRef.current = fetchedTemplates;
       setTemplates(fetchedTemplates);
 
       // 2. Securely create or fetch to an open attendance session in DB
       setStatusMessage("Initiating attendance session...");
-      await startAttendanceSessionAction(courseId);
+      const sessionResult = await startAttendanceSessionAction(courseId);
+      openedNewSession = sessionResult.isNew;
 
       // 3. Start scanning module
       setStatusMessage("Starting camera...");
@@ -225,25 +340,54 @@ export default function InstructorTakeAttendancePage() {
       setSessionActive(true);
       setStatusMessage("Session running. Scanning...");
     } catch (err: any) {
+      stopWebcam();
+      setSessionActive(false);
+
+      if (openedNewSession) {
+        try {
+          await closeAttendanceSessionAction(courseId);
+        } catch (closeError) {
+          console.error("Failed to rollback session start:", closeError);
+        }
+      }
+
       setStatusMessage(err.message || "Failed to start session.");
     } finally {
-       setIsStarting(false);
+      setIsStarting(false);
     }
   };
 
+  const handleScanNextStudent = () => {
+    if (!sessionActive) {
+      return;
+    }
+    setLastScanName("None");
+    setStatusMessage("Ready for next student.");
+  };
+
   const handleEndSession = async () => {
+    if (!sessionActive) {
+      return;
+    }
+
     setSessionActive(false);
+    stopRecognitionLoop();
     stopWebcam();
     setStatusMessage("Closing database session...");
+
     try {
       await closeAttendanceSessionAction(courseId);
       setStatusMessage("Session successfully ended.");
     } catch (e) {
       setStatusMessage("Camera off, but failed to securely close the session.");
     }
+
     // Clear state
+    presentIdsRef.current = new Set();
     setPresentIds(new Set());
     setLastScanName("None");
+    templatesRef.current = [];
+    setTemplates([]);
   };
 
   return (
@@ -267,10 +411,20 @@ export default function InstructorTakeAttendancePage() {
               <div className="fieldBlock">
                 <label htmlFor="active-course">Course</label>
                 <div className="selectField">
-                  <select id="active-course" value={courseId} onChange={(e) => setCourseId(e.target.value)} disabled={sessionActive || isStarting}>
+                  <select
+                    id="active-course"
+                    value={courseId}
+                    onChange={(event) => {
+                      setCourseId(event.target.value);
+                      setStatusMessage("");
+                    }}
+                    disabled={sessionActive || isStarting || isRoleChecking}
+                  >
                     <option value="" disabled>Select one of your assigned courses</option>
-                    {instructorCourses.map(c => (
-                      <option key={c.id} value={c.id}>{c.code} - {c.title}</option>
+                    {instructorCourses.map((course) => (
+                      <option key={course.id} value={course.id}>
+                        {course.code} - {course.title}
+                      </option>
                     ))}
                   </select>
                   <ChevronDownIcon />
@@ -278,7 +432,18 @@ export default function InstructorTakeAttendancePage() {
               </div>
 
               {!sessionActive ? (
-                <button type="button" className="primaryAction" onClick={handleStartSession} disabled={!isModelLoaded || isStarting || !courseId}>
+                <button
+                  type="button"
+                  className="primaryAction"
+                  onClick={handleStartSession}
+                  disabled={
+                    !isModelLoaded ||
+                    isStarting ||
+                    !courseId ||
+                    isRoleChecking ||
+                    !isAuthorized
+                  }
+                >
                   <PlayIcon />
                   <span>{isStarting ? "Starting..." : "Start Session"}</span>
                 </button>
@@ -298,7 +463,12 @@ export default function InstructorTakeAttendancePage() {
                 <h2>Session Controls</h2>
               </div>
 
-              <button type="button" className={`secondaryAction ${sessionActive ? '' : 'disabledAction'}`} disabled={!sessionActive}>
+              <button
+                type="button"
+                className={`secondaryAction ${sessionActive ? '' : 'disabledAction'}`}
+                disabled={!sessionActive}
+                onClick={handleScanNextStudent}
+              >
                 <RotateIcon />
                 <span>Scan Next Student</span>
               </button>

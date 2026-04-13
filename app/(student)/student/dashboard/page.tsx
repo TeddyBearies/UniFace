@@ -1,6 +1,7 @@
-"use client";
-
 import Link from "next/link";
+import LogoutButton from "@/components/LogoutButton";
+import { requireCurrentProfile } from "@/features/auth/guards";
+import { getStudentDashboardData } from "@/features/attendance/student-attendance.service";
 
 const NAV_ITEMS = [
   { label: "Dashboard", href: "/student/dashboard", active: true },
@@ -179,7 +180,22 @@ function SidebarLogo() {
   );
 }
 
-export default function StudentDashboardPage() {
+export default async function StudentDashboardPage() {
+  const currentProfile = await requireCurrentProfile(["student", "admin"]);
+  const dashboardData = await getStudentDashboardData();
+
+  const profileName =
+    currentProfile.profile.full_name || currentProfile.user.email || "Student User";
+  const attendancePercentage = dashboardData.summary.totalSessions
+    ? `${dashboardData.summary.presentRate}%`
+    : "--";
+  const attendanceSummary = dashboardData.summary.totalSessions
+    ? `${dashboardData.summary.presentCount} Present / ${dashboardData.summary.totalSessions} Sessions`
+    : "No data yet";
+  const attendanceHint = dashboardData.summary.totalSessions
+    ? `${dashboardData.summary.absentCount} absences recorded`
+    : "Waiting for class data";
+
   return (
     <div className="pageShell dashboard-page">
       <aside className="sidebar">
@@ -204,10 +220,10 @@ export default function StudentDashboardPage() {
           ))}
         </nav>
 
-        <button type="button" className="logoutStrip">
+        <LogoutButton className="logoutStrip">
           <LogoutIcon />
           <span>LOGOUT</span>
-        </button>
+        </LogoutButton>
       </aside>
 
       <div className="mainPanel">
@@ -218,13 +234,15 @@ export default function StudentDashboardPage() {
           </div>
 
           <div className="topActions">
-            <button type="button" className="bellButton" aria-label="Notifications">
-              <BellIcon />
-            </button>
+            <form action="/student/dashboard" method="get">
+              <button type="submit" className="bellButton" aria-label="Refresh dashboard">
+                <BellIcon />
+              </button>
+            </form>
 
             <div className="userBadge">
               <div className="userMeta">
-                <p>Student User</p>
+                <p>{profileName}</p>
                 <span>Active Session</span>
               </div>
 
@@ -247,8 +265,8 @@ export default function StudentDashboardPage() {
                 <AttendanceIcon />
               </div>
               <h2>Attendance Percentage</h2>
-              <strong>--</strong>
-              <p>Waiting for class data</p>
+              <strong>{attendancePercentage}</strong>
+              <p>{attendanceHint}</p>
             </article>
 
             <article className="statCard">
@@ -256,8 +274,8 @@ export default function StudentDashboardPage() {
                 <SummaryIcon />
               </div>
               <h2>Attendance Summary</h2>
-              <strong className="summaryMuted">No data yet</strong>
-              <p>Join a class to see statistics</p>
+              <strong className="summaryMuted">{attendanceSummary}</strong>
+              <p>Join a class to see more detailed analytics</p>
             </article>
           </section>
 

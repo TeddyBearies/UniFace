@@ -1,26 +1,10 @@
 import Link from "next/link";
+import LogoutButton from "@/components/LogoutButton";
+import { getStudentAttendanceHistoryData } from "@/features/attendance/student-attendance.service";
 
 const NAV_ITEMS = [
   { label: "Dashboard", href: "/student/dashboard", active: false },
   { label: "Attendance History", href: "/student/attendance-history", active: true },
-];
-
-const SUMMARY_CARDS = [
-  {
-    label: "PRESENT RATE",
-    value: "0%",
-    tone: "success",
-  },
-  {
-    label: "ABSENT RATE",
-    value: "0%",
-    tone: "danger",
-  },
-  {
-    label: "LATE CHECK-INS",
-    value: "0",
-    tone: "warning",
-  },
 ];
 
 function DashboardIcon({ color = "#6b7280", size = 18 }: { color?: string; size?: number }) {
@@ -219,7 +203,33 @@ function SummaryCardIcon({ tone }: { tone: string }) {
   return <LateIcon />;
 }
 
-export default function AttendanceHistoryPage() {
+function formatDate(value: string) {
+  return new Intl.DateTimeFormat("en", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  }).format(new Date(value));
+}
+
+export default async function AttendanceHistoryPage({
+  searchParams,
+}: {
+  searchParams?: {
+    courseId?: string;
+    fromDate?: string;
+    toDate?: string;
+  };
+}) {
+  const selectedCourseId = searchParams?.courseId || "";
+  const selectedFromDate = searchParams?.fromDate || "";
+  const selectedToDate = searchParams?.toDate || "";
+
+  const historyData = await getStudentAttendanceHistoryData({
+    courseId: selectedCourseId,
+    fromDate: selectedFromDate,
+    toDate: selectedToDate,
+  });
+
   return (
     <div className="pageShell student-history-page">
       <aside className="sidebar">
@@ -240,10 +250,10 @@ export default function AttendanceHistoryPage() {
           ))}
         </nav>
 
-        <button type="button" className="logoutStrip">
+        <LogoutButton className="logoutStrip">
           <LogoutIcon />
           <span>LOGOUT</span>
-        </button>
+        </LogoutButton>
       </aside>
 
       <main className="historyMain">
@@ -252,14 +262,17 @@ export default function AttendanceHistoryPage() {
           <p>Review your historical attendance logs across all courses.</p>
         </section>
 
-        <section className="filtersCard" aria-label="Attendance filters">
+        <form className="filtersCard" aria-label="Attendance filters" method="get">
           <div className="filterGroup">
             <label htmlFor="course-filter">COURSE</label>
             <div className="fieldShell selectShell">
-              <select id="course-filter" defaultValue="">
-                <option value="" disabled>
-                  Select Course
-                </option>
+              <select id="course-filter" name="courseId" defaultValue={historyData.selectedCourseId}>
+                <option value="">All Courses</option>
+                {historyData.courses.map((course) => (
+                  <option key={course.id} value={course.id}>
+                    {course.code} - {course.title}
+                  </option>
+                ))}
               </select>
               <ChevronDownIcon />
             </div>
@@ -269,16 +282,27 @@ export default function AttendanceHistoryPage() {
             <label htmlFor="date-range">DATE RANGE</label>
             <div className="fieldShell dateShell" id="date-range">
               <CalendarIcon />
-              <span>mm/dd/yyyy</span>
+              <span>
+                {historyData.selectedFromDate
+                  ? formatDate(historyData.selectedFromDate)
+                  : "mm/dd/yyyy"}
+              </span>
               <span className="dateDivider" />
-              <span>mm/dd/yyyy</span>
+              <span>
+                {historyData.selectedToDate
+                  ? formatDate(historyData.selectedToDate)
+                  : "mm/dd/yyyy"}
+              </span>
             </div>
           </div>
 
-          <button type="button" className="applyButton">
+          <input type="hidden" name="fromDate" value={historyData.selectedFromDate} />
+          <input type="hidden" name="toDate" value={historyData.selectedToDate} />
+
+          <button type="submit" className="applyButton">
             Apply Filters
           </button>
-        </section>
+        </form>
 
         <section className="historyTableCard" aria-label="Attendance history table">
           <div className="tableHeader">
@@ -288,29 +312,58 @@ export default function AttendanceHistoryPage() {
             <span>NOTES</span>
           </div>
 
-          <div className="emptyState">
-            <div className="emptyIconWrap">
-              <EmptyStateIcon />
+          {historyData.records.length > 0 ? (
+            <div>
+              {historyData.records.map((record) => (
+                <div key={record.id} className="tableHeader">
+                  <span>{formatDate(record.occurredAt)}</span>
+                  <span>
+                    {record.courseCode} - {record.courseTitle}
+                  </span>
+                  <span>{record.status}</span>
+                  <span>{record.notes}</span>
+                </div>
+              ))}
             </div>
-            <h2>No records yet</h2>
-            <p>
-              Your attendance history will appear here once
-              <br />
-              you start checking into your classes.
-            </p>
-          </div>
+          ) : (
+            <div className="emptyState">
+              <div className="emptyIconWrap">
+                <EmptyStateIcon />
+              </div>
+              <h2>No records yet</h2>
+              <p>
+                Your attendance history will appear here once
+                <br />
+                you start checking into your classes.
+              </p>
+            </div>
+          )}
         </section>
 
         <section className="summaryGrid" aria-label="Attendance summary metrics">
-          {SUMMARY_CARDS.map((card) => (
-            <article key={card.label} className="summaryCard">
-              <div className="summaryLabel">
-                <SummaryCardIcon tone={card.tone} />
-                <span>{card.label}</span>
-              </div>
-              <strong>{card.value}</strong>
-            </article>
-          ))}
+          <article className="summaryCard">
+            <div className="summaryLabel">
+              <SummaryCardIcon tone="success" />
+              <span>PRESENT RATE</span>
+            </div>
+            <strong>{historyData.summary.presentRate}%</strong>
+          </article>
+
+          <article className="summaryCard">
+            <div className="summaryLabel">
+              <SummaryCardIcon tone="danger" />
+              <span>ABSENT RATE</span>
+            </div>
+            <strong>{historyData.summary.absentRate}%</strong>
+          </article>
+
+          <article className="summaryCard">
+            <div className="summaryLabel">
+              <SummaryCardIcon tone="warning" />
+              <span>LATE CHECK-INS</span>
+            </div>
+            <strong>{historyData.summary.lateCount}</strong>
+          </article>
         </section>
       </main>
     </div>

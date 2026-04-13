@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
+import LogoutButton from "@/components/LogoutButton";
 
 type InstructorNavKey =
   | "dashboard"
@@ -215,10 +216,10 @@ export default function InstructorPageFrame({
           ))}
         </nav>
 
-        <button type="button" className="logoutStrip">
+        <LogoutButton className="logoutStrip">
           <LogoutIcon />
           <span>LOGOUT</span>
-        </button>
+        </LogoutButton>
       </aside>
 
       <main className="workspace">{children}</main>

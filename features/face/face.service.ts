@@ -3,15 +3,79 @@
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 
+function normalizeUniversityId(value: string) {
+  return value.trim();
+}
+
+function validateDescriptorArray(descriptorArray: number[]) {
+  if (!Array.isArray(descriptorArray) || descriptorArray.length === 0) {
+    throw new Error("Face template is missing.");
+  }
+
+  const hasInvalidValue = descriptorArray.some(
+    (value) => typeof value !== "number" || Number.isNaN(value) || !Number.isFinite(value),
+  );
+
+  if (hasInvalidValue) {
+    throw new Error("Face template contains invalid numeric values.");
+  }
+}
+
+async function getAuthenticatedRole() {
+  const supabase = createClient();
+  const {
+    data: { user },
+    error: userError,
+  } = await supabase.auth.getUser();
+
+  if (userError || !user) {
+    throw new Error("Unauthorized");
+  }
+
+  const { data: profile, error: profileError } = await supabase
+    .from("profiles")
+    .select("role")
+    .eq("id", user.id)
+    .maybeSingle();
+
+  if (profileError || !profile) {
+    throw new Error("Unauthorized");
+  }
+
+  return {
+    userId: user.id,
+    role: profile.role,
+  };
+}
+
+async function requireInstructorOrAdmin() {
+  const auth = await getAuthenticatedRole();
+
+  if (auth.role !== "instructor" && auth.role !== "admin") {
+    throw new Error("Unauthorized");
+  }
+
+  return auth;
+}
+
 export async function enrollStudentFaceAction(universityId: string, descriptorArray: number[]) {
+  await requireInstructorOrAdmin();
+  const normalizedUniversityId = normalizeUniversityId(universityId);
+
+  if (!/^\d{8}$/.test(normalizedUniversityId)) {
+    throw new Error("University ID must be exactly 8 digits.");
+  }
+
+  validateDescriptorArray(descriptorArray);
+
   const admin = createAdminClient();
   
   // 0. Lookup the profile_id using the 8-digit university_id
   const { data: profileData, error: profileErr } = await admin
     .from("profiles")
     .select("id")
-    .eq("university_id", universityId)
-    .single();
+    .eq("university_id", normalizedUniversityId)
+    .maybeSingle();
 
   if (profileErr || !profileData) {
     throw new Error("No student found with that 8-digit University ID.");
@@ -24,7 +88,7 @@ export async function enrollStudentFaceAction(universityId: string, descriptorAr
     .from("face_profiles")
     .select("id")
     .eq("profile_id", studentProfileId)
-    .single();
+    .maybeSingle();
 
   if (fpError || !faceProfile) {
     throw new Error("Face profile not found for this user.");
@@ -57,24 +121,34 @@ export async function enrollStudentFaceAction(universityId: string, descriptorAr
   }
 
   // 4. Update face_profiles enrollment_status
-  await admin
+  const { error: updateError } = await admin
     .from("face_profiles")
     .update({ enrollment_status: "complete", last_enrolled_at: new Date().toISOString() })
     .eq("id", faceProfile.id);
+
+  if (updateError) {
+    throw new Error("Failed to update enrollment status.");
+  }
 
   return { success: true };
 }
 
 export async function getCourseFaceTemplatesAction(courseId: string) {
-  const supabase = createClient();
-  
-  // Verify ownership
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) throw new Error("Unauthorized");
+  const normalizedCourseId = courseId.trim();
+  if (!normalizedCourseId) {
+    throw new Error("Course is required.");
+  }
 
-  const { data: isInstructor } = await supabase.rpc("is_instructor_for_course", { course_id: courseId });
-  if (!isInstructor) {
-     throw new Error("Not an instructor for this course.");
+  const auth = await requireInstructorOrAdmin();
+  const supabase = createClient();
+
+  if (auth.role !== "admin") {
+    const { data: isInstructor } = await supabase.rpc("is_instructor_for_course", {
+      course_id: normalizedCourseId,
+    });
+    if (!isInstructor) {
+      throw new Error("Not an instructor for this course.");
+    }
   }
 
   const admin = createAdminClient();
@@ -82,7 +156,7 @@ export async function getCourseFaceTemplatesAction(courseId: string) {
   const { data: enrollments } = await admin
     .from("course_enrollments")
     .select("student_profile_id")
-    .eq("course_id", courseId)
+    .eq("course_id", normalizedCourseId)
     .eq("status", "active");
 
   if (!enrollments || enrollments.length === 0) return [];
@@ -124,16 +198,23 @@ export async function getCourseFaceTemplatesAction(courseId: string) {
 }
 
 export async function markAttendanceAction(courseId: string, studentProfileId: string, confidenceScore: number) {
+   const normalizedCourseId = courseId.trim();
+   const normalizedStudentProfileId = studentProfileId.trim();
+   if (!normalizedCourseId || !normalizedStudentProfileId) {
+     throw new Error("Course and student are required.");
+   }
+
+   await requireInstructorOrAdmin();
+
+   const boundedConfidence = Math.max(0, Math.min(1, confidenceScore));
    const supabase = createClient();
-   const { data: { user } } = await supabase.auth.getUser();
-   if (!user) throw new Error("Unauthorized");
 
    const { data: session } = await supabase
      .from("attendance_sessions")
      .select("id")
-     .eq("course_id", courseId)
+     .eq("course_id", normalizedCourseId)
      .eq("status", "open")
-     .single();
+     .maybeSingle();
 
    if (!session) {
       throw new Error("No open attendance session found.");
@@ -143,9 +224,9 @@ export async function markAttendanceAction(courseId: string, studentProfileId: s
     .from("attendance_events")
     .insert({
        attendance_session_id: session.id,
-       student_profile_id: studentProfileId,
+       student_profile_id: normalizedStudentProfileId,
        matched_by: "facial_recognition",
-       confidence_score: confidenceScore
+       confidence_score: boundedConfidence
     });
 
    if (error) {

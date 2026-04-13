@@ -51,9 +51,15 @@ export function useFaceApi() {
   }, []);
 
   const loadWebcam = useCallback(async () => {
-    if (!videoRef.current) return;
-    
+    if (!videoRef.current) {
+      throw new Error("Camera element is not ready.");
+    }
+
     try {
+      if (!navigator.mediaDevices?.getUserMedia) {
+        throw new Error("Camera access is not supported in this browser.");
+      }
+
       const stream = await navigator.mediaDevices.getUserMedia({
         video: { facingMode: "user" },
         audio: false,
@@ -61,17 +67,24 @@ export function useFaceApi() {
       videoRef.current.srcObject = stream;
       
       // Return a promise that resolves when video plays
-      return new Promise<void>((resolve) => {
+      await new Promise<void>((resolve, reject) => {
         if (videoRef.current) {
           videoRef.current.onloadedmetadata = () => {
             videoRef.current?.play();
             resolve();
           };
+          videoRef.current.onerror = () => {
+            reject(new Error("Failed to initialize webcam stream."));
+          };
+        } else {
+          reject(new Error("Camera element is not ready."));
         }
       });
+      return true;
     } catch (err: any) {
       setError(err.message || "Failed to access webcam.");
       console.error("Webcam error:", err);
+      throw err;
     }
   }, []);
 
@@ -79,9 +92,17 @@ export function useFaceApi() {
     if (videoRef.current && videoRef.current.srcObject) {
       const stream = videoRef.current.srcObject as MediaStream;
       stream.getTracks().forEach((track) => track.stop());
+      videoRef.current.pause();
+      videoRef.current.onloadedmetadata = null;
       videoRef.current.srcObject = null;
     }
   }, []);
+
+  useEffect(() => {
+    return () => {
+      stopWebcam();
+    };
+  }, [stopWebcam]);
 
   const detectSingleFace = useCallback(async (): Promise<{ descriptor: Float32Array; warning?: string; }> => {
     if (!videoRef.current || !isModelLoaded) {

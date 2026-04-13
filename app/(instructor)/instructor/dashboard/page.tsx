@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getInstructorDashboardData } from "@/features/attendance/instructor-dashboard";
+import LogoutButton from "@/components/LogoutButton";
 
 const NAV_ITEMS = [
   { label: "Dashboard", href: "/instructor/dashboard", active: true, icon: "dashboard" },
@@ -418,10 +419,10 @@ export default async function InstructorDashboardPage() {
           ))}
         </nav>
 
-        <button type="button" className="logoutStrip">
+        <LogoutButton className="logoutStrip">
           <LogoutIcon />
           <span>LOGOUT</span>
-        </button>
+        </LogoutButton>
       </aside>
 
       <div className="mainPanel">
@@ -429,9 +430,11 @@ export default async function InstructorDashboardPage() {
           <div className="topTitle">Dashboard</div>
 
           <div className="topActions">
-            <button type="button" className="bellButton" aria-label="Notifications">
-              <BellIcon />
-            </button>
+            <form action="/instructor/dashboard" method="get">
+              <button type="submit" className="bellButton" aria-label="Refresh dashboard">
+                <BellIcon />
+              </button>
+            </form>
 
             <div className="userBadge">
               <div className="userMeta">

@@ -1,8 +1,9 @@
 "use client";
 
 import InstructorPageFrame from "@/components/InstructorPageFrame";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useFaceApi } from "@/features/face/useFaceApi";
+import { useClientRoleGuard } from "@/features/auth/useClientRoleGuard";
 import { enrollStudentFaceAction } from "@/features/face/face.service";
 
 function InfoIcon() {
@@ -163,6 +164,10 @@ export default function InstructorEnrollStudentPage() {
     stopWebcam,
     detectSingleFace,
   } = useFaceApi();
+  const { isChecking: isRoleChecking, isAuthorized } = useClientRoleGuard([
+    "instructor",
+    "admin",
+  ]);
 
   const [studentId, setStudentId] = useState("");
   const [studentName, setStudentName] = useState("");
@@ -173,19 +178,60 @@ export default function InstructorEnrollStudentPage() {
   const [enrollMessage, setEnrollMessage] = useState("");
   const [descriptor, setDescriptor] = useState<Float32Array | null>(null);
 
+  useEffect(() => {
+    return () => {
+      stopWebcam();
+    };
+  }, [stopWebcam]);
+
   const handleStartScan = async () => {
-    if (!studentId || !studentName) {
+    if (!isAuthorized) {
+      setEnrollMessage("Your session is not authorized for enrollment.");
+      setEnrollStatus("error");
+      return;
+    }
+
+    const normalizedStudentId = studentId.trim();
+    const normalizedStudentName = studentName.trim();
+
+    if (!/^\d{8}$/.test(normalizedStudentId)) {
+      setEnrollMessage("Student ID must be exactly 8 digits.");
+      setEnrollStatus("error");
+      return;
+    }
+
+    if (!normalizedStudentId || !normalizedStudentName) {
       setEnrollMessage("Please enter an 8-digit student ID and name first.");
       setEnrollStatus("error");
       return;
     }
+
+    if (!normalizedStudentName) {
+      setEnrollMessage("Please enter a valid student name.");
+      setEnrollStatus("error");
+      return;
+    }
+
     setEnrollStatus("idle");
     setEnrollMessage("");
-    await loadWebcam();
-    setCameraActive(true);
+    setDescriptor(null);
+    try {
+      await loadWebcam();
+      setCameraActive(true);
+    } catch (error: any) {
+      setCameraActive(false);
+      setEnrollStatus("error");
+      setEnrollMessage(error?.message || "Failed to access webcam.");
+    }
   };
 
   const handleCapture = async () => {
+    if (!cameraActive) {
+      setEnrollStatus("error");
+      setEnrollMessage("Start enrollment scan before capturing.");
+      return;
+    }
+
     setEnrollStatus("capturing");
     setEnrollMessage("Scanning face...");
     try {
@@ -203,15 +249,26 @@ export default function InstructorEnrollStudentPage() {
 
   const handleSave = async () => {
     if (!descriptor) return;
+
+    const normalizedStudentId = studentId.trim();
+    if (!/^\d{8}$/.test(normalizedStudentId)) {
+      setEnrollStatus("error");
+      setEnrollMessage("Student ID must be exactly 8 digits.");
+      return;
+    }
+
     setEnrollStatus("saving");
     setEnrollMessage("Saving biometric data...");
     try {
-      await enrollStudentFaceAction(studentId, Array.from(descriptor));
+      await enrollStudentFaceAction(normalizedStudentId, Array.from(descriptor));
       setEnrollStatus("success");
       setEnrollMessage("Student face enrolled securely.");
       setDescriptor(null);
       setStudentId("");
       setStudentName("");
+      setCourse("");
+      stopWebcam();
+      setCameraActive(false);
     } catch (err: any) {
       setEnrollStatus("error");
       setEnrollMessage(err.message || "Failed to save face template.");
@@ -241,7 +298,17 @@ export default function InstructorEnrollStudentPage() {
 
             <div className="formGroup">
               <label htmlFor="student-id">Student ID</label>
-              <input id="student-id" name="studentId" type="text" placeholder="Enter 8-digit ID" value={studentId} onChange={(e) => setStudentId(e.target.value)} />
+              <input
+                id="student-id"
+                name="studentId"
+                type="text"
+                placeholder="Enter 8-digit ID"
+                value={studentId}
+                onChange={(event) => {
+                  setStudentId(event.target.value);
+                  setDescriptor(null);
+                }}
+              />
             </div>
 
             <div className="formGroup">
@@ -260,7 +327,14 @@ export default function InstructorEnrollStudentPage() {
               </div>
             </div>
 
-            <button type="button" className="primaryAction largeAction" onClick={handleStartScan} disabled={isFaceApiLoading || !isModelLoaded || cameraActive}>
+            <button
+              type="button"
+              className="primaryAction largeAction"
+              onClick={handleStartScan}
+              disabled={
+                isFaceApiLoading || !isModelLoaded || cameraActive || isRoleChecking || !isAuthorized
+              }
+            >
               <StartEnrollIcon />
               <span>Start Enrollment Scan</span>
             </button>
@@ -315,12 +389,26 @@ export default function InstructorEnrollStudentPage() {
             )}
 
             {enrollStatus === "captured" || enrollStatus === "saving" || enrollStatus === "success" ? (
-              <button type="button" className="primaryAction largeAction" onClick={handleSave} disabled={enrollStatus === 'saving' || enrollStatus === 'success'}>
+              <button
+                type="button"
+                className="primaryAction largeAction"
+                onClick={handleSave}
+                disabled={
+                  enrollStatus === "saving" || enrollStatus === "success" || isRoleChecking || !isAuthorized
+                }
+              >
                 <CaptureIcon />
                 <span>{enrollStatus === 'saving' ? 'Saving...' : enrollStatus === 'success' ? 'Saved' : 'Save Face Data'}</span>
               </button>
             ) : (
-              <button type="button" className="primaryAction largeAction" onClick={handleCapture} disabled={!cameraActive || enrollStatus === 'capturing'}>
+              <button
+                type="button"
+                className="primaryAction largeAction"
+                onClick={handleCapture}
+                disabled={
+                  !cameraActive || enrollStatus === "capturing" || isRoleChecking || !isAuthorized
+                }
+              >
                  <CaptureIcon />
                  <span>{enrollStatus === 'capturing' ? 'Processing...' : 'Capture Face and Save'}</span>
               </button>

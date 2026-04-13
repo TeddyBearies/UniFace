@@ -1,8 +1,9 @@
 "use client";
 
-import type { FormEvent } from "react";
-import { useState } from "react";
+import type { FormEvent, MouseEvent } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { getClientSessionRole } from "@/features/auth/client-auth";
 import { createClient } from "@/lib/supabase/client";
 import { hasSupabasePublicEnv } from "@/lib/supabase/config";
 
@@ -145,9 +146,9 @@ function AdminIcon() {
 }
 
 const QUICK_ACCESS_OPTIONS = [
-  { label: "Continue as Student", icon: <StudentIcon /> },
-  { label: "Continue as Instructor", icon: <InstructorIcon /> },
-  { label: "Continue as Admin", icon: <AdminIcon /> },
+  { label: "Continue as Student", icon: <StudentIcon />, role: "student" },
+  { label: "Continue as Instructor", icon: <InstructorIcon />, role: "instructor" },
+  { label: "Continue as Admin", icon: <AdminIcon />, role: "admin" },
 ];
 
 const FOOTER_LINKS = ["Privacy Policy", "Terms of Service", "Support"];
@@ -171,6 +172,25 @@ export default function LoginPage() {
   const [message, setMessage] = useState("");
   const [messageTone, setMessageTone] = useState<"error" | "info" | "success">("error");
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function redirectIfAlreadySignedIn() {
+      const sessionRole = await getClientSessionRole();
+
+      if (!cancelled && sessionRole) {
+        router.replace(getDashboardPathForRole(sessionRole.role));
+        router.refresh();
+      }
+    }
+
+    redirectIfAlreadySignedIn();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [router]);
 
   const clearMessage = () => {
     if (message) {
@@ -249,6 +269,47 @@ export default function LoginPage() {
     router.refresh();
   };
 
+  const handleForgotPassword = async (event: MouseEvent<HTMLAnchorElement>) => {
+    event.preventDefault();
+
+    const trimmedEmail = email.trim();
+    if (!EMAIL_PATTERN.test(trimmedEmail)) {
+      setMessageTone("error");
+      setMessage("Enter your account email first to request a reset link.");
+      return;
+    }
+
+    if (!IS_SUPABASE_CONFIGURED || !supabase) {
+      setMessageTone("error");
+      setMessage("Supabase keys are not configured yet. Add them to .env.local first.");
+      return;
+    }
+
+    setIsSubmitting(true);
+    setMessageTone("info");
+    setMessage("Sending reset link...");
+
+    const { error } = await supabase.auth.resetPasswordForEmail(trimmedEmail, {
+      redirectTo: `${window.location.origin}/login`,
+    });
+
+    if (error) {
+      setMessageTone("error");
+      setMessage(error.message);
+      setIsSubmitting(false);
+      return;
+    }
+
+    setMessageTone("success");
+    setMessage("Reset link sent. Check your email inbox.");
+    setIsSubmitting(false);
+  };
+
+  const handleQuickAccess = (role: string) => {
+    router.replace(getDashboardPathForRole(role));
+    router.refresh();
+  };
+
   return (
     <div className="pageShell login-page">
       <header className="topBar">
@@ -294,7 +355,7 @@ export default function LoginPage() {
               <a
                 href="#"
                 className="forgotLink"
-                onClick={(event) => event.preventDefault()}
+                onClick={handleForgotPassword}
               >
                 Forgot password?
               </a>
@@ -344,7 +405,7 @@ export default function LoginPage() {
                   type="button"
                   className="quickAccessButton"
                   disabled={isSubmitting}
-                  onClick={(event) => event.preventDefault()}
+                  onClick={() => handleQuickAccess(option.role)}
                 >
                   {option.icon}
                   <span>{option.label}</span>

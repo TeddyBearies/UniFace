@@ -1,4 +1,6 @@
 import InstructorPageFrame from "@/components/InstructorPageFrame";
+import { requireCurrentProfile } from "@/features/auth/guards";
+import { getInstructorClassAttendanceData } from "@/features/attendance/instructor-records.service";
 
 function ChevronDownIcon() {
   return (
@@ -73,7 +75,41 @@ function PaginationArrow({ direction }: { direction: "left" | "right" }) {
   );
 }
 
-export default function InstructorClassAttendancePage() {
+function formatDate(value: string) {
+  return new Intl.DateTimeFormat("en", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  }).format(new Date(value));
+}
+
+export default async function InstructorClassAttendancePage({
+  searchParams,
+}: {
+  searchParams?: {
+    courseId?: string;
+    dateRange?: string;
+    search?: string;
+    page?: string;
+  };
+}) {
+  await requireCurrentProfile(["instructor", "admin"]);
+
+  const selectedCourseId = searchParams?.courseId || "";
+  const selectedDateRange = searchParams?.dateRange || "this-week";
+  const search = searchParams?.search || "";
+  const currentPage = Number.parseInt(searchParams?.page || "1", 10);
+
+  const classData = await getInstructorClassAttendanceData({
+    courseId: selectedCourseId,
+    dateRange: selectedDateRange,
+    search,
+    page: Number.isNaN(currentPage) ? 1 : currentPage,
+  });
+
+  const pageStart = classData.totalRecords === 0 ? 0 : (classData.currentPage - 1) * 10 + 1;
+  const pageEnd = classData.totalRecords === 0 ? 0 : pageStart + classData.records.length - 1;
+
   return (
     <InstructorPageFrame activeNav="class-attendance">
       <div className="class-attendance-page instructor-page-content">
@@ -82,12 +118,17 @@ export default function InstructorClassAttendancePage() {
           <p>View and manage detailed student attendance history and records.</p>
         </header>
 
-        <section className="classFiltersCard" aria-label="Attendance filters">
+        <form className="classFiltersCard" aria-label="Attendance filters" method="get">
           <div className="classFilterGroup">
             <label htmlFor="class-course-filter">Course</label>
             <div className="selectField">
-              <select id="class-course-filter" defaultValue="all-courses">
-                <option value="all-courses">All Courses</option>
+              <select id="class-course-filter" name="courseId" defaultValue={classData.selectedCourseId}>
+                <option value="">All Courses</option>
+                {classData.courses.map((course) => (
+                  <option key={course.id} value={course.id}>
+                    {course.code} - {course.title}
+                  </option>
+                ))}
               </select>
               <ChevronDownIcon />
             </div>
@@ -96,8 +137,10 @@ export default function InstructorClassAttendancePage() {
           <div className="classFilterGroup">
             <label htmlFor="class-date-filter">Date Range</label>
             <div className="selectField">
-              <select id="class-date-filter" defaultValue="this-week">
+              <select id="class-date-filter" name="dateRange" defaultValue={classData.selectedDateRange}>
                 <option value="this-week">This Week</option>
+                <option value="this-month">This Month</option>
+                <option value="all-time">All Time</option>
               </select>
               <ChevronDownIcon />
             </div>
@@ -109,12 +152,16 @@ export default function InstructorClassAttendancePage() {
               <SearchIcon />
               <input
                 id="class-search-filter"
+                name="search"
                 type="text"
                 placeholder="Search by Student ID or Name"
+                defaultValue={classData.search}
               />
             </div>
           </div>
-        </section>
+
+          <button type="submit" hidden aria-hidden="true" />
+        </form>
 
         <section className="classTableCard" aria-label="Attendance records">
           <div className="classTableHeader">
@@ -125,24 +172,71 @@ export default function InstructorClassAttendancePage() {
             <span>Actions</span>
           </div>
 
-          <div className="classTableEmptyState">
-            <div className="classTableEmptyIcon">
-              <EmptyStateIcon />
+          {classData.records.length > 0 ? (
+            <div>
+              {classData.records.map((record) => (
+                <div key={record.id} className="classTableHeader">
+                  <span>{record.studentId}</span>
+                  <span>{record.studentName}</span>
+                  <span>{formatDate(record.occurredAt)}</span>
+                  <span>{record.status}</span>
+                  <span>{record.notes}</span>
+                </div>
+              ))}
             </div>
-            <h2>No records yet</h2>
-            <p>Select a course or change your filters to see results.</p>
-          </div>
+          ) : (
+            <div className="classTableEmptyState">
+              <div className="classTableEmptyIcon">
+                <EmptyStateIcon />
+              </div>
+              <h2>No records yet</h2>
+              <p>Select a course or change your filters to see results.</p>
+            </div>
+          )}
 
           <footer className="classTableFooter">
-            <p>Showing 0 of 0 records</p>
+            <p>
+              Showing {pageStart}-{pageEnd} of {classData.totalRecords} records
+            </p>
 
             <div className="paginationButtons" aria-label="Pagination">
-              <button type="button" className="paginationButton" aria-label="Previous page">
-                <PaginationArrow direction="left" />
-              </button>
-              <button type="button" className="paginationButton" aria-label="Next page">
-                <PaginationArrow direction="right" />
-              </button>
+              <form method="get">
+                <input type="hidden" name="courseId" value={classData.selectedCourseId} />
+                <input type="hidden" name="dateRange" value={classData.selectedDateRange} />
+                <input type="hidden" name="search" value={classData.search} />
+                <input
+                  type="hidden"
+                  name="page"
+                  value={String(Math.max(classData.currentPage - 1, 1))}
+                />
+                <button
+                  type="submit"
+                  className="paginationButton"
+                  aria-label="Previous page"
+                  disabled={classData.currentPage <= 1}
+                >
+                  <PaginationArrow direction="left" />
+                </button>
+              </form>
+
+              <form method="get">
+                <input type="hidden" name="courseId" value={classData.selectedCourseId} />
+                <input type="hidden" name="dateRange" value={classData.selectedDateRange} />
+                <input type="hidden" name="search" value={classData.search} />
+                <input
+                  type="hidden"
+                  name="page"
+                  value={String(Math.min(classData.currentPage + 1, classData.totalPages))}
+                />
+                <button
+                  type="submit"
+                  className="paginationButton"
+                  aria-label="Next page"
+                  disabled={classData.currentPage >= classData.totalPages}
+                >
+                  <PaginationArrow direction="right" />
+                </button>
+              </form>
             </div>
           </footer>
         </section>
