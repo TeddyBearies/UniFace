@@ -1451,9 +1451,311 @@ body {
   line-height: 1.2;
 }
 
+.adminUserManagementPage {
+  max-width: 1320px;
+}
+
+.adminUserManagementPage .adminUserHero {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.adminUserManagementPage .adminUserIntro h1 {
+  margin: 0;
+  color: #101a39;
+  font-size: 31px;
+  line-height: 1.08;
+  letter-spacing: -0.04em;
+  font-weight: 800;
+}
+
+.adminUserManagementPage .adminUserIntro p {
+  margin: 8px 0 0;
+  color: #667085;
+  font-size: 15px;
+  line-height: 1.45;
+}
+
+.adminUserManagementPage .adminAddUserButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-width: 98px;
+  min-height: 30px;
+  padding: 0 14px;
+  border-radius: 4px;
+  background: #1098ae;
+  box-shadow: 0 6px 14px rgba(16, 152, 174, 0.2);
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.adminUserManagementPage .adminUserToolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  margin-top: 22px;
+}
+
+.adminUserManagementPage .adminUserTabs {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px;
+  border-radius: 10px;
+  background: #edf1f6;
+}
+
+.adminUserManagementPage .adminUserTab {
+  min-width: 106px;
+  min-height: 30px;
+  padding: 0 18px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: #8b95a7;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.adminUserManagementPage .adminUserTab.active {
+  background: #ffffff;
+  color: #1f2937;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.06);
+}
+
+.adminUserManagementPage .adminUserSearch {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 198px;
+  min-height: 30px;
+  padding: 0 12px;
+  border: 1px solid #eaecf0;
+  border-radius: 4px;
+  background: #ffffff;
+  box-sizing: border-box;
+}
+
+.adminUserManagementPage .adminUserSearch input {
+  width: 100%;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: #1f2937;
+  font: inherit;
+  font-size: 13px;
+}
+
+.adminUserManagementPage .adminUserSearch input::placeholder {
+  color: #98a2b3;
+}
+
+.adminUserManagementPage .adminUsersTableCard {
+  margin-top: 18px;
+  border: 1px solid #e5eaf0;
+  border-radius: 10px;
+  background: #ffffff;
+  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.04);
+  overflow: hidden;
+}
+
+.adminUserManagementPage .adminUsersTableHeader {
+  display: grid;
+  grid-template-columns: 120px minmax(0, 1fr) 180px 140px;
+  gap: 20px;
+  align-items: center;
+  min-height: 36px;
+  padding: 0 18px;
+  border-bottom: 1px solid #eef2f6;
+  box-sizing: border-box;
+}
+
+.adminUserManagementPage .adminUsersTableHeader span {
+  color: #7a8698;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+}
+
+.adminUserManagementPage .adminUsersTableHeader span:last-child {
+  text-align: right;
+}
+
+.adminUserManagementPage .adminUsersEmptyState {
+  min-height: 382px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 32px 20px 30px;
+  box-sizing: border-box;
+}
+
+.adminUserManagementPage .adminUsersEmptyIconWrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 116px;
+  height: 92px;
+  border-radius: 14px;
+  background: #eff6fb;
+}
+
+.adminUserManagementPage .adminUsersEmptyState h2 {
+  margin: 22px 0 0;
+  color: #1f2937;
+  font-size: 18px;
+  line-height: 1.1;
+  font-weight: 800;
+}
+
+.adminUserManagementPage .adminUsersEmptyState p {
+  margin: 12px 0 0;
+  color: #8b95a7;
+  font-size: 14px;
+  line-height: 1.3;
+}
+
+.adminUserManagementPage .adminUsersEmptyAction {
+  margin-top: 22px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 32px;
+  padding: 0 14px;
+  border: 1px solid #e5eaf0;
+  border-radius: 4px;
+  background: #f8fafc;
+  color: #1f2937;
+  font-size: 13px;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.adminUserManagementPage .adminUsersTableFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  min-height: 38px;
+  padding: 0 18px;
+  border-top: 1px solid #eef2f6;
+}
+
+.adminUserManagementPage .adminUsersTableFooter p {
+  margin: 0;
+  color: #98a2b3;
+  font-size: 11px;
+}
+
+.adminUserManagementPage .adminUsersPagination {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.adminUserManagementPage .adminUsersPageButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  padding: 0;
+  border: 1px solid #f1f5f9;
+  border-radius: 2px;
+  background: #ffffff;
+}
+
+.adminUserManagementPage .adminUserSummaryGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+  margin-top: 36px;
+}
+
+.adminUserManagementPage .adminUserSummaryCard {
+  position: relative;
+  min-height: 120px;
+  padding: 16px 18px 18px;
+  border: 1px solid #e5eaf0;
+  border-radius: 10px;
+  background: #ffffff;
+  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.04);
+  box-sizing: border-box;
+}
+
+.adminUserManagementPage .adminUserSummaryIconWrap {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  background: #eef6ff;
+}
+
+.adminUserManagementPage .adminUserSummaryIconWrap.purple {
+  background: #f4ebff;
+}
+
+.adminUserManagementPage .adminUserSummaryIconWrap.amber {
+  background: #fff7e5;
+}
+
+.adminUserManagementPage .adminUserSummaryIcon {
+  width: 18px;
+  height: 18px;
+  flex: none;
+}
+
+.adminUserManagementPage .adminUserSummaryMeta {
+  position: absolute;
+  top: 20px;
+  right: 18px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.adminUserManagementPage .adminUserSummaryMeta.green {
+  color: #22c55e;
+}
+
+.adminUserManagementPage .adminUserSummaryMeta.purple {
+  color: #98a2b3;
+}
+
+.adminUserManagementPage .adminUserSummaryMeta.amber {
+  color: #f59e0b;
+}
+
+.adminUserManagementPage .adminUserSummaryCard p {
+  margin: 12px 0 0;
+  color: #667085;
+  font-size: 14px;
+}
+
+.adminUserManagementPage .adminUserSummaryCard strong {
+  display: block;
+  margin-top: 4px;
+  color: #101828;
+  font-size: 17px;
+  line-height: 1.1;
+  font-weight: 800;
+}
+
 @media (max-width: 1200px) {
   .adminDashboardPage .adminOverviewGrid,
-  .adminDashboardPage .adminQuickLinksGrid {
+  .adminDashboardPage .adminQuickLinksGrid,
+  .adminUserManagementPage .adminUserSummaryGrid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
@@ -1503,8 +1805,20 @@ body {
   }
 
   .adminDashboardPage .adminOverviewGrid,
-  .adminDashboardPage .adminQuickLinksGrid {
+  .adminDashboardPage .adminQuickLinksGrid,
+  .adminUserManagementPage .adminUserSummaryGrid {
     grid-template-columns: 1fr;
+  }
+
+  .adminUserManagementPage .adminUserHero,
+  .adminUserManagementPage .adminUserToolbar,
+  .adminUserManagementPage .adminUsersTableFooter {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .adminUserManagementPage .adminUserSearch {
+    width: 100%;
   }
 }
 
@@ -1527,6 +1841,21 @@ body {
 
   .adminDashboardPage .adminLogsCard {
     padding: 18px 16px 8px;
+  }
+
+  .adminUserManagementPage .adminUsersTableHeader {
+    grid-template-columns: 1fr;
+    min-height: auto;
+    padding: 12px 16px;
+  }
+
+  .adminUserManagementPage .adminUsersTableHeader span:last-child {
+    text-align: left;
+  }
+
+  .adminUserManagementPage .adminUsersEmptyState {
+    min-height: 320px;
+    padding: 24px 16px;
   }
 }
 
