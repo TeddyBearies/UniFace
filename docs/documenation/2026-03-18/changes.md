@@ -216,3 +216,31 @@ This file records project changes in chronological order. Each date gets its own
    - Purpose: improve the first biometric workflow so it relies less on mock values and better matches the intended production behavior.
    - Scope: updated `app/(instructor)/instructor/take-attendance/page.tsx` to load the instructor's assigned courses dynamically, start a real open attendance session in the database before scanning, and close that session through a server action when the instructor ends it; updated `app/(instructor)/instructor/enroll-student/page.tsx` so enrollment is driven by the face utilities and uses the entered university ID as the lookup key for saving biometric data.
    - Outcome: the instructor biometric tools now follow a more realistic end-to-end path through Supabase, reducing reliance on hardcoded course placeholders and making the flow closer to a true app workflow.
+
+
+## 2026-04-13
+
+1. Added the instructor reports page and CSV export flow.
+   - Purpose: give instructors a dedicated place to review attendance activity by course and date range, then export the result for offline use.
+   - Scope: built `app/(instructor)/instructor/reports/page.tsx` with course and date filters, a generated-summary panel, and a disabled-by-default download action; added `app/api/instructor/reports/route.ts` to return a CSV download built from `getInstructorReportData()` and `buildInstructorReportCsv()`; expanded `app/globals.css` with report-specific layout, filter, empty-state, and responsive rules.
+   - Outcome: instructors now have a real reporting screen instead of a placeholder, plus a direct export path for attendance summaries.
+
+2. Added the instructor class-attendance page.
+   - Purpose: provide a searchable attendance list for classroom review rather than keeping that workflow buried inside other instructor screens.
+   - Scope: created `app/(instructor)/instructor/class-attendance/page.tsx` with course/date filters, a search field, table scaffolding, and pagination controls, then paired it with matching `app/globals.css` styles for the class-attendance layout and responsive behavior.
+   - Outcome: instructors now have a dedicated page for browsing class attendance records in a structured table view.
+
+3. Connected shared auth guards and service-backed data flow across the app.
+   - Purpose: centralize session and role handling while replacing more of the page-level placeholder logic with reusable backend helpers.
+   - Scope: added `features/auth/types.ts`, `features/auth/client-auth.ts`, `features/auth/guards.ts`, and `features/auth/useClientRoleGuard.ts` to standardize app roles and role checks; updated `app/(auth)/login/page.tsx`, `app/(student)/student/dashboard/page.tsx`, `app/(student)/student/attendance-history/page.tsx`, `app/(instructor)/instructor/dashboard/page.tsx`, `app/(instructor)/instructor/take-attendance/page.tsx`, and `app/(instructor)/instructor/enroll-student/page.tsx` to use the newer auth and data helpers; added or expanded `features/attendance/attendance.service.ts`, `features/attendance/instructor-records.service.ts`, `features/attendance/student-attendance.service.ts`, `features/courses/course.service.ts`, `features/face/face.service.ts`, `features/face/useFaceApi.ts`, and `components/LogoutButton.tsx` to support the live data flow.
+   - Outcome: login, student, instructor, and report screens now share the same session model and backend service layer instead of each page carrying its own isolated logic.
+
+4. Added the admin dashboard and shared admin shell.
+   - Purpose: create a proper admin landing area with system overview cards and quick management links.
+   - Scope: created `app/(admin)/admin/dashboard/page.tsx`, added `components/AdminPageFrame.tsx` for the reusable admin sidebar/workspace shell, and extended `app/globals.css` with the admin dashboard and shared admin frame styling.
+   - Outcome: admin users now have a dedicated dashboard structure that matches the rest of the role-based app navigation.
+
+5. Added the admin user-management page and refined the admin visual system.
+   - Purpose: provide a dedicated admin workspace for browsing and managing users.
+   - Scope: created `app/(admin)/admin/user-management/page.tsx` with summary cards, tabs, search, and an empty-state table, then refined `app/globals.css` to cover the user-management layout, actions, summary cards, pagination, and responsive behavior.
+   - Outcome: the admin area now has a concrete user-management screen and a more complete visual system for upcoming admin workflows.

@@ -1752,11 +1752,224 @@ body {
   font-weight: 800;
 }
 
+.adminCourseAssignmentPage {
+  max-width: 1320px;
+}
+
+.adminCourseAssignmentPage .adminCourseIntro h1 {
+  margin: 0;
+  color: #101a39;
+  font-size: 31px;
+  line-height: 1.08;
+  letter-spacing: -0.04em;
+  font-weight: 800;
+}
+
+.adminCourseAssignmentPage .adminCourseIntro p {
+  margin: 8px 0 0;
+  color: #667085;
+  font-size: 15px;
+  line-height: 1.45;
+}
+
+.adminCourseAssignmentPage .adminAssignCard,
+.adminCourseAssignmentPage .adminAssignmentsCard {
+  border: 1px solid #e5eaf0;
+  border-radius: 10px;
+  background: #ffffff;
+  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.04);
+}
+
+.adminCourseAssignmentPage .adminAssignCard {
+  margin-top: 24px;
+  padding: 18px 18px 18px;
+}
+
+.adminCourseAssignmentPage .adminAssignHeader {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.adminCourseAssignmentPage .adminAssignHeader h2,
+.adminCourseAssignmentPage .adminAssignmentsTopBar h2 {
+  margin: 0;
+  color: #1f2937;
+  font-size: 17px;
+  line-height: 1.15;
+  font-weight: 800;
+}
+
+.adminCourseAssignmentPage .adminAssignFormGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.adminCourseAssignmentPage .adminAssignField label {
+  display: block;
+  margin-bottom: 8px;
+  color: #475467;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.adminCourseAssignmentPage .adminAssignSelect {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 36px;
+  padding: 0 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 3px;
+  background: #ffffff;
+  box-sizing: border-box;
+}
+
+.adminCourseAssignmentPage .adminAssignSelect select {
+  width: 100%;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: #1f2937;
+  font: inherit;
+  font-size: 14px;
+  appearance: none;
+}
+
+.adminCourseAssignmentPage .adminAssignActions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 18px;
+}
+
+.adminCourseAssignmentPage .adminAssignButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-width: 136px;
+  min-height: 34px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: 4px;
+  background: #1098ae;
+  box-shadow: 0 6px 14px rgba(16, 152, 174, 0.2);
+  color: #ffffff;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.adminCourseAssignmentPage .adminAssignmentsCard {
+  margin-top: 24px;
+  overflow: hidden;
+}
+
+.adminCourseAssignmentPage .adminAssignmentsTopBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  min-height: 48px;
+  padding: 0 18px;
+  border-bottom: 1px solid #eef2f6;
+}
+
+.adminCourseAssignmentPage .adminAssignmentsSearch {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 196px;
+  min-height: 30px;
+  padding: 0 12px;
+  border: 1px solid #eaecf0;
+  border-radius: 16px;
+  background: #ffffff;
+  box-sizing: border-box;
+}
+
+.adminCourseAssignmentPage .adminAssignmentsSearch input {
+  width: 100%;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: #1f2937;
+  font: inherit;
+  font-size: 13px;
+}
+
+.adminCourseAssignmentPage .adminAssignmentsSearch input::placeholder {
+  color: #98a2b3;
+}
+
+.adminCourseAssignmentPage .adminAssignmentsHeader {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr 0.9fr 0.6fr;
+  gap: 16px;
+  align-items: center;
+  min-height: 34px;
+  padding: 0 18px;
+  border-bottom: 1px solid #eef2f6;
+}
+
+.adminCourseAssignmentPage .adminAssignmentsHeader span {
+  color: #7a8698;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+}
+
+.adminCourseAssignmentPage .adminAssignmentsHeader span:last-child {
+  text-align: right;
+}
+
+.adminCourseAssignmentPage .adminAssignmentsEmptyState {
+  min-height: 194px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 28px 20px 24px;
+  text-align: center;
+  box-sizing: border-box;
+}
+
+.adminCourseAssignmentPage .adminAssignmentsEmptyIconWrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 10px;
+  background: #eef4ff;
+}
+
+.adminCourseAssignmentPage .adminAssignmentsEmptyState h3 {
+  margin: 18px 0 0;
+  color: #667085;
+  font-size: 17px;
+  line-height: 1.1;
+  font-weight: 800;
+}
+
+.adminCourseAssignmentPage .adminAssignmentsEmptyState p {
+  margin: 10px 0 0;
+  color: #98a2b3;
+  font-size: 14px;
+  line-height: 1.35;
+}
+
 @media (max-width: 1200px) {
   .adminDashboardPage .adminOverviewGrid,
   .adminDashboardPage .adminQuickLinksGrid,
   .adminUserManagementPage .adminUserSummaryGrid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .adminCourseAssignmentPage .adminAssignFormGrid {
+    grid-template-columns: 1fr;
   }
 }
 
@@ -1820,6 +2033,16 @@ body {
   .adminUserManagementPage .adminUserSearch {
     width: 100%;
   }
+
+  .adminCourseAssignmentPage .adminAssignmentsTopBar {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 16px 18px;
+  }
+
+  .adminCourseAssignmentPage .adminAssignmentsSearch {
+    width: 100%;
+  }
 }
 
 @media (max-width: 640px) {
@@ -1856,6 +2079,16 @@ body {
   .adminUserManagementPage .adminUsersEmptyState {
     min-height: 320px;
     padding: 24px 16px;
+  }
+
+  .adminCourseAssignmentPage .adminAssignmentsHeader {
+    grid-template-columns: 1fr;
+    min-height: auto;
+    padding: 12px 16px;
+  }
+
+  .adminCourseAssignmentPage .adminAssignmentsHeader span:last-child {
+    text-align: left;
   }
 }
 
