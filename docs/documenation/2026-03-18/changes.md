@@ -244,3 +244,13 @@ This file records project changes in chronological order. Each date gets its own
    - Purpose: provide a dedicated admin workspace for browsing and managing users.
    - Scope: created `app/(admin)/admin/user-management/page.tsx` with summary cards, tabs, search, and an empty-state table, then refined `app/globals.css` to cover the user-management layout, actions, summary cards, pagination, and responsive behavior.
    - Outcome: the admin area now has a concrete user-management screen and a more complete visual system for upcoming admin workflows.
+
+6. Added the admin course-assignment page.
+   - Purpose: give admins a dedicated place to assign instructors to courses and review existing pairings.
+   - Scope: created `app/(admin)/admin/course-assignment/page.tsx` with instructor and course selectors, a semester selector, an assign action, a searchable assignments table, and an empty state; expanded `app/globals.css` with course-assignment layout, form, table, search, and responsive rules.
+   - Outcome: the admin area now includes a focused workflow for managing course ownership instead of leaving assignments as an unbuilt placeholder.
+
+7. Added the admin biometric reset page.
+   - Purpose: give admins a dedicated recovery and privacy workflow for clearing a student's stored face data when biometric information needs to be reset.
+   - Scope: created `app/(admin)/admin/reset-face-data/page.tsx` with a permanent-action warning banner, a student ID lookup field, a reset action button, verification messaging, and guidance cards explaining when to use the tool and how the reset is audited; expanded `app/globals.css` with the matching reset-page layout, warning, form, footer, info-card, and responsive styles.
+   - Outcome: the admin area now includes a controlled interface for biometric reset requests instead of leaving this sensitive workflow undefined.
