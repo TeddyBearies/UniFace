@@ -157,7 +157,11 @@ const IS_SUPABASE_CONFIGURED = hasSupabasePublicEnv();
 function getDashboardPathForRole(role: string | null | undefined) {
   const normalizedRole = role?.trim().toLowerCase();
 
-  if (normalizedRole === "instructor" || normalizedRole === "admin") {
+  if (normalizedRole === "admin") {
+    return "/admin/dashboard";
+  }
+
+  if (normalizedRole === "instructor") {
     return "/instructor/dashboard";
   }
 
