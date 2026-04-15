@@ -82,6 +82,7 @@ Call log:
                 - combobox "Course / Group (Optional)" [ref=e63]:
                   - option "Select course" [selected]
                   - option "CS101 - Intro To Computing"
+                  - option "PW31609 - Playwright Course"
                 - img [ref=e64]
             - button "Start Enrollment Scan" [active] [ref=e66] [cursor=pointer]:
               - img [ref=e67]
