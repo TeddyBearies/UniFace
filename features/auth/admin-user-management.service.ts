@@ -386,7 +386,14 @@ function getManageActionContext(formData: FormData): ManageActionContext {
 }
 
 function getInviteRedirectTo() {
-  const appUrl = String(process.env.NEXT_PUBLIC_APP_URL || "").trim();
+  const customUrl = String(process.env.NEXT_PUBLIC_APP_URL || "").trim();
+  const vercelUrl = String(process.env.NEXT_PUBLIC_VERCEL_URL || "").trim();
+  
+  let appUrl = customUrl;
+  if (!appUrl && vercelUrl) {
+    appUrl = `https://${vercelUrl}`;
+  }
+
   if (!appUrl) {
     return undefined;
   }
