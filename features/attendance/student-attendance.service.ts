@@ -1,5 +1,10 @@
 import { createClient } from "@/lib/supabase/server";
 import { requireCurrentProfile } from "@/features/auth/guards";
+import {
+  buildAttendanceNote,
+  buildNormalizedAttendanceSnapshot,
+  getAttendanceTiming,
+} from "@/features/attendance/attendance-read.service";
 
 type StudentAttendanceFilters = {
   courseId?: string;
@@ -9,10 +14,11 @@ type StudentAttendanceFilters = {
 
 export type StudentAttendanceRecord = {
   id: string;
-  occurredAt: string;
+  sessionStartsAt: string;
+  recordedAt: string | null;
   courseCode: string;
   courseTitle: string;
-  status: "Present" | "Absent";
+  status: "Present" | "Late" | "Absent";
   notes: string;
 };
 
@@ -47,18 +53,6 @@ function toStartOfDayIso(dateValue: string) {
 
 function toEndOfDayIso(dateValue: string) {
   return `${dateValue}T23:59:59.999Z`;
-}
-
-function buildMatchNotes(event: any) {
-  if (!event) {
-    return "No check-in recorded";
-  }
-
-  if (typeof event.confidence_score === "number") {
-    return `${event.matched_by} (${Math.round(event.confidence_score * 100)}% confidence)`;
-  }
-
-  return event.matched_by || "Check-in recorded";
 }
 
 export async function getStudentAttendanceHistoryData(
@@ -158,6 +152,8 @@ export async function getStudentAttendanceHistoryData(
         id,
         course_id,
         starts_at,
+        ends_at,
+        status,
         courses (
           code,
           title
@@ -187,7 +183,9 @@ export async function getStudentAttendanceHistoryData(
   if (sessionIds.length > 0) {
     const { data: attendanceEvents, error: eventsError } = await supabase
       .from("attendance_events")
-      .select("attendance_session_id, recorded_at, matched_by, confidence_score")
+      .select(
+        "id, attendance_session_id, student_profile_id, recorded_at, matched_by, confidence_score",
+      )
       .eq("student_profile_id", studentId)
       .in("attendance_session_id", sessionIds);
 
@@ -198,36 +196,63 @@ export async function getStudentAttendanceHistoryData(
     events = attendanceEvents ?? [];
   }
 
-  const eventBySession = new Map<string, any>();
-  for (const event of events) {
-    eventBySession.set(event.attendance_session_id, event);
-  }
+  const normalizedSnapshot = buildNormalizedAttendanceSnapshot({
+    sessions: sessions ?? [],
+    enrollments: (enrollments ?? []).map((enrollment) => ({
+      course_id: enrollment.course_id,
+      student_profile_id: studentId,
+    })),
+    events,
+    studentProfilesById: new Map([
+      [
+        studentId,
+        {
+          id: studentId,
+          full_name: currentProfile.profile.full_name,
+          university_id: currentProfile.profile.university_id,
+        },
+      ],
+    ]),
+  });
 
-  const records: StudentAttendanceRecord[] = (sessions ?? []).map((session) => {
-    const course = Array.isArray(session.courses) ? session.courses[0] : session.courses;
+  const eventBySession = new Map(
+    normalizedSnapshot.validEvents.map((event) => [event.attendanceSessionId, event]),
+  );
+
+  const records: StudentAttendanceRecord[] = normalizedSnapshot.sessions.map((session) => {
     const event = eventBySession.get(session.id);
+    const timing = getAttendanceTiming(session.startsAt, event?.recordedAt ?? null);
 
     return {
       id: session.id,
-      occurredAt: event?.recorded_at || session.starts_at,
-      courseCode: course?.code || "---",
-      courseTitle: course?.title || "Unknown Course",
-      status: event ? "Present" : "Absent",
-      notes: buildMatchNotes(event),
+      sessionStartsAt: session.startsAt,
+      recordedAt: event?.recordedAt || null,
+      courseCode: session.courseCode,
+      courseTitle: session.courseTitle,
+      status: timing.status,
+      notes: event
+        ? buildAttendanceNote({
+            matchedBy: event.matchedBy,
+            confidenceScore: event.confidenceScore,
+            status: timing.status,
+            lateMinutes: timing.lateMinutes,
+          })
+        : "No check-in recorded",
     };
   });
 
   const totalSessions = records.length;
   const presentCount = records.filter((record) => record.status === "Present").length;
-  const absentCount = Math.max(totalSessions - presentCount, 0);
-  const lateCount = records.filter((record) => record.notes.toLowerCase().includes("late")).length;
+  const lateCount = records.filter((record) => record.status === "Late").length;
+  const absentCount = records.filter((record) => record.status === "Absent").length;
+  const attendedCount = presentCount + lateCount;
 
   const summary: StudentAttendanceSummary = {
     totalSessions,
     presentCount,
     absentCount,
     lateCount,
-    presentRate: totalSessions ? Math.round((presentCount / totalSessions) * 100) : 0,
+    presentRate: totalSessions ? Math.round((attendedCount / totalSessions) * 100) : 0,
     absentRate: totalSessions ? Math.round((absentCount / totalSessions) * 100) : 0,
   };
 

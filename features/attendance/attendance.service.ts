@@ -1,8 +1,20 @@
 "use server";
 
+import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 
-async function requireInstructorForCourse(supabase: ReturnType<typeof createClient>, courseId: string) {
+type AttendanceActor = {
+  userId: string;
+  role: string;
+};
+
+type SessionAttendanceState = {
+  presentStudentIds: string[];
+};
+
+async function getAttendanceActor(
+  supabase: ReturnType<typeof createClient>,
+): Promise<AttendanceActor> {
   const {
     data: { user },
     error: userError,
@@ -22,7 +34,19 @@ async function requireInstructorForCourse(supabase: ReturnType<typeof createClie
     throw new Error("Unauthorized");
   }
 
-  if (profile.role !== "admin") {
+  return {
+    userId: user.id,
+    role: profile.role,
+  };
+}
+
+async function requireInstructorForCourse(
+  supabase: ReturnType<typeof createClient>,
+  courseId: string,
+) {
+  const actor = await getAttendanceActor(supabase);
+
+  if (actor.role !== "admin") {
     const { data: isInstructor } = await supabase.rpc("is_instructor_for_course", {
       course_id: courseId,
     });
@@ -32,12 +56,30 @@ async function requireInstructorForCourse(supabase: ReturnType<typeof createClie
     }
   }
 
-  return user;
+  return actor;
+}
+
+async function getSessionAttendanceState(
+  supabase: ReturnType<typeof createClient>,
+  sessionId: string,
+): Promise<SessionAttendanceState> {
+  const { data: existingEvents, error } = await supabase
+    .from("attendance_events")
+    .select("student_profile_id")
+    .eq("attendance_session_id", sessionId);
+
+  if (error) {
+    throw new Error("Failed to load current attendance records.");
+  }
+
+  return {
+    presentStudentIds: (existingEvents ?? []).map((event) => event.student_profile_id),
+  };
 }
 
 /**
- * Ensures an active open attendance session exists for the given course today.
- * If not, it creates a new one.
+ * Ensures an active open attendance session exists for the given course for the
+ * current instructor. If not, it creates a new one.
  */
 export async function startAttendanceSessionAction(courseId: string) {
   const normalizedCourseId = courseId.trim();
@@ -46,14 +88,14 @@ export async function startAttendanceSessionAction(courseId: string) {
   }
 
   const supabase = createClient();
-  const user = await requireInstructorForCourse(supabase, normalizedCourseId);
+  const actor = await requireInstructorForCourse(supabase, normalizedCourseId);
 
-  // 1. Verify if an open session already exists
   const { data: existingSession, error: existingSessionError } = await supabase
     .from("attendance_sessions")
     .select("id")
     .eq("course_id", normalizedCourseId)
     .eq("status", "open")
+    .eq("created_by_profile_id", actor.userId)
     .order("starts_at", { ascending: false })
     .limit(1)
     .maybeSingle();
@@ -64,19 +106,24 @@ export async function startAttendanceSessionAction(courseId: string) {
   }
 
   if (existingSession) {
-    return { sessionId: existingSession.id, isNew: false };
+    const sessionState = await getSessionAttendanceState(supabase, existingSession.id);
+
+    return {
+      sessionId: existingSession.id,
+      isNew: false,
+      ...sessionState,
+    };
   }
 
-  // 2. Insert a new session (the DB policy ensures the user is an instructor)
   const startsAt = new Date();
   const endsAt = new Date();
-  endsAt.setHours(endsAt.getHours() + 4); // default 4 hour window for session safety
-  
+  endsAt.setHours(endsAt.getHours() + 4);
+
   const { data: newSession, error } = await supabase
     .from("attendance_sessions")
     .insert({
       course_id: normalizedCourseId,
-      created_by_profile_id: user.id,
+      created_by_profile_id: actor.userId,
       starts_at: startsAt.toISOString(),
       ends_at: endsAt.toISOString(),
       status: "open",
@@ -89,30 +136,64 @@ export async function startAttendanceSessionAction(courseId: string) {
     throw new Error("Could not start a new attendance session. Ensure you are an instructor for this course.");
   }
 
-  return { sessionId: newSession.id, isNew: true };
+  revalidatePath("/instructor/dashboard");
+  revalidatePath("/instructor/class-attendance");
+  revalidatePath("/instructor/reports");
+  revalidatePath("/admin/reports");
+
+  return {
+    sessionId: newSession.id,
+    isNew: true,
+    presentStudentIds: [],
+  };
 }
 
-export async function closeAttendanceSessionAction(courseId: string) {
-  const normalizedCourseId = courseId.trim();
-  if (!normalizedCourseId) {
-    throw new Error("Please select a course.");
+export async function closeAttendanceSessionAction(sessionId: string) {
+  const normalizedSessionId = sessionId.trim();
+  if (!normalizedSessionId) {
+    throw new Error("Attendance session is required.");
   }
 
   const supabase = createClient();
-  const user = await requireInstructorForCourse(supabase, normalizedCourseId);
+  const actor = await getAttendanceActor(supabase);
+
+  if (actor.role !== "instructor" && actor.role !== "admin") {
+    throw new Error("Unauthorized");
+  }
+
+  const { data: session, error: sessionError } = await supabase
+    .from("attendance_sessions")
+    .select("id, created_by_profile_id, status")
+    .eq("id", normalizedSessionId)
+    .maybeSingle();
+
+  if (sessionError || !session) {
+    throw new Error("Attendance session not found.");
+  }
+
+  if (actor.role !== "admin" && session.created_by_profile_id !== actor.userId) {
+    throw new Error("You can only close sessions you started.");
+  }
+
+  if (session.status !== "open") {
+    return { success: true, closedCount: 0 };
+  }
 
   const { data: closedSessions, error } = await supabase
     .from("attendance_sessions")
     .update({ status: "closed" })
-    .eq("course_id", normalizedCourseId)
-    .eq("status", "open")
-    .eq("created_by_profile_id", user.id)
+    .eq("id", normalizedSessionId)
     .select("id");
 
   if (error) {
     console.error("Failed to close session:", error);
     throw new Error("Could not close session.");
   }
+
+  revalidatePath("/instructor/dashboard");
+  revalidatePath("/instructor/class-attendance");
+  revalidatePath("/instructor/reports");
+  revalidatePath("/admin/reports");
   
   return { success: true, closedCount: closedSessions?.length || 0 };
 }

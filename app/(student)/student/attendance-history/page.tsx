@@ -205,9 +205,21 @@ function SummaryCardIcon({ tone }: { tone: string }) {
 
 function formatDate(value: string) {
   return new Intl.DateTimeFormat("en", {
+    timeZone: "Africa/Cairo",
     year: "numeric",
     month: "short",
     day: "numeric",
+  }).format(new Date(value));
+}
+
+function formatDateTime(value: string) {
+  return new Intl.DateTimeFormat("en", {
+    timeZone: "Africa/Cairo",
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
   }).format(new Date(value));
 }
 
@@ -306,7 +318,7 @@ export default async function AttendanceHistoryPage({
 
         <section className="historyTableCard" aria-label="Attendance history table">
           <div className="tableHeader">
-            <span>DATE</span>
+            <span>DATE &amp; TIME</span>
             <span>COURSE</span>
             <span>STATUS</span>
             <span>NOTES</span>
@@ -316,7 +328,7 @@ export default async function AttendanceHistoryPage({
             <div>
               {historyData.records.map((record) => (
                 <div key={record.id} className="tableHeader">
-                  <span>{formatDate(record.occurredAt)}</span>
+                  <span>{formatDateTime(record.recordedAt || record.sessionStartsAt)}</span>
                   <span>
                     {record.courseCode} - {record.courseTitle}
                   </span>
