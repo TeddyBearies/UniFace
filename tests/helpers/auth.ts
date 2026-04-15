@@ -75,8 +75,16 @@ export async function loginAs(page: Page, role: AppRole) {
 }
 
 export async function expectRedirectedToLogin(page: Page) {
-  await page.waitForURL((url) => url.pathname === "/login", { timeout: 15_000 });
-  await expect(page.getByRole("heading", { name: /welcome back/i })).toBeVisible();
+  const loginHeading = page.getByRole("heading", { name: /welcome back/i });
+  const loginButton = page.getByRole("button", { name: /^login$/i });
+
+  await Promise.race([
+    page.waitForURL((url) => url.pathname === "/login", { timeout: 15_000 }),
+    loginHeading.waitFor({ state: "visible", timeout: 15_000 }),
+  ]);
+
+  await expect(loginHeading).toBeVisible();
+  await expect(loginButton).toBeVisible();
 }
 
 export async function clickLogout(page: Page) {

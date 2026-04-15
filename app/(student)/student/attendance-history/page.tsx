@@ -1,5 +1,6 @@
 import Link from "next/link";
 import LogoutButton from "@/components/LogoutButton";
+import { requireCurrentProfile } from "@/features/auth/guards";
 import { getStudentAttendanceHistoryData } from "@/features/attendance/student-attendance.service";
 
 const NAV_ITEMS = [
@@ -236,6 +237,7 @@ export default async function AttendanceHistoryPage({
   const selectedFromDate = searchParams?.fromDate || "";
   const selectedToDate = searchParams?.toDate || "";
 
+  await requireCurrentProfile(["student", "admin"]);
   const historyData = await getStudentAttendanceHistoryData({
     courseId: selectedCourseId,
     fromDate: selectedFromDate,

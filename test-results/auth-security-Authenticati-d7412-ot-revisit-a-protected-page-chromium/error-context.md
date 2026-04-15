@@ -106,29 +106,37 @@ waiting for navigation until "load"
   75  | }
   76  | 
   77  | export async function expectRedirectedToLogin(page: Page) {
-> 78  |   await page.waitForURL((url) => url.pathname === "/login", { timeout: 15_000 });
-      |              ^ TimeoutError: page.waitForURL: Timeout 15000ms exceeded.
-  79  |   await expect(page.getByRole("heading", { name: /welcome back/i })).toBeVisible();
-  80  | }
-  81  | 
-  82  | export async function clickLogout(page: Page) {
-  83  |   await page.getByRole("button", { name: /logout/i }).click();
-  84  |   await expectRedirectedToLogin(page);
-  85  | }
-  86  | 
-  87  | export async function selectFirstUsableOption(select: Locator) {
-  88  |   const value = await select.evaluate((node) => {
-  89  |     const options = Array.from((node as HTMLSelectElement).options);
-  90  |     const candidate = options.find((option) => !option.disabled && option.value);
-  91  |     return candidate?.value || "";
-  92  |   });
-  93  | 
-  94  |   if (!value) {
-  95  |     return false;
-  96  |   }
-  97  | 
-  98  |   await select.selectOption(value);
-  99  |   return true;
-  100 | }
+  78  |   const loginHeading = page.getByRole("heading", { name: /welcome back/i });
+  79  |   const loginButton = page.getByRole("button", { name: /^login$/i });
+  80  | 
+  81  |   await Promise.race([
+> 82  |     page.waitForURL((url) => url.pathname === "/login", { timeout: 15_000 }),
+      |          ^ TimeoutError: page.waitForURL: Timeout 15000ms exceeded.
+  83  |     loginHeading.waitFor({ state: "visible", timeout: 15_000 }),
+  84  |   ]);
+  85  | 
+  86  |   await expect(loginHeading).toBeVisible();
+  87  |   await expect(loginButton).toBeVisible();
+  88  | }
+  89  | 
+  90  | export async function clickLogout(page: Page) {
+  91  |   await page.getByRole("button", { name: /logout/i }).click();
+  92  |   await expectRedirectedToLogin(page);
+  93  | }
+  94  | 
+  95  | export async function selectFirstUsableOption(select: Locator) {
+  96  |   const value = await select.evaluate((node) => {
+  97  |     const options = Array.from((node as HTMLSelectElement).options);
+  98  |     const candidate = options.find((option) => !option.disabled && option.value);
+  99  |     return candidate?.value || "";
+  100 |   });
   101 | 
+  102 |   if (!value) {
+  103 |     return false;
+  104 |   }
+  105 | 
+  106 |   await select.selectOption(value);
+  107 |   return true;
+  108 | }
+  109 | 
 ```

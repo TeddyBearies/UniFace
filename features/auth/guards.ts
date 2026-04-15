@@ -3,7 +3,13 @@ import { getCurrentProfile } from "@/features/auth/profile";
 import { isAppRole, type AppRole } from "@/features/auth/types";
 
 export async function requireCurrentProfile(allowedRoles?: AppRole[]) {
-  const currentProfile = await getCurrentProfile();
+  let currentProfile: Awaited<ReturnType<typeof getCurrentProfile>> | null = null;
+
+  try {
+    currentProfile = await getCurrentProfile();
+  } catch {
+    redirect("/login");
+  }
 
   if (!currentProfile?.profile) {
     redirect("/login");
