@@ -1,5 +1,13 @@
+import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentProfile } from "@/features/auth/profile";
+import {
+  AttendanceSessionGroup,
+  AttendanceStatus,
+  buildAttendanceNote,
+  buildAttendanceDateGroups,
+  buildNormalizedAttendanceSnapshot,
+} from "@/features/attendance/attendance-read.service";
 
 type InstructorCourseOption = {
   id: string;
@@ -20,8 +28,9 @@ type InstructorAttendanceRecord = {
   studentName: string;
   courseCode: string;
   courseTitle: string;
-  occurredAt: string;
-  status: "Present";
+  sessionStartsAt: string;
+  recordedAt: string;
+  status: AttendanceStatus;
   notes: string;
 };
 
@@ -31,6 +40,7 @@ export type InstructorClassAttendanceData = {
   selectedDateRange: string;
   search: string;
   records: InstructorAttendanceRecord[];
+  dateGroups: AttendanceSessionGroup[];
   totalRecords: number;
   currentPage: number;
   totalPages: number;
@@ -60,7 +70,8 @@ export type InstructorReportData = {
     attendanceRate: number;
   }>;
   csvRows: Array<{
-    date: string;
+    sessionStartsAt: string;
+    recordedAt: string;
     courseCode: string;
     courseTitle: string;
     studentId: string;
@@ -72,6 +83,7 @@ export type InstructorReportData = {
 
 type AttendanceSnapshot = {
   courses: InstructorCourseOption[];
+  scopedCourses: InstructorCourseOption[];
   selectedCourseId: string;
   selectedFromDate: string;
   selectedToDate: string;
@@ -79,6 +91,7 @@ type AttendanceSnapshot = {
   enrollments: any[];
   events: any[];
   studentProfilesById: Map<string, any>;
+  instructorNamesById: Map<string, string>;
 };
 
 type InstructorContext = {
@@ -207,6 +220,7 @@ async function getInstructorAttendanceSnapshot(
   if (courses.length === 0) {
     return {
       courses: [],
+      scopedCourses: [],
       selectedCourseId,
       selectedFromDate: filters.fromDate || "",
       selectedToDate: filters.toDate || "",
@@ -214,16 +228,21 @@ async function getInstructorAttendanceSnapshot(
       enrollments: [],
       events: [],
       studentProfilesById: new Map(),
+      instructorNamesById: new Map(),
     };
   }
 
   const scopedCourseIds = selectedCourseId
     ? courses.filter((course) => course.id === selectedCourseId).map((course) => course.id)
     : courses.map((course) => course.id);
+  const scopedCourses = selectedCourseId
+    ? courses.filter((course) => course.id === selectedCourseId)
+    : courses;
 
   if (scopedCourseIds.length === 0) {
     return {
       courses,
+      scopedCourses: [],
       selectedCourseId,
       selectedFromDate: filters.fromDate || "",
       selectedToDate: filters.toDate || "",
@@ -231,6 +250,7 @@ async function getInstructorAttendanceSnapshot(
       enrollments: [],
       events: [],
       studentProfilesById: new Map(),
+      instructorNamesById: new Map(),
     };
   }
 
@@ -246,7 +266,10 @@ async function getInstructorAttendanceSnapshot(
       `
         id,
         course_id,
+        created_by_profile_id,
         starts_at,
+        ends_at,
+        status,
         courses (
           code,
           title
@@ -299,28 +322,42 @@ async function getInstructorAttendanceSnapshot(
   }
 
   const studentIds = Array.from(
-    new Set((events ?? []).map((event) => event.student_profile_id).filter(Boolean)),
+    new Set(
+      [...(enrollments ?? []), ...(events ?? [])]
+        .map((row: any) => row.student_profile_id)
+        .filter(Boolean),
+    ),
   );
 
   const studentProfilesById = new Map<string, any>();
+  const instructorNamesById = new Map<string, string>();
+  const instructorIds = Array.from(
+    new Set((sessions ?? []).map((session) => session.created_by_profile_id).filter(Boolean)),
+  );
 
-  if (studentIds.length > 0) {
-    const { data: studentProfiles, error: profilesError } = await supabase
+  if (studentIds.length > 0 || instructorIds.length > 0) {
+    const admin = createAdminClient();
+    const profileIds = Array.from(new Set([...studentIds, ...instructorIds]));
+    const { data: profiles, error: profilesError } = await admin
       .from("profiles")
       .select("id, full_name, university_id")
-      .in("id", studentIds);
+      .in("id", profileIds);
 
     if (profilesError) {
       throw profilesError;
     }
 
-    for (const profile of studentProfiles ?? []) {
+    for (const profile of profiles ?? []) {
       studentProfilesById.set(profile.id, profile);
+      if (instructorIds.includes(profile.id) && profile.full_name?.trim()) {
+        instructorNamesById.set(profile.id, profile.full_name);
+      }
     }
   }
 
   return {
     courses,
+    scopedCourses,
     selectedCourseId,
     selectedFromDate: filters.fromDate || "",
     selectedToDate: filters.toDate || "",
@@ -328,15 +365,8 @@ async function getInstructorAttendanceSnapshot(
     enrollments: enrollments || [],
     events: events || [],
     studentProfilesById,
+    instructorNamesById,
   };
-}
-
-function buildAttendanceNote(event: any) {
-  if (typeof event.confidence_score === "number") {
-    return `${event.matched_by} (${Math.round(event.confidence_score * 100)}% confidence)`;
-  }
-
-  return event.matched_by || "Check-in recorded";
 }
 
 export async function getInstructorClassAttendanceData({
@@ -353,64 +383,89 @@ export async function getInstructorClassAttendanceData({
   pageSize?: number;
 } = {}): Promise<InstructorClassAttendanceData> {
   const snapshot = await getInstructorAttendanceSnapshot({ courseId, dateRange });
-  const sessionById = new Map(snapshot.sessions.map((session) => [session.id, session]));
+  const normalizedSnapshot = buildNormalizedAttendanceSnapshot({
+    sessions: snapshot.sessions,
+    enrollments: snapshot.enrollments,
+    events: snapshot.events,
+    studentProfilesById: snapshot.studentProfilesById,
+  });
+  const dateGroups = buildAttendanceDateGroups({
+    sessions: snapshot.sessions,
+    enrollments: snapshot.enrollments,
+    events: snapshot.events,
+    studentProfilesById: snapshot.studentProfilesById,
+    instructorNamesById: snapshot.instructorNamesById,
+  });
   const normalizedSearch = search.trim().toLowerCase();
 
-  let records: InstructorAttendanceRecord[] = snapshot.events
-    .map((event) => {
-      const profile = snapshot.studentProfilesById.get(event.student_profile_id);
-      const session = sessionById.get(event.attendance_session_id);
-      const course = Array.isArray(session?.courses) ? session.courses[0] : session?.courses;
-
-      if (!session) {
-        return null;
-      }
-
-      const studentIdentifier =
-        profile?.university_id || event.student_profile_id.slice(0, 8).toUpperCase();
-
-      return {
-        id: event.id,
-        studentId: studentIdentifier,
-        studentName: profile?.full_name || "Unknown Student",
-        courseCode: course?.code || "---",
-        courseTitle: course?.title || "Unknown Course",
-        occurredAt: event.recorded_at || session.starts_at,
-        status: "Present",
-        notes: buildAttendanceNote(event),
-      };
-    })
-    .filter(Boolean) as InstructorAttendanceRecord[];
-
+  let filteredDateGroups = dateGroups;
   if (normalizedSearch) {
-    records = records.filter((record) => {
-      return (
-        record.studentName.toLowerCase().includes(normalizedSearch) ||
-        record.studentId.toLowerCase().includes(normalizedSearch) ||
-        record.courseCode.toLowerCase().includes(normalizedSearch)
-      );
-    });
+    filteredDateGroups = dateGroups
+      .map((group) => ({
+        ...group,
+        sessions: group.sessions
+          .map((session) => {
+            const sessionMatches =
+              session.courseCode.toLowerCase().includes(normalizedSearch) ||
+              session.courseTitle.toLowerCase().includes(normalizedSearch) ||
+              session.sessionTitle.toLowerCase().includes(normalizedSearch) ||
+              session.instructorName.toLowerCase().includes(normalizedSearch) ||
+              group.dateLabel.toLowerCase().includes(normalizedSearch);
+
+            const students = sessionMatches
+              ? session.students
+              : session.students.filter(
+                  (student) =>
+                    student.studentName.toLowerCase().includes(normalizedSearch) ||
+                    student.studentId.toLowerCase().includes(normalizedSearch),
+                );
+
+            if (!sessionMatches && students.length === 0) {
+              return null;
+            }
+
+            return {
+              ...session,
+              students,
+            };
+          })
+          .filter(Boolean) as AttendanceSessionGroup["sessions"],
+      }))
+      .filter((group) => group.sessions.length > 0);
   }
 
-  records.sort((left, right) => {
-    return new Date(right.occurredAt).getTime() - new Date(left.occurredAt).getTime();
-  });
+  let records: InstructorAttendanceRecord[] = filteredDateGroups.flatMap((group) =>
+    group.sessions.flatMap((session) =>
+      session.students
+        .filter((student) => student.isScanned)
+        .map((student) => ({
+          id: `${session.sessionId}:${student.studentProfileId}`,
+          studentId: student.studentId,
+          studentName: student.studentName,
+          courseCode: session.courseCode,
+          courseTitle: session.courseTitle,
+          sessionStartsAt: session.sessionStartsAt,
+          recordedAt: student.recordedAt || session.sessionStartsAt,
+          status: student.status,
+          notes: student.notes,
+        })),
+    ),
+  );
 
-  const totalRecords = records.length;
-  const totalPages = Math.max(Math.ceil(totalRecords / pageSize), 1);
-  const currentPage = Math.min(Math.max(page, 1), totalPages);
-  const pageStart = (currentPage - 1) * pageSize;
-  const pagedRecords = records.slice(pageStart, pageStart + pageSize);
+  records.sort((left, right) => {
+    return new Date(right.recordedAt).getTime() - new Date(left.recordedAt).getTime();
+  });
 
   return {
     courses: snapshot.courses,
     selectedCourseId: snapshot.selectedCourseId,
     selectedDateRange: dateRange,
     search,
-    records: pagedRecords,
-    totalRecords,
-    currentPage,
-    totalPages,
+    records,
+    totalRecords: records.length,
+    currentPage: 1,
+    totalPages: 1,
+    dateGroups: filteredDateGroups,
   };
 }
 
@@ -426,6 +481,12 @@ export async function getInstructorReportData({
   generated?: boolean;
 } = {}): Promise<InstructorReportData> {
   const snapshot = await getInstructorAttendanceSnapshot({ courseId, fromDate, toDate });
+  const normalizedSnapshot = buildNormalizedAttendanceSnapshot({
+    sessions: snapshot.sessions,
+    enrollments: snapshot.enrollments,
+    events: snapshot.events,
+    studentProfilesById: snapshot.studentProfilesById,
+  });
   const generatedReport = Boolean(generated);
 
   if (!generatedReport) {
@@ -450,35 +511,26 @@ export async function getInstructorReportData({
   const sessionsByCourse = new Map<string, number>();
   const enrollmentsByCourse = new Map<string, number>();
   const recordedByCourse = new Map<string, number>();
-  const sessionById = new Map(snapshot.sessions.map((session) => [session.id, session]));
 
-  for (const session of snapshot.sessions) {
+  for (const session of normalizedSnapshot.sessions) {
     sessionsByCourse.set(
-      session.course_id,
-      (sessionsByCourse.get(session.course_id) ?? 0) + 1,
+      session.courseId,
+      (sessionsByCourse.get(session.courseId) ?? 0) + 1,
     );
   }
 
-  for (const enrollment of snapshot.enrollments) {
-    enrollmentsByCourse.set(
-      enrollment.course_id,
-      (enrollmentsByCourse.get(enrollment.course_id) ?? 0) + 1,
-    );
-  }
+  normalizedSnapshot.activeEnrollmentCountsByCourse.forEach((count, courseId) => {
+    enrollmentsByCourse.set(courseId, count);
+  });
 
-  for (const event of snapshot.events) {
-    const session = sessionById.get(event.attendance_session_id);
-    if (!session) {
-      continue;
-    }
-
+  for (const event of normalizedSnapshot.validEvents) {
     recordedByCourse.set(
-      session.course_id,
-      (recordedByCourse.get(session.course_id) ?? 0) + 1,
+      event.courseId,
+      (recordedByCourse.get(event.courseId) ?? 0) + 1,
     );
   }
 
-  const courseBreakdown = snapshot.courses.map((course) => {
+  const courseBreakdown = snapshot.scopedCourses.map((course) => {
     const sessions = sessionsByCourse.get(course.id) ?? 0;
     const expected = sessions * (enrollmentsByCourse.get(course.id) ?? 0);
     const recorded = recordedByCourse.get(course.id) ?? 0;
@@ -497,41 +549,32 @@ export async function getInstructorReportData({
     };
   });
 
-  const totalSessions = snapshot.sessions.length;
+  const totalSessions = normalizedSnapshot.sessions.length;
   const expectedCheckIns = courseBreakdown.reduce(
     (total, courseRow) => total + courseRow.expected,
     0,
   );
-  const recordedCheckIns = snapshot.events.length;
+  const recordedCheckIns = normalizedSnapshot.validEvents.length;
   const attendanceRate = expectedCheckIns
     ? Math.round((recordedCheckIns / expectedCheckIns) * 100)
     : 0;
-  const uniqueStudents = new Set(snapshot.events.map((event) => event.student_profile_id)).size;
+  const uniqueStudents = new Set(
+    normalizedSnapshot.validEvents.map((event) => event.studentProfileId),
+  ).size;
 
-  const csvRows = snapshot.events
-    .map((event) => {
-      const session = sessionById.get(event.attendance_session_id);
-      const profile = snapshot.studentProfilesById.get(event.student_profile_id);
-      const course = Array.isArray(session?.courses) ? session.courses[0] : session?.courses;
-
-      if (!session) {
-        return null;
-      }
-
-      return {
-        date: event.recorded_at || session.starts_at,
-        courseCode: course?.code || "---",
-        courseTitle: course?.title || "Unknown Course",
-        studentId: profile?.university_id || event.student_profile_id,
-        studentName: profile?.full_name || "Unknown Student",
-        status: "Present",
-        notes: buildAttendanceNote(event),
-      };
-    })
-    .filter(Boolean) as InstructorReportData["csvRows"];
+  const csvRows = normalizedSnapshot.validEvents.map((event) => ({
+    sessionStartsAt: event.sessionStartsAt,
+    recordedAt: event.recordedAt,
+    courseCode: event.courseCode,
+    courseTitle: event.courseTitle,
+    studentId: event.studentId,
+    studentName: event.studentName,
+    status: "Present",
+    notes: buildAttendanceNote(event),
+  }));
 
   csvRows.sort((left, right) => {
-    return new Date(right.date).getTime() - new Date(left.date).getTime();
+    return new Date(right.recordedAt).getTime() - new Date(left.recordedAt).getTime();
   });
 
   return {
@@ -553,12 +596,22 @@ export async function getInstructorReportData({
 }
 
 export function buildInstructorReportCsv(rows: InstructorReportData["csvRows"]) {
-  const header = ["Date", "Course Code", "Course Title", "Student ID", "Student Name", "Status", "Notes"];
+  const header = [
+    "Session Start",
+    "Check-In Time",
+    "Course Code",
+    "Course Title",
+    "Student ID",
+    "Student Name",
+    "Status",
+    "Notes",
+  ];
   const lines = [header.join(",")];
 
   for (const row of rows) {
     const values = [
-      row.date,
+      row.sessionStartsAt,
+      row.recordedAt,
       row.courseCode,
       row.courseTitle,
       row.studentId,

@@ -96,7 +96,7 @@ export async function getInstructorDashboardData(): Promise<InstructorDashboardD
 
   const { data: enrollments, error: enrollmentsError } = await supabase
     .from("course_enrollments")
-    .select("course_id")
+    .select("course_id, student_profile_id")
     .in("course_id", courseIds)
     .eq("status", "active");
 
@@ -114,12 +114,14 @@ export async function getInstructorDashboardData(): Promise<InstructorDashboardD
   }
 
   const studentCounts = new Map<string, number>();
+  const uniqueStudentIds = new Set<string>();
   const sessionSummaries = new Map<
     string,
     { total: number; open: number; lastSessionAt: string | null }
   >();
 
   for (const enrollment of enrollments ?? []) {
+    uniqueStudentIds.add(enrollment.student_profile_id);
     studentCounts.set(
       enrollment.course_id,
       (studentCounts.get(enrollment.course_id) ?? 0) + 1,
@@ -164,10 +166,7 @@ export async function getInstructorDashboardData(): Promise<InstructorDashboardD
     courses,
     stats: {
       assignedCourses: courses.length,
-      activeStudents: Array.from(studentCounts.values()).reduce(
-        (total, count) => total + count,
-        0,
-      ),
+      activeStudents: uniqueStudentIds.size,
       totalSessions: Array.from(sessionSummaries.values()).reduce(
         (total, summary) => total + summary.total,
         0,

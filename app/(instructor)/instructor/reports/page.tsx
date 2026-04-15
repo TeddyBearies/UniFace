@@ -97,6 +97,21 @@ function FadedBarIcon() {
   );
 }
 
+function SummaryStat({
+  label,
+  value,
+}: {
+  label: string;
+  value: string | number;
+}) {
+  return (
+    <article className="reportSummaryStat">
+      <span>{label}</span>
+      <strong>{value}</strong>
+    </article>
+  );
+}
+
 export default async function InstructorReportsPage({
   searchParams,
 }: {
@@ -194,52 +209,90 @@ export default async function InstructorReportsPage({
         </form>
 
         <section className="reportPanel" aria-label="Attendance report summary">
-          <div className="reportEmptyState">
-            <div className="reportEmptyIconBox">
-              <EmptyStateIcon />
+          {!reportData.generated || !hasReportRows ? (
+            <div className="reportEmptyState">
+              <div className="reportEmptyIconBox">
+                <EmptyStateIcon />
+              </div>
+
+              {!reportData.generated && (
+                <>
+                  <h2>No data available</h2>
+                  <p>
+                    Please select a course and date range above to
+                    <br />
+                    generate an attendance report summary.
+                  </p>
+                </>
+              )}
+
+              {reportData.generated && !hasReportRows && (
+                <>
+                  <h2>No records found</h2>
+                  <p>
+                    The selected filters returned no attendance records.
+                    <br />
+                    Try widening the date range or selecting another course.
+                  </p>
+                </>
+              )}
+
+              <div className="reportDecorRow" aria-hidden="true">
+                <FadedBarIcon />
+                <FadedBarIcon />
+                <FadedBarIcon />
+              </div>
             </div>
+          ) : (
+            <div className="reportResults">
+              <div className="reportSummaryGrid">
+                <SummaryStat label="Sessions" value={reportData.totals.totalSessions} />
+                <SummaryStat
+                  label="Expected Check-Ins"
+                  value={reportData.totals.expectedCheckIns}
+                />
+                <SummaryStat
+                  label="Recorded Check-Ins"
+                  value={reportData.totals.recordedCheckIns}
+                />
+                <SummaryStat
+                  label="Attendance Rate"
+                  value={`${reportData.totals.attendanceRate}%`}
+                />
+              </div>
 
-            {!reportData.generated && (
-              <>
-                <h2>No data available</h2>
-                <p>
-                  Please select a course and date range above to
-                  <br />
-                  generate an attendance report summary.
-                </p>
-              </>
-            )}
+              <div className="reportBreakdownCard">
+                <div className="reportBreakdownHeader">
+                  <h2>Course Breakdown</h2>
+                  <p>{reportData.courseBreakdown.length} course view(s)</p>
+                </div>
 
-            {reportData.generated && !hasReportRows && (
-              <>
-                <h2>No records found</h2>
-                <p>
-                  The selected filters returned no attendance records.
-                  <br />
-                  Try widening the date range or selecting another course.
-                </p>
-              </>
-            )}
+                <div className="reportBreakdownTable" role="table" aria-label="Course breakdown">
+                  <div className="reportBreakdownRow reportBreakdownHead" role="row">
+                    <span>Course</span>
+                    <span>Sessions</span>
+                    <span>Expected</span>
+                    <span>Recorded</span>
+                    <span>Absent</span>
+                    <span>Rate</span>
+                  </div>
 
-            {reportData.generated && hasReportRows && (
-              <>
-                <h2>Report ready</h2>
-                <p>
-                  Sessions: {reportData.totals.totalSessions} | Expected Check-Ins:{" "}
-                  {reportData.totals.expectedCheckIns}
-                  <br />
-                  Recorded Check-Ins: {reportData.totals.recordedCheckIns} | Attendance Rate:{" "}
-                  {reportData.totals.attendanceRate}%
-                </p>
-              </>
-            )}
-
-            <div className="reportDecorRow" aria-hidden="true">
-              <FadedBarIcon />
-              <FadedBarIcon />
-              <FadedBarIcon />
+                  {reportData.courseBreakdown.map((course) => (
+                    <div key={course.courseId} className="reportBreakdownRow" role="row">
+                      <span>
+                        {course.courseCode} - {course.courseTitle}
+                      </span>
+                      <span>{course.sessions}</span>
+                      <span>{course.expected}</span>
+                      <span>{course.recorded}</span>
+                      <span>{course.absent}</span>
+                      <span>{course.attendanceRate}%</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
             </div>
-          </div>
+          )}
         </section>
 
         <form action="/api/instructor/reports" method="get">

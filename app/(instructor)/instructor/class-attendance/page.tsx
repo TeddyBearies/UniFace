@@ -56,31 +56,35 @@ function EmptyStateIcon() {
   );
 }
 
-function PaginationArrow({ direction }: { direction: "left" | "right" }) {
-  const path = direction === "left" ? "m14 7-5 5 5 5" : "m10 7 5 5-5 5";
+function formatDateTime(value: string | null) {
+  if (!value) {
+    return "Not scanned";
+  }
 
-  return (
-    <svg
-      aria-hidden="true"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="#d0d5dd"
-      strokeWidth="1.9"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      style={{ width: 18, height: 18, flex: "none" }}
-    >
-      <path d={path} />
-    </svg>
-  );
-}
-
-function formatDate(value: string) {
   return new Intl.DateTimeFormat("en", {
+    timeZone: "Africa/Cairo",
     year: "numeric",
     month: "short",
     day: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
   }).format(new Date(value));
+}
+
+function formatTime(value: string) {
+  return new Intl.DateTimeFormat("en", {
+    timeZone: "Africa/Cairo",
+    hour: "numeric",
+    minute: "2-digit",
+  }).format(new Date(value));
+}
+
+function AttendanceStatusBadge({
+  status,
+}: {
+  status: "Present" | "Late" | "Absent";
+}) {
+  return <span className={`attendanceStatusBadge ${status.toLowerCase()}`}>{status}</span>;
 }
 
 export default async function InstructorClassAttendancePage({
@@ -90,7 +94,6 @@ export default async function InstructorClassAttendancePage({
     courseId?: string;
     dateRange?: string;
     search?: string;
-    page?: string;
   };
 }) {
   await requireCurrentProfile(["instructor", "admin"]);
@@ -98,31 +101,32 @@ export default async function InstructorClassAttendancePage({
   const selectedCourseId = searchParams?.courseId || "";
   const selectedDateRange = searchParams?.dateRange || "this-week";
   const search = searchParams?.search || "";
-  const currentPage = Number.parseInt(searchParams?.page || "1", 10);
 
   const classData = await getInstructorClassAttendanceData({
     courseId: selectedCourseId,
     dateRange: selectedDateRange,
     search,
-    page: Number.isNaN(currentPage) ? 1 : currentPage,
   });
 
-  const pageStart = classData.totalRecords === 0 ? 0 : (classData.currentPage - 1) * 10 + 1;
-  const pageEnd = classData.totalRecords === 0 ? 0 : pageStart + classData.records.length - 1;
+  const hasArchive = classData.dateGroups.some((group) => group.sessions.length > 0);
 
   return (
     <InstructorPageFrame activeNav="class-attendance">
       <div className="class-attendance-page instructor-page-content">
         <header className="pageHeader">
           <h1>Class Attendance</h1>
-          <p>View and manage detailed student attendance history and records.</p>
+          <p>Attendance archive grouped by date and session.</p>
         </header>
 
         <form className="classFiltersCard" aria-label="Attendance filters" method="get">
           <div className="classFilterGroup">
             <label htmlFor="class-course-filter">Course</label>
             <div className="selectField">
-              <select id="class-course-filter" name="courseId" defaultValue={classData.selectedCourseId}>
+              <select
+                id="class-course-filter"
+                name="courseId"
+                defaultValue={classData.selectedCourseId}
+              >
                 <option value="">All Courses</option>
                 {classData.courses.map((course) => (
                   <option key={course.id} value={course.id}>
@@ -137,7 +141,11 @@ export default async function InstructorClassAttendancePage({
           <div className="classFilterGroup">
             <label htmlFor="class-date-filter">Date Range</label>
             <div className="selectField">
-              <select id="class-date-filter" name="dateRange" defaultValue={classData.selectedDateRange}>
+              <select
+                id="class-date-filter"
+                name="dateRange"
+                defaultValue={classData.selectedDateRange}
+              >
                 <option value="this-week">This Week</option>
                 <option value="this-month">This Month</option>
                 <option value="all-time">All Time</option>
@@ -163,28 +171,96 @@ export default async function InstructorClassAttendancePage({
           <button type="submit" hidden aria-hidden="true" />
         </form>
 
-        <section className="classTableCard" aria-label="Attendance records">
-          <div className="classTableHeader">
-            <span>Student ID</span>
-            <span>Student Name</span>
-            <span>Date</span>
-            <span>Status</span>
-            <span>Actions</span>
-          </div>
+        {hasArchive ? (
+          <section className="classArchive" aria-label="Attendance archive">
+            {classData.dateGroups.map((dateGroup, dateIndex) => (
+              <article key={dateGroup.dateKey} className="dateArchiveCard">
+                <header className="dateArchiveHeader">
+                  <div>
+                    <h2>{dateGroup.dateLabel}</h2>
+                    <p>{dateGroup.sessions.length} session{dateGroup.sessions.length === 1 ? "" : "s"}</p>
+                  </div>
+                </header>
 
-          {classData.records.length > 0 ? (
-            <div>
-              {classData.records.map((record) => (
-                <div key={record.id} className="classTableHeader">
-                  <span>{record.studentId}</span>
-                  <span>{record.studentName}</span>
-                  <span>{formatDate(record.occurredAt)}</span>
-                  <span>{record.status}</span>
-                  <span>{record.notes}</span>
+                <div className="dateArchiveSessions">
+                  {dateGroup.sessions.map((session, sessionIndex) => (
+                    <details
+                      key={session.sessionId}
+                      className="sessionArchiveCard"
+                      open={dateIndex === 0 && sessionIndex === 0}
+                    >
+                      <summary className="sessionArchiveSummary">
+                        <div className="sessionArchiveTitle">
+                          <strong>{session.sessionTitle}</strong>
+                          <span>{session.instructorName}</span>
+                        </div>
+
+                        <div className="sessionArchiveSummaryMeta">
+                          <span>{formatTime(session.sessionStartsAt)}</span>
+                          <span>
+                            {session.sessionEndsAt ? formatTime(session.sessionEndsAt) : "Open session"}
+                          </span>
+                          <span>{session.totalStudentsScanned} scanned</span>
+                          <span>{session.totalPresent} present</span>
+                          <span>{session.totalLate} late</span>
+                          <span>{session.totalAbsent} absent</span>
+                        </div>
+                      </summary>
+
+                      <div className="sessionArchiveBody">
+                        <div className="sessionArchiveStats">
+                          <article>
+                            <span>Course</span>
+                            <strong>
+                              {session.courseCode} - {session.courseTitle}
+                            </strong>
+                          </article>
+                          <article>
+                            <span>Session Start</span>
+                            <strong>{formatDateTime(session.sessionStartsAt)}</strong>
+                          </article>
+                          <article>
+                            <span>Session End</span>
+                            <strong>
+                              {session.sessionEndsAt ? formatDateTime(session.sessionEndsAt) : "Open"}
+                            </strong>
+                          </article>
+                          <article>
+                            <span>Instructor</span>
+                            <strong>{session.instructorName}</strong>
+                          </article>
+                        </div>
+
+                        <div className="sessionStudentArchive">
+                          <div className="sessionStudentArchiveHeader">
+                            <span>Student ID</span>
+                            <span>Name</span>
+                            <span>Status</span>
+                            <span>Scan Time</span>
+                            <span>Notes</span>
+                          </div>
+
+                          {session.students.map((student) => (
+                            <div key={student.studentProfileId} className="sessionStudentArchiveRow">
+                              <span>{student.studentId}</span>
+                              <span>{student.studentName}</span>
+                              <span>
+                                <AttendanceStatusBadge status={student.status} />
+                              </span>
+                              <span>{formatDateTime(student.recordedAt)}</span>
+                              <span>{student.notes}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </details>
+                  ))}
                 </div>
-              ))}
-            </div>
-          ) : (
+              </article>
+            ))}
+          </section>
+        ) : (
+          <section className="classTableCard" aria-label="Attendance records">
             <div className="classTableEmptyState">
               <div className="classTableEmptyIcon">
                 <EmptyStateIcon />
@@ -192,54 +268,8 @@ export default async function InstructorClassAttendancePage({
               <h2>No records yet</h2>
               <p>Select a course or change your filters to see results.</p>
             </div>
-          )}
-
-          <footer className="classTableFooter">
-            <p>
-              Showing {pageStart}-{pageEnd} of {classData.totalRecords} records
-            </p>
-
-            <div className="paginationButtons" aria-label="Pagination">
-              <form method="get">
-                <input type="hidden" name="courseId" value={classData.selectedCourseId} />
-                <input type="hidden" name="dateRange" value={classData.selectedDateRange} />
-                <input type="hidden" name="search" value={classData.search} />
-                <input
-                  type="hidden"
-                  name="page"
-                  value={String(Math.max(classData.currentPage - 1, 1))}
-                />
-                <button
-                  type="submit"
-                  className="paginationButton"
-                  aria-label="Previous page"
-                  disabled={classData.currentPage <= 1}
-                >
-                  <PaginationArrow direction="left" />
-                </button>
-              </form>
-
-              <form method="get">
-                <input type="hidden" name="courseId" value={classData.selectedCourseId} />
-                <input type="hidden" name="dateRange" value={classData.selectedDateRange} />
-                <input type="hidden" name="search" value={classData.search} />
-                <input
-                  type="hidden"
-                  name="page"
-                  value={String(Math.min(classData.currentPage + 1, classData.totalPages))}
-                />
-                <button
-                  type="submit"
-                  className="paginationButton"
-                  aria-label="Next page"
-                  disabled={classData.currentPage >= classData.totalPages}
-                >
-                  <PaginationArrow direction="right" />
-                </button>
-              </form>
-            </div>
-          </footer>
-        </section>
+          </section>
+        )}
       </div>
     </InstructorPageFrame>
   );
