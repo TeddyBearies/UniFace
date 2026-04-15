@@ -220,6 +220,21 @@ export async function markAttendanceAction(courseId: string, studentProfileId: s
       throw new Error("No open attendance session found.");
    }
 
+   const { data: existingAttendance, error: existingAttendanceError } = await supabase
+    .from("attendance_events")
+    .select("id")
+    .eq("attendance_session_id", session.id)
+    .eq("student_profile_id", normalizedStudentProfileId)
+    .maybeSingle();
+
+   if (existingAttendanceError) {
+     throw new Error("Failed to verify existing attendance record.");
+   }
+
+   if (existingAttendance?.id) {
+     return { success: true, message: "Already marked present" };
+   }
+
    const { error } = await supabase
     .from("attendance_events")
     .insert({

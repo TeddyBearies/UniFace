@@ -1,25 +1,29 @@
 import Link from "next/link";
 import AdminPageFrame from "@/components/AdminPageFrame";
-import { requireCurrentProfile } from "@/features/auth/guards";
+import {
+  deleteAdminUserAction,
+  getAdminUserManagementData,
+  updateAdminUserRoleAction,
+} from "@/features/auth/admin-user-management.service";
 
 const SUMMARY_CARDS = [
   {
     title: "Total Students",
-    value: "1,284",
-    meta: "+12%",
+    key: "totalStudents",
+    meta: "Synced",
     icon: "students",
     accent: "green",
   },
   {
     title: "Total Instructors",
-    value: "86",
-    meta: "Stable",
+    key: "totalInstructors",
+    meta: "Synced",
     icon: "instructors",
     accent: "purple",
   },
   {
     title: "Pending Approvals",
-    value: "14",
+    key: "pendingApprovals",
     meta: "Action Required",
     icon: "approvals",
     accent: "amber",
@@ -182,11 +186,39 @@ function MiniUserAddIcon() {
   );
 }
 
-export default async function AdminUserManagementPage() {
-  await requireCurrentProfile(["admin"]);
+export default async function AdminUserManagementPage({
+  searchParams,
+}: {
+  searchParams?: {
+    role?: string;
+    q?: string;
+    page?: string;
+    success?: string;
+    error?: string;
+  };
+}) {
+  const userData = await getAdminUserManagementData({
+    role: searchParams?.role,
+    q: searchParams?.q,
+    page: searchParams?.page,
+  });
+
+  const search = userData.search;
+  const startIndex =
+    userData.totalUsers === 0 ? 0 : (userData.currentPage - 1) * 8 + 1;
+  const endIndex =
+    userData.totalUsers === 0
+      ? 0
+      : startIndex + userData.users.length - 1;
+  const successMessage = searchParams?.success || "";
+  const errorMessage = searchParams?.error || "";
 
   return (
-    <AdminPageFrame activeNav="user-management" title="">
+    <AdminPageFrame
+      activeNav="user-management"
+      title="User Management"
+      profileLabel={userData.profileLabel}
+    >
       <section className="adminUserManagementPage">
         <div className="adminUserHero">
           <div className="adminUserIntro">
@@ -200,59 +232,205 @@ export default async function AdminUserManagementPage() {
           </Link>
         </div>
 
+        {successMessage && (
+          <p className="adminActionSuccessMessage">{successMessage}</p>
+        )}
+        {errorMessage && <p className="adminActionErrorMessage">{errorMessage}</p>}
+
         <div className="adminUserToolbar">
           <div className="adminUserTabs" role="tablist" aria-label="User category">
-            <button type="button" className="adminUserTab active" role="tab" aria-selected="true">
-              Students
-            </button>
-            <button type="button" className="adminUserTab" role="tab" aria-selected="false">
-              Instructors
-            </button>
+            <form method="get">
+              <input type="hidden" name="role" value="student" />
+              {search && <input type="hidden" name="q" value={search} />}
+              <button
+                type="submit"
+                className={`adminUserTab ${
+                  userData.selectedRole === "student" ? "active" : ""
+                }`}
+                role="tab"
+                aria-selected={userData.selectedRole === "student"}
+              >
+                Students
+              </button>
+            </form>
+
+            <form method="get">
+              <input type="hidden" name="role" value="instructor" />
+              {search && <input type="hidden" name="q" value={search} />}
+              <button
+                type="submit"
+                className={`adminUserTab ${
+                  userData.selectedRole === "instructor" ? "active" : ""
+                }`}
+                role="tab"
+                aria-selected={userData.selectedRole === "instructor"}
+              >
+                Instructors
+              </button>
+            </form>
           </div>
 
-          <div className="adminUserSearch">
+          <form className="adminUserSearch" method="get">
+            <input type="hidden" name="role" value={userData.selectedRole} />
             <SearchIcon />
-            <input type="text" placeholder="Search users..." aria-label="Search users" />
-          </div>
+            <input
+              type="text"
+              name="q"
+              defaultValue={search}
+              placeholder="Search users..."
+              aria-label="Search users"
+            />
+            <button type="submit" hidden aria-hidden="true" />
+          </form>
         </div>
 
         <section className="adminUsersTableCard" aria-label="Users list">
           <div className="adminUsersTableHeader">
-            <span>ID</span>
-            <span>NAME</span>
-            <span>ROLE</span>
-            <span>ACTIONS</span>
+            <div>ID</div>
+            <div>NAME</div>
+            <div>ROLE</div>
+            <div>ACTIONS</div>
           </div>
 
-          <div className="adminUsersEmptyState">
-            <div className="adminUsersEmptyIconWrap">
-              <EmptyUsersIcon />
+          {userData.users.length > 0 ? (
+            <div>
+              {userData.users.map((user) => {
+                const nextRole =
+                  user.role === "student"
+                    ? "instructor"
+                    : user.role === "instructor"
+                      ? "student"
+                      : "admin";
+
+                return (
+                  <div key={user.id} className="adminUsersTableHeader adminUsersTableRow">
+                    <div>{user.displayId}</div>
+                    <div>
+                      <strong>{user.name}</strong>
+                      <small>{user.email}</small>
+                    </div>
+                    <div>
+                      <span className={`adminRoleBadge ${user.role}`}>{user.role}</span>
+                    </div>
+                    <div className="adminUsersActionsCell">
+                      <div className="adminUserActions">
+                        {user.role !== "admin" ? (
+                          <form action={updateAdminUserRoleAction} className="adminInlineActionForm">
+                            <input type="hidden" name="userId" value={user.id} />
+                            <input type="hidden" name="newRole" value={nextRole} />
+                            <input type="hidden" name="role" value={userData.selectedRole} />
+                            <input type="hidden" name="q" value={search} />
+                            <input
+                              type="hidden"
+                              name="page"
+                              value={String(userData.currentPage)}
+                            />
+                            <button type="submit" className="adminInlineActionButton">
+                              Make {nextRole === "instructor" ? "Instructor" : "Student"}
+                            </button>
+                          </form>
+                        ) : (  
+                          <span className="adminInlineActionMuted">Admin Locked</span>
+                        )}
+
+                        {user.universityId && user.role !== "admin" && (
+                          <Link
+                            href={`/admin/reset-face-data?query=${encodeURIComponent(
+                              user.universityId,
+                            )}`}
+                            className="adminInlineLinkAction"
+                          >
+                            Reset Face
+                          </Link>
+                        )}
+
+                        {user.role !== "admin" && (
+                          <form action={deleteAdminUserAction} className="adminInlineActionForm">
+                            <input type="hidden" name="userId" value={user.id} />
+                            <input type="hidden" name="role" value={userData.selectedRole} />
+                            <input type="hidden" name="q" value={search} />
+                            <input
+                              type="hidden"
+                              name="page"
+                              value={String(userData.currentPage)}
+                            />
+                            <button
+                              type="submit"
+                              className="adminInlineActionButton adminInlineDeleteButton"
+                            >
+                              Delete
+                            </button>
+                          </form>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
-            <h2>No users found</h2>
-            <p>
-              There are currently no users matching this
-              <br />
-              category in the system. Start by adding your first
-              <br />
-              user.
-            </p>
+          ) : (
+            <div className="adminUsersEmptyState">
+              <div className="adminUsersEmptyIconWrap">
+                <EmptyUsersIcon />
+              </div>
+              <h2>No users found</h2>
+              <p>
+                There are currently no users matching this
+                <br />
+                category in the system. Start by adding your first
+                <br />
+                user.
+              </p>
 
-            <Link href="/admin/user-management/create" className="adminUsersEmptyAction">
-              <MiniUserAddIcon />
-              <span>Add New User</span>
-            </Link>
-          </div>
+              <Link href="/admin/user-management/create" className="adminUsersEmptyAction">
+                <MiniUserAddIcon />
+                <span>Add New User</span>
+              </Link>
+            </div>
+          )}
 
           <footer className="adminUsersTableFooter">
-            <p>Showing 0 of 0 users</p>
+            <p>
+              Showing {startIndex}-{endIndex} of {userData.totalUsers} users
+            </p>
 
             <div className="adminUsersPagination" aria-label="Pagination">
-              <button type="button" className="adminUsersPageButton" aria-label="Previous page">
-                <PaginationArrow direction="left" />
-              </button>
-              <button type="button" className="adminUsersPageButton" aria-label="Next page">
-                <PaginationArrow direction="right" />
-              </button>
+              <form method="get">
+                <input type="hidden" name="role" value={userData.selectedRole} />
+                <input type="hidden" name="q" value={search} />
+                <input
+                  type="hidden"
+                  name="page"
+                  value={String(Math.max(userData.currentPage - 1, 1))}
+                />
+                <button
+                  type="submit"
+                  className="adminUsersPageButton"
+                  aria-label="Previous page"
+                  disabled={userData.currentPage <= 1}
+                >
+                  <PaginationArrow direction="left" />
+                </button>
+              </form>
+              <form method="get">
+                <input type="hidden" name="role" value={userData.selectedRole} />
+                <input type="hidden" name="q" value={search} />
+                <input
+                  type="hidden"
+                  name="page"
+                  value={String(
+                    Math.min(userData.currentPage + 1, userData.totalPages),
+                  )}
+                />
+                <button
+                  type="submit"
+                  className="adminUsersPageButton"
+                  aria-label="Next page"
+                  disabled={userData.currentPage >= userData.totalPages}
+                >
+                  <PaginationArrow direction="right" />
+                </button>
+              </form>
             </div>
           </footer>
         </section>
@@ -267,7 +445,7 @@ export default async function AdminUserManagementPage() {
               <div className={`adminUserSummaryMeta ${card.accent}`}>{card.meta}</div>
 
               <p>{card.title}</p>
-              <strong>{card.value}</strong>
+              <strong>{userData.summary[card.key]}</strong>
             </article>
           ))}
         </section>

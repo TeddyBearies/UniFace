@@ -1,5 +1,8 @@
 import AdminPageFrame from "@/components/AdminPageFrame";
-import { requireCurrentProfile } from "@/features/auth/guards";
+import {
+  getAdminFaceResetData,
+  resetFaceDataAction,
+} from "@/features/face/admin-face-reset.service";
 
 function WarningIcon() {
   return (
@@ -118,16 +121,50 @@ function AuditIcon() {
   );
 }
 
-export default async function AdminResetFaceDataPage() {
-  await requireCurrentProfile(["admin"]);
+function formatDate(value: string | null) {
+  if (!value) {
+    return "Never";
+  }
+
+  return new Intl.DateTimeFormat("en", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+  }).format(new Date(value));
+}
+
+export default async function AdminResetFaceDataPage({
+  searchParams,
+}: {
+  searchParams?: {
+    query?: string;
+    success?: string;
+    error?: string;
+  };
+}) {
+  const lookupQuery = searchParams?.query || "";
+  const resetData = await getAdminFaceResetData(lookupQuery);
+  const successMessage = searchParams?.success || "";
+  const errorMessage = searchParams?.error || "";
 
   return (
-    <AdminPageFrame activeNav="reset-face-data" title="">
+    <AdminPageFrame
+      activeNav="reset-face-data"
+      title="Reset Face Data"
+      profileLabel={resetData.profileLabel}
+    >
       <section className="adminResetFaceDataPage">
         <header className="adminResetIntro">
           <h1>Reset Biometric Data</h1>
           <p>Remove existing facial recognition profiles for specific students.</p>
         </header>
+
+        {successMessage && (
+          <p className="adminActionSuccessMessage">{successMessage}</p>
+        )}
+        {errorMessage && <p className="adminActionErrorMessage">{errorMessage}</p>}
 
         <section className="adminResetWarningBanner" aria-label="Important warning">
           <WarningIcon />
@@ -150,21 +187,58 @@ export default async function AdminResetFaceDataPage() {
             </p>
           </div>
 
-          <div className="adminResetFieldBlock">
-            <label htmlFor="reset-student-id">Student ID Number</label>
-            <div className="adminResetInput">
-              <StudentLookupIcon />
-              <input
-                id="reset-student-id"
-                type="text"
-                placeholder="e.g. 2024-00123"
-                aria-label="Student ID Number"
-              />
+          <form method="get">
+            <div className="adminResetFieldBlock">
+              <label htmlFor="reset-student-id">Student Identifier</label>
+              <div className="adminResetInput">
+                <StudentLookupIcon />
+                <input
+                  id="reset-student-id"
+                  name="query"
+                  type="text"
+                  defaultValue={resetData.lookupQuery}
+                  placeholder="8-digit ID, email, or profile UUID"
+                  aria-label="Student Identifier"
+                />
+              </div>
+              <span className="adminResetHint">
+                Lookup supports 8-digit university ID, student email, or profile UUID.
+              </span>
+
+              <button type="submit" className="adminInlineActionButton adminResetLookupButton">
+                Find Student
+              </button>
+
+              {lookupQuery && !resetData.lookupResult && (
+                <p className="adminActionErrorMessage">
+                  No matching student profile was found.
+                </p>
+              )}
+
+              {resetData.lookupResult && (
+                <div className="adminResetStudentInfo">
+                  <p>
+                    <strong>Name:</strong> {resetData.lookupResult.fullName}
+                  </p>
+                  <p>
+                    <strong>Email:</strong> {resetData.lookupResult.email}
+                  </p>
+                  <p>
+                    <strong>University ID:</strong>{" "}
+                    {resetData.lookupResult.universityId || "Not assigned"}
+                  </p>
+                  <p>
+                    <strong>Enrollment Status:</strong>{" "}
+                    {resetData.lookupResult.enrollmentStatus}
+                  </p>
+                  <p>
+                    <strong>Last Enrolled:</strong>{" "}
+                    {formatDate(resetData.lookupResult.lastEnrolledAt)}
+                  </p>
+                </div>
+              )}
             </div>
-            <span className="adminResetHint">
-              Search student by their 10-digit institutional identifier.
-            </span>
-          </div>
+          </form>
 
           <footer className="adminResetFooter">
             <div className="adminResetVerification">
@@ -172,10 +246,23 @@ export default async function AdminResetFaceDataPage() {
               <span>Requires admin verification</span>
             </div>
 
-            <button type="button" className="adminResetAction">
-              <TrashIcon />
-              <span>Reset Face Data</span>
-            </button>
+            <form action={resetFaceDataAction}>
+              <input
+                type="hidden"
+                name="profileId"
+                value={resetData.lookupResult?.profileId || ""}
+              />
+              <input type="hidden" name="query" value={lookupQuery} />
+
+              <button
+                type="submit"
+                className="adminResetAction"
+                disabled={!resetData.lookupResult}
+              >
+                <TrashIcon />
+                <span>Reset Face Data</span>
+              </button>
+            </form>
           </footer>
         </section>
 

@@ -1,30 +1,30 @@
 import Link from "next/link";
 import AdminPageFrame from "@/components/AdminPageFrame";
-import { requireCurrentProfile } from "@/features/auth/guards";
+import { getAdminDashboardData } from "@/features/reports/admin-dashboard.service";
 
 const OVERVIEW_CARDS = [
   {
     title: "TOTAL USERS",
-    value: "--",
-    hint: "Initializing sync...",
+    valueKey: "totalUsers",
+    hint: "Registered accounts",
     icon: "users",
   },
   {
     title: "ACTIVE COURSES",
-    value: "--",
-    hint: "System ready",
+    valueKey: "activeCourses",
+    hint: "Available this term",
     icon: "courses",
   },
   {
     title: "FACE DATA SCANS",
-    value: "--",
-    hint: "Awaiting data",
+    valueKey: "faceDataScans",
+    hint: "Total attendance events",
     icon: "scan",
   },
   {
     title: "PENDING REPORTS",
-    value: "--",
-    hint: "Priority Check",
+    valueKey: "pendingReports",
+    hint: "Open attendance sessions",
     icon: "reports",
   },
 ] as const;
@@ -53,24 +53,6 @@ const QUICK_LINKS = [
     description: "Export attendance and system logs.",
     href: "/admin/reports",
     icon: "reports",
-  },
-] as const;
-
-const SYSTEM_LOGS = [
-  {
-    title: "System initialization complete",
-    time: "Today at 09:41 AM",
-    icon: "info",
-  },
-  {
-    title: "Database synchronization in progress",
-    time: "Today at 08:30 AM",
-    icon: "sync",
-  },
-  {
-    title: "Security patches applied",
-    time: "Yesterday at 11:20 PM",
-    icon: "shield",
   },
 ] as const;
 
@@ -162,7 +144,7 @@ function QuickLinkIcon({ kind }: { kind: (typeof QUICK_LINKS)[number]["icon"] })
   );
 }
 
-function LogIcon({ kind }: { kind: (typeof SYSTEM_LOGS)[number]["icon"] }) {
+function LogIcon({ kind }: { kind: "info" | "sync" | "shield" }) {
   if (kind === "info") {
     return (
       <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="#1098ae" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="adminLogIcon">
@@ -201,10 +183,14 @@ function SectionSparkIcon() {
 }
 
 export default async function AdminDashboardPage() {
-  await requireCurrentProfile(["admin"]);
+  const dashboardData = await getAdminDashboardData();
 
   return (
-    <AdminPageFrame activeNav="dashboard" title="Dashboard">
+    <AdminPageFrame
+      activeNav="dashboard"
+      title="Dashboard"
+      profileLabel={dashboardData.profileLabel}
+    >
       <section className="adminDashboardPage">
         <header className="adminIntro">
           <h1>System Overview</h1>
@@ -218,7 +204,7 @@ export default async function AdminDashboardPage() {
                 <span>{card.title}</span>
                 <OverviewIcon kind={card.icon} />
               </div>
-              <strong>{card.value}</strong>
+              <strong>{dashboardData.stats[card.valueKey]}</strong>
               <p>{card.hint}</p>
             </article>
           ))}
@@ -250,8 +236,8 @@ export default async function AdminDashboardPage() {
           </div>
 
           <div className="adminLogsList">
-            {SYSTEM_LOGS.map((log) => (
-              <article key={log.title} className="adminLogItem">
+            {dashboardData.logs.map((log, index) => (
+              <article key={`${log.title}-${index}`} className="adminLogItem">
                 <div className="adminLogIconWrap">
                   <LogIcon kind={log.icon} />
                 </div>

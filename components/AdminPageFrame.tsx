@@ -259,9 +259,11 @@ export default function AdminPageFrame({
           <div className="topTitle">{title}</div>
 
           <div className="topActions">
-            <button type="button" className="bellButton" aria-label="Notifications">
-              <BellIcon />
-            </button>
+            <form method="get">
+              <button type="submit" className="bellButton" aria-label="Refresh page">
+                <BellIcon />
+              </button>
+            </form>
 
             <div className="userBadge">
               <div className="userMeta">

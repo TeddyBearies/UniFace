@@ -1243,6 +1243,73 @@ body {
   padding: 22px 24px 36px;
 }
 
+.admin-page-shell .topActions form {
+  margin: 0;
+}
+
+.adminActionSuccessMessage,
+.adminActionErrorMessage {
+  margin: 16px 0 0;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+.adminActionSuccessMessage {
+  color: #0f7d56;
+}
+
+.adminActionErrorMessage {
+  color: #b42318;
+}
+
+.adminInlineActionButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 30px;
+  padding: 0 12px;
+  border: 1px solid #e4e7ec;
+  border-radius: 6px;
+  background: #ffffff;
+  color: #344054;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.adminInlineDeleteButton {
+  border-color: #fecdca;
+  background: #fff5f4;
+  color: #b42318;
+}
+
+.adminInlineActionMuted {
+  color: #98a2b3;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.adminInlineLinkAction {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 30px;
+  padding: 0 10px;
+  border: 1px solid #dce8f3;
+  border-radius: 6px;
+  background: #f8fbff;
+  color: #1098ae;
+  font-size: 12px;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.adminInlineActionForm {
+  margin: 0;
+}
+
 .adminDashboardPage {
   max-width: 1320px;
 }
@@ -1511,6 +1578,10 @@ body {
   background: #edf1f6;
 }
 
+.adminUserManagementPage .adminUserTabs form {
+  margin: 0;
+}
+
 .adminUserManagementPage .adminUserTab {
   min-width: 106px;
   min-height: 30px;
@@ -1577,15 +1648,84 @@ body {
   box-sizing: border-box;
 }
 
-.adminUserManagementPage .adminUsersTableHeader span {
+.adminUserManagementPage .adminUsersTableHeader > * {
   color: #7a8698;
   font-size: 11px;
   font-weight: 800;
   letter-spacing: 0.06em;
 }
 
-.adminUserManagementPage .adminUsersTableHeader span:last-child {
+.adminUserManagementPage .adminUsersTableHeader > *:last-child {
   text-align: right;
+}
+
+.adminUserManagementPage .adminUsersTableRow {
+  min-height: 58px;
+  border-bottom: 1px solid #eef2f6;
+}
+
+.adminUserManagementPage .adminUsersTableRow > * {
+  color: #475467;
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0;
+}
+
+.adminUserManagementPage .adminUsersTableRow > * strong {
+  display: block;
+  color: #1f2937;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.adminUserManagementPage .adminUsersTableRow > * small {
+  display: block;
+  margin-top: 2px;
+  color: #98a2b3;
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.adminUserManagementPage .adminUsersActionsCell {
+  text-align: right;
+}
+
+.adminUserManagementPage .adminUserActions {
+  display: flex;
+  align-items: stretch;
+  justify-content: flex-end;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.adminUserManagementPage .adminRoleBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 24px;
+  padding: 0 8px;
+  border-radius: 999px;
+  background: #eef2f6;
+  color: #344054;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: capitalize;
+}
+
+.adminUserManagementPage .adminRoleBadge.student {
+  background: #ecfdf3;
+  color: #027a48;
+}
+
+.adminUserManagementPage .adminRoleBadge.instructor {
+  background: #eef4ff;
+  color: #1d4ed8;
+}
+
+.adminUserManagementPage .adminRoleBadge.admin {
+  background: #fff7e5;
+  color: #9a670d;
 }
 
 .adminUserManagementPage .adminUsersEmptyState {
@@ -1661,6 +1801,10 @@ body {
   display: flex;
   align-items: center;
   gap: 6px;
+}
+
+.adminUserManagementPage .adminUsersPagination form {
+  margin: 0;
 }
 
 .adminUserManagementPage .adminUsersPageButton {
@@ -1838,10 +1982,27 @@ body {
   appearance: none;
 }
 
+.adminCourseAssignmentPage .adminAssignSelect input {
+  width: 100%;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: #1f2937;
+  font: inherit;
+  font-size: 14px;
+}
+
 .adminCourseAssignmentPage .adminAssignActions {
   display: flex;
   justify-content: flex-end;
   margin-top: 18px;
+}
+
+.adminCourseAssignmentPage .adminCourseCreateHint {
+  margin: 14px 0 0;
+  color: #8a94a6;
+  font-size: 12px;
+  line-height: 1.4;
 }
 
 .adminCourseAssignmentPage .adminAssignButton {
@@ -1925,6 +2086,47 @@ body {
   text-align: right;
 }
 
+.adminCourseAssignmentPage .adminAssignmentsRow {
+  min-height: 56px;
+  border-bottom: 1px solid #eef2f6;
+}
+
+.adminCourseAssignmentPage .adminAssignmentsRow span {
+  color: #475467;
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0;
+}
+
+.adminCourseAssignmentPage .adminAssignmentsRow span strong {
+  display: block;
+  color: #1f2937;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.adminCourseAssignmentPage .adminAssignmentsRow span small {
+  display: block;
+  margin-top: 2px;
+  color: #98a2b3;
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.adminCourseAssignmentPage .adminAssignmentsRow form {
+  display: inline-flex;
+  justify-content: flex-end;
+  margin: 0;
+}
+
+.adminCourseAssignmentPage .adminAssignmentRowActions {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
 .adminCourseAssignmentPage .adminAssignmentsEmptyState {
   min-height: 194px;
   display: flex;
@@ -1959,6 +2161,82 @@ body {
   color: #98a2b3;
   font-size: 14px;
   line-height: 1.35;
+}
+
+.adminCourseAssignmentPage .adminCoursesCard {
+  margin-top: 24px;
+  border: 1px solid #e5eaf0;
+  border-radius: 10px;
+  background: #ffffff;
+  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.04);
+  overflow: hidden;
+}
+
+.adminCourseAssignmentPage .adminCoursesHeader,
+.adminCourseAssignmentPage .adminCoursesRow {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr 0.7fr 0.6fr;
+  gap: 16px;
+  align-items: center;
+  padding: 0 18px;
+}
+
+.adminCourseAssignmentPage .adminCoursesHeader {
+  min-height: 34px;
+  border-bottom: 1px solid #eef2f6;
+}
+
+.adminCourseAssignmentPage .adminCoursesHeader span {
+  color: #7a8698;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+}
+
+.adminCourseAssignmentPage .adminCoursesHeader span:last-child {
+  text-align: right;
+}
+
+.adminCourseAssignmentPage .adminCoursesRow {
+  min-height: 56px;
+  border-bottom: 1px solid #eef2f6;
+}
+
+.adminCourseAssignmentPage .adminCoursesRow span {
+  color: #475467;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.adminCourseAssignmentPage .adminCoursesRow span strong {
+  display: block;
+  color: #1f2937;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.adminCourseAssignmentPage .adminCoursesRow span small {
+  display: block;
+  margin-top: 2px;
+  color: #98a2b3;
+  font-size: 11px;
+}
+
+.adminCourseAssignmentPage .adminCoursesRow span:last-child {
+  text-align: right;
+}
+
+.adminCourseAssignmentPage .adminCoursesRow form {
+  display: inline-flex;
+  justify-content: flex-end;
+  margin: 0;
+}
+
+.adminCourseAssignmentPage .adminCoursesEmpty {
+  margin: 0;
+  padding: 18px;
+  color: #98a2b3;
+  font-size: 14px;
 }
 
 .adminResetFaceDataPage {
@@ -2084,6 +2362,29 @@ body {
   line-height: 1.3;
 }
 
+.adminResetFaceDataPage .adminResetLookupButton {
+  margin-top: 14px;
+}
+
+.adminResetFaceDataPage .adminResetStudentInfo {
+  margin-top: 16px;
+  padding: 12px 14px;
+  border: 1px solid #e8edf3;
+  border-radius: 6px;
+  background: #f9fbff;
+}
+
+.adminResetFaceDataPage .adminResetStudentInfo p {
+  margin: 0;
+  color: #4b5563;
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.adminResetFaceDataPage .adminResetStudentInfo p + p {
+  margin-top: 6px;
+}
+
 .adminResetFaceDataPage .adminResetFooter {
   display: flex;
   align-items: center;
@@ -2119,6 +2420,11 @@ body {
   font: inherit;
   font-size: 13px;
   font-weight: 700;
+}
+
+.adminResetFaceDataPage .adminResetAction:disabled {
+  opacity: 0.56;
+  cursor: not-allowed;
 }
 
 .adminResetFaceDataPage .adminResetInfoGrid {
@@ -2158,6 +2464,207 @@ body {
   line-height: 1.45;
 }
 
+.adminCreateUserPage {
+  max-width: 980px;
+}
+
+.adminCreateUserPage .adminCreateUserHeader h1 {
+  margin: 10px 0 0;
+  color: #101a39;
+  font-size: 31px;
+  line-height: 1.08;
+  letter-spacing: -0.04em;
+  font-weight: 800;
+}
+
+.adminCreateUserPage .adminCreateUserHeader p {
+  margin: 8px 0 0;
+  color: #667085;
+  font-size: 15px;
+}
+
+.adminCreateUserPage .adminCreateUserBackLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #667085;
+  font-size: 13px;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.adminCreateUserPage .adminCreateUserCard {
+  margin-top: 24px;
+  padding: 18px;
+  border: 1px solid #e5eaf0;
+  border-radius: 10px;
+  background: #ffffff;
+  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.04);
+}
+
+.adminCreateUserPage .adminAssignHeader {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.adminCreateUserPage .adminAssignHeader h2 {
+  margin: 0;
+  color: #1f2937;
+  font-size: 17px;
+  font-weight: 800;
+}
+
+.adminCreateUserPage .adminCreateUserGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.adminCreateUserPage .adminAssignField label {
+  display: block;
+  margin-bottom: 8px;
+  color: #475467;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.adminCreateUserPage .adminAssignSelect {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 36px;
+  padding: 0 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 3px;
+  background: #ffffff;
+  box-sizing: border-box;
+}
+
+.adminCreateUserPage .adminAssignSelect input,
+.adminCreateUserPage .adminAssignSelect select {
+  width: 100%;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: #1f2937;
+  font: inherit;
+  font-size: 14px;
+}
+
+.adminCreateUserPage .adminAssignActions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 18px;
+}
+
+.adminCreateUserPage .adminCreateUserPasswordNote {
+  margin: 14px 0 0;
+  color: #8a94a6;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.adminCreateUserPage .adminAssignButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 120px;
+  min-height: 34px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: 4px;
+  background: #1098ae;
+  box-shadow: 0 6px 14px rgba(16, 152, 174, 0.2);
+  color: #ffffff;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.adminReportsPage {
+  max-width: 1320px;
+}
+
+.adminReportsPage .pageHeader h1 {
+  margin: 0;
+  color: #101a39;
+  font-size: 31px;
+  line-height: 1.08;
+  letter-spacing: -0.04em;
+  font-weight: 800;
+}
+
+.adminReportsPage .pageHeader p {
+  margin: 8px 0 0;
+  color: #667085;
+  font-size: 15px;
+  line-height: 1.45;
+}
+
+.adminReportsPage .adminReportBreakdownCard {
+  margin-top: 24px;
+  border: 1px solid #e5eaf0;
+  border-radius: 8px;
+  background: #ffffff;
+  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.04);
+  overflow: hidden;
+}
+
+.adminReportsPage .adminReportBreakdownHeader,
+.adminReportsPage .adminReportBreakdownRow {
+  display: grid;
+  grid-template-columns: 1.4fr repeat(5, minmax(0, 1fr));
+  gap: 14px;
+  align-items: center;
+  padding: 0 18px;
+}
+
+.adminReportsPage .adminReportBreakdownHeader {
+  min-height: 38px;
+  border-bottom: 1px solid #eef2f6;
+}
+
+.adminReportsPage .adminReportBreakdownHeader span {
+  color: #7a8698;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+}
+
+.adminReportsPage .adminReportBreakdownRow {
+  min-height: 52px;
+  border-bottom: 1px solid #f3f5f8;
+}
+
+.adminReportsPage .adminReportBreakdownRow span {
+  color: #475467;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.adminReportsPage .adminReportBreakdownRow span strong {
+  display: block;
+  color: #1f2937;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.adminReportsPage .adminReportBreakdownRow span small {
+  display: block;
+  margin-top: 2px;
+  color: #98a2b3;
+  font-size: 11px;
+}
+
+.adminReportsPage .adminReportBreakdownEmpty {
+  margin: 0;
+  padding: 18px;
+  color: #98a2b3;
+  font-size: 14px;
+}
+
 @media (max-width: 1200px) {
   .adminDashboardPage .adminOverviewGrid,
   .adminDashboardPage .adminQuickLinksGrid,
@@ -2170,6 +2677,10 @@ body {
   }
 
   .adminResetFaceDataPage .adminResetInfoGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .adminCreateUserPage .adminCreateUserGrid {
     grid-template-columns: 1fr;
   }
 }
@@ -2279,7 +2790,7 @@ body {
     padding: 12px 16px;
   }
 
-  .adminUserManagementPage .adminUsersTableHeader span:last-child {
+  .adminUserManagementPage .adminUsersTableHeader > *:last-child {
     text-align: left;
   }
 
@@ -2296,6 +2807,27 @@ body {
 
   .adminCourseAssignmentPage .adminAssignmentsHeader span:last-child {
     text-align: left;
+  }
+
+  .adminCourseAssignmentPage .adminCoursesHeader,
+  .adminCourseAssignmentPage .adminCoursesRow {
+    grid-template-columns: 1fr;
+    min-height: auto;
+    padding: 12px 16px;
+    row-gap: 6px;
+  }
+
+  .adminCourseAssignmentPage .adminCoursesHeader span:last-child,
+  .adminCourseAssignmentPage .adminCoursesRow span:last-child {
+    text-align: left;
+  }
+
+  .adminReportsPage .adminReportBreakdownHeader,
+  .adminReportsPage .adminReportBreakdownRow {
+    grid-template-columns: 1fr;
+    min-height: auto;
+    padding: 12px 16px;
+    row-gap: 6px;
   }
 
   .adminResetFaceDataPage .adminResetFieldBlock {
