@@ -264,3 +264,41 @@ This file records project changes in chronological order. Each date gets its own
    - Purpose: prevent the same student from being recorded more than once in the same attendance session when the FaceID workflow rechecks a match.
    - Scope: updated `features/face/face.service.ts` so `markAttendanceAction()` now looks up an existing attendance event before inserting a new one, returning a success response when the student is already marked present.
    - Outcome: repeated recognition passes no longer create duplicate attendance rows, which makes the attendance records more stable during live scanning.
+
+
+## 2026-04-15
+
+1. Added the admin reports page and export route.
+   - Purpose: give admins a dedicated reporting screen for reviewing attendance across all courses and exporting the result for offline use.
+   - Scope: created `app/(admin)/admin/reports/page.tsx` with course and date filters, report summaries, breakdown rows, and CSV export actions; added `app/api/admin/reports/route.ts` to generate the downloadable report file; expanded `app/globals.css` with the admin-specific report layout and responsive styles.
+   - Outcome: admins now have a real reporting workflow that mirrors the instructor report experience, including on-demand CSV export.
+
+2. Expanded the admin workflow stack with live services and user creation.
+   - Purpose: replace the remaining admin placeholders with service-backed workflows for dashboard metrics, user management, course assignment, and biometric reset operations.
+   - Scope: updated `app/(admin)/admin/dashboard/page.tsx`, `app/(admin)/admin/user-management/page.tsx`, `app/(admin)/admin/course-assignment/page.tsx`, and `app/(admin)/admin/reset-face-data/page.tsx` to use live admin services; added `app/(admin)/admin/user-management/create/page.tsx` for creating student, instructor, and admin accounts; introduced `features/reports/admin-dashboard.service.ts`, `features/auth/admin-user-management.service.ts`, `features/courses/admin-course-assignment.service.ts`, and `features/face/admin-face-reset.service.ts`; refined `components/AdminPageFrame.tsx` and `app/globals.css` so the new admin actions, status messages, tables, and forms fit the shared shell.
+   - Outcome: the admin control area now supports real dashboard data, account creation, role updates, course assignments, face-data resets, and report navigation instead of static mock screens.
+
+3. Hardened attendance, scan-mode, and history handling.
+   - Purpose: make live attendance sessions more secure and make the archive/report views reflect real session timing and scan states more accurately.
+   - Scope: added `features/attendance/attendance-read.service.ts` and `features/attendance/useLockedScanMode.ts`; added `features/auth/verify-current-password.ts` and tightened `features/auth/client-auth.ts` plus `lib/supabase/client.ts` so browser auth checks work cleanly with locked scanning; expanded `features/attendance/attendance.service.ts`, `features/attendance/instructor-dashboard.ts`, `features/attendance/instructor-records.service.ts`, `features/attendance/student-attendance.service.ts`, `features/courses/course.service.ts`, `features/face/face.service.ts`, and `features/face/useFaceApi.ts` to support session ownership checks, attendance session revalidation, late/duplicate handling, richer CSV rows, and safer webcam scanning; updated `app/(instructor)/instructor/take-attendance/page.tsx`, `app/(instructor)/instructor/class-attendance/page.tsx`, `app/(instructor)/instructor/reports/page.tsx`, and `app/(student)/student/attendance-history/page.tsx` so the UI now shows grouped archives, date-and-time stamps, late statuses, locked fullscreen scanning, and password-protected unlock flow.
+   - Outcome: the attendance experience is now more resilient and realistic, with cleaner scan safety, better session history, and more accurate report data across instructor and student views.
+
+4. Upgraded the instructor biometric workflows.
+   - Purpose: move the FaceID screens from basic camera demos into roster-aware enrollment and attendance tools with stronger operator safeguards.
+   - Scope: updated `app/(instructor)/instructor/enroll-student/page.tsx` to load the instructor's assigned courses, validate the candidate student against the selected course, and auto-add an enrolled student to the roster when appropriate; updated `app/(instructor)/instructor/take-attendance/page.tsx` to enter a browser fullscreen locked-scan mode, protect exit with password verification, show richer scan feedback, and provide controls for starting, scanning, and ending live attendance sessions; expanded `app/globals.css` with the matching locked-scan, fullscreen, unlock-dialog, feedback, and camera-control styling.
+   - Outcome: instructors now get a safer, more guided FaceID experience that ties live scanning to course rosters and explicit session control.
+
+5. Reworked the attendance archive and student history views.
+   - Purpose: make attendance history easier to read by surfacing the actual session timeline rather than only flat check-in rows.
+   - Scope: updated `app/(instructor)/instructor/class-attendance/page.tsx` to group records by date and session, show per-session student rows, and display scan timing and status badges; updated `app/(student)/student/attendance-history/page.tsx` to show date and time together for each record; expanded `app/(instructor)/instructor/reports/page.tsx` to render a summary grid and course breakdown when report data exists; added the matching layout and responsive style updates in `app/globals.css`.
+   - Outcome: both student and instructor history screens now communicate when scans happened, not just which course they belong to.
+
+6. Added shared attendance-read and auth helpers.
+   - Purpose: centralize the snapshot, locking, and password-verification logic used by the attendance and FaceID flows.
+   - Scope: added `features/attendance/attendance-read.service.ts` for normalized session, event, and late-status aggregation; added `features/attendance/useLockedScanMode.ts` for browser fullscreen lock behavior and escape prevention; added `features/auth/verify-current-password.ts` for protected unlock checks; tightened `features/auth/client-auth.ts` and `lib/supabase/client.ts` so browser role lookups and Supabase client reuse are more reliable.
+   - Outcome: the app now has a shared helper layer for locked scanning, browser auth, and attendance snapshot formatting.
+
+7. Hardened the attendance and face service layer.
+   - Purpose: make live sessions, roster checks, and facial recognition behave more consistently under real usage.
+   - Scope: expanded `features/attendance/attendance.service.ts`, `features/attendance/instructor-dashboard.ts`, `features/attendance/instructor-records.service.ts`, `features/attendance/student-attendance.service.ts`, `features/courses/course.service.ts`, `features/face/face.service.ts`, and `features/face/useFaceApi.ts` with session ownership checks, unique student counting, grouped date/session snapshots, course auto-enrollment support, duplicate attendance prevention, late-status handling, stricter webcam readiness checks, and better detection defaults.
+   - Outcome: attendance capture, reporting, and face enrollment now share a more robust backend foundation that reduces duplicate writes and makes the live UI data more accurate.
