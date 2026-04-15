@@ -4,6 +4,13 @@ import { useEffect, useRef, useState, useCallback } from "react";
 import * as faceapi from "face-api.js";
 
 const MODEL_URL = "https://cdn.jsdelivr.net/gh/justadudewhohacks/face-api.js@master/weights";
+const TINY_FACE_OPTIONS = new faceapi.TinyFaceDetectorOptions({
+  inputSize: 224,
+  scoreThreshold: 0.45,
+});
+const ENROLLMENT_FACE_OPTIONS = new faceapi.SsdMobilenetv1Options({
+  minConfidence: 0.4,
+});
 
 export function useFaceApi() {
   const [isModelLoaded, setIsModelLoaded] = useState(false);
@@ -61,7 +68,13 @@ export function useFaceApi() {
       }
 
       const stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: "user" },
+        video: {
+          facingMode: "user",
+          width: { ideal: 640, max: 1280 },
+          height: { ideal: 480, max: 720 },
+          aspectRatio: { ideal: 4 / 3 },
+          frameRate: { ideal: 24, max: 30 },
+        },
         audio: false,
       });
       videoRef.current.srcObject = stream;
@@ -109,9 +122,13 @@ export function useFaceApi() {
       throw new Error("Webcam or models not ready.");
     }
 
+    if (videoRef.current.readyState < HTMLMediaElement.HAVE_CURRENT_DATA) {
+      throw new Error("Camera feed is not ready yet.");
+    }
+
     // Attempt to detect all faces to check for multiple people
     const detections = await faceapi
-      .detectAllFaces(videoRef.current, new faceapi.SsdMobilenetv1Options()) // SSD is more accurate for extracting descriptors
+      .detectAllFaces(videoRef.current, ENROLLMENT_FACE_OPTIONS)
       .withFaceLandmarks()
       .withFaceDescriptors();
 
@@ -131,9 +148,12 @@ export function useFaceApi() {
   // Performs a single quick detection, mainly used in a loop for attendance
   const detectFaces = useCallback(async () => {
     if (!videoRef.current || !isModelLoaded) return [];
+    if (videoRef.current.readyState < HTMLMediaElement.HAVE_CURRENT_DATA) {
+      return [];
+    }
 
     const detections = await faceapi
-      .detectAllFaces(videoRef.current, new faceapi.TinyFaceDetectorOptions())
+      .detectAllFaces(videoRef.current, TINY_FACE_OPTIONS)
       .withFaceLandmarks()
       .withFaceDescriptors();
 

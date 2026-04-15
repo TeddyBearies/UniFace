@@ -4,7 +4,14 @@ import InstructorPageFrame from "@/components/InstructorPageFrame";
 import { useEffect, useState } from "react";
 import { useFaceApi } from "@/features/face/useFaceApi";
 import { useClientRoleGuard } from "@/features/auth/useClientRoleGuard";
-import { enrollStudentFaceAction } from "@/features/face/face.service";
+import {
+  enrollStudentFaceAction,
+  getEnrollmentCandidateAction,
+} from "@/features/face/face.service";
+import {
+  ensureStudentEnrolledInCourseAction,
+  getInstructorCoursesAction,
+} from "@/features/courses/course.service";
 
 function InfoIcon() {
   return (
@@ -172,6 +179,11 @@ export default function InstructorEnrollStudentPage() {
   const [studentId, setStudentId] = useState("");
   const [studentName, setStudentName] = useState("");
   const [course, setCourse] = useState("");
+  const [availableCourses, setAvailableCourses] = useState<
+    { id: string; title: string; code: string }[]
+  >([]);
+  const [isLoadingCourses, setIsLoadingCourses] = useState(true);
+  const [courseLoadError, setCourseLoadError] = useState("");
 
   const [cameraActive, setCameraActive] = useState(false);
   const [enrollStatus, setEnrollStatus] = useState<"idle" | "capturing" | "captured" | "saving" | "success" | "error">("idle");
@@ -183,6 +195,43 @@ export default function InstructorEnrollStudentPage() {
       stopWebcam();
     };
   }, [stopWebcam]);
+
+  useEffect(() => {
+    let mounted = true;
+
+    async function loadCourses() {
+      setIsLoadingCourses(true);
+      setCourseLoadError("");
+
+      try {
+        const courses = await getInstructorCoursesAction();
+        if (!mounted) {
+          return;
+        }
+
+        setAvailableCourses(courses);
+      } catch (error: any) {
+        if (!mounted) {
+          return;
+        }
+
+        setAvailableCourses([]);
+        setCourseLoadError(error?.message || "Failed to load assigned courses.");
+      } finally {
+        if (mounted) {
+          setIsLoadingCourses(false);
+        }
+      }
+    }
+
+    if (!isRoleChecking) {
+      loadCourses();
+    }
+
+    return () => {
+      mounted = false;
+    };
+  }, [isRoleChecking]);
 
   const handleStartScan = async () => {
     if (!isAuthorized) {
@@ -206,16 +255,52 @@ export default function InstructorEnrollStudentPage() {
       return;
     }
 
-    if (!normalizedStudentName) {
-      setEnrollMessage("Please enter a valid student name.");
-      setEnrollStatus("error");
-      return;
-    }
-
     setEnrollStatus("idle");
     setEnrollMessage("");
     setDescriptor(null);
     try {
+      const studentRecord = await getEnrollmentCandidateAction(normalizedStudentId, course);
+
+      if (
+        normalizedStudentName &&
+        studentRecord.fullName &&
+        normalizedStudentName.toLowerCase() !== studentRecord.fullName.toLowerCase()
+      ) {
+        setEnrollMessage(
+          `Student ID ${normalizedStudentId} belongs to ${studentRecord.fullName}. Please correct the name before scanning.`,
+        );
+        setEnrollStatus("error");
+        return;
+      }
+
+      if (studentRecord.faceEnrollmentStatus === "complete") {
+        if (course && !studentRecord.isEnrolledInSelectedCourse) {
+          await ensureStudentEnrolledInCourseAction(course, studentRecord.studentProfileId);
+          setEnrollStatus("idle");
+          setEnrollMessage(
+            "This student already had face data and has now been added to the selected course roster.",
+          );
+          setStudentId("");
+          setStudentName("");
+          setDescriptor(null);
+          setCameraActive(false);
+          return;
+        }
+
+        setEnrollStatus("error");
+        setEnrollMessage(
+          "This student already has enrolled face data. Reset it before enrolling again.",
+        );
+        setCameraActive(false);
+        return;
+      }
+
+      setStudentName(studentRecord.fullName || normalizedStudentName);
+      if (course && !studentRecord.isEnrolledInSelectedCourse) {
+        setEnrollMessage(
+          "This student is not yet on the selected course roster. Saving face enrollment will add them to that course automatically.",
+        );
+      }
       await loadWebcam();
       setCameraActive(true);
     } catch (error: any) {
@@ -260,9 +345,17 @@ export default function InstructorEnrollStudentPage() {
     setEnrollStatus("saving");
     setEnrollMessage("Saving biometric data...");
     try {
-      await enrollStudentFaceAction(normalizedStudentId, Array.from(descriptor));
+      const result = await enrollStudentFaceAction(
+        normalizedStudentId,
+        Array.from(descriptor),
+        course,
+      );
       setEnrollStatus("success");
-      setEnrollMessage("Student face enrolled securely.");
+      setEnrollMessage(
+        course
+          ? "Student face enrolled securely and added to the selected course roster."
+          : "Student face enrolled securely.",
+      );
       setDescriptor(null);
       setStudentId("");
       setStudentName("");
@@ -320,12 +413,24 @@ export default function InstructorEnrollStudentPage() {
               <label htmlFor="student-course">Course / Group (Optional)</label>
               <div className="selectField">
                 <select id="student-course" name="course" value={course} onChange={(e) => setCourse(e.target.value)}>
-                  <option value="" disabled>Select course</option>
-                  <option value="general">General Registry</option>
+                  <option value="">
+                    {isLoadingCourses ? "Loading assigned courses..." : "Select course"}
+                  </option>
+                  {availableCourses.map((courseOption) => (
+                    <option key={courseOption.id} value={courseOption.id}>
+                      {courseOption.code} - {courseOption.title}
+                    </option>
+                  ))}
                 </select>
                 <ChevronDownIcon />
               </div>
             </div>
+
+            {courseLoadError && (
+              <p style={{ color: "var(--danger-red)", marginTop: "-0.25rem", marginBottom: "0.75rem", fontSize: "0.875rem" }}>
+                {courseLoadError}
+              </p>
+            )}
 
             <button
               type="button"
