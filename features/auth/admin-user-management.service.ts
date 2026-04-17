@@ -398,7 +398,7 @@ function getInviteRedirectTo() {
     return undefined;
   }
 
-  return `${appUrl.replace(/\/+$/g, "")}/invite-setup`;
+  return `${appUrl.replace(/\/+$/g, "")}/invite-callback`;
 }
 
 async function getNextUniversityIdForYear(
