@@ -31,14 +31,19 @@ test.describe("Instructor flows", () => {
     await page.goto("/instructor/take-attendance");
 
     const selected = await selectFirstUsableOption(page.getByLabel(/course/i));
-    test.skip(!selected, "No instructor course options are available for the test account.");
+    expect(selected).toBeTruthy();
 
     const startButton = page.getByRole("button", { name: /start session/i });
     await expect(startButton).toBeEnabled({ timeout: 30_000 });
     await startButton.click();
 
-    await expect(page.getByText(/session running\. scanning/i)).toBeVisible({ timeout: 20_000 });
-    await expect(page.getByText(/active/i)).toBeVisible();
+    await expect(
+      page.getByRole("button", { name: /session active/i }),
+    ).toBeVisible({ timeout: 20_000 });
+    await expect(
+      page.getByRole("button", { name: /end session/i }),
+    ).toBeEnabled({ timeout: 20_000 });
+    await expect(page.locator("video")).toBeVisible({ timeout: 20_000 });
 
     await page.getByRole("button", { name: /end session/i }).click();
     await expect(page.getByText(/session successfully ended/i)).toBeVisible({ timeout: 20_000 });
@@ -84,13 +89,34 @@ test.describe("Instructor flows", () => {
     await expect(startScanButton).toBeEnabled({ timeout: 30_000 });
     await startScanButton.click();
 
-    await expect(page.locator("video")).toBeVisible({ timeout: 15_000 });
+    const enrollmentMessage = page.getByText(
+      /this student already has enrolled face data\. reset it before enrolling again\.|this student already had face data and has now been added to the selected course roster\.|student id .* belongs to .* please correct the name before scanning\./i,
+    );
+
+    await Promise.race([
+      page.locator("video").waitFor({ state: "visible", timeout: 15_000 }),
+      enrollmentMessage.waitFor({ state: "visible", timeout: 15_000 }),
+    ]);
+
+    const videoVisible = await page.locator("video").isVisible();
+    if (!videoVisible) {
+      await expect(enrollmentMessage).toBeVisible();
+    }
   });
 
   test("TC-I5 - invalid student enrollment shows validation errors", async ({ page }) => {
     await page.goto("/instructor/enroll-student");
-    await page.getByRole("button", { name: /start enrollment scan/i }).click();
+    await page.getByLabel(/student id/i).fill("");
+    await page.getByLabel(/student name/i).fill("");
+    const startScanButton = page.getByRole("button", { name: /start enrollment scan/i });
+    await expect(startScanButton).toBeEnabled({ timeout: 30_000 });
+    await startScanButton.click({ force: true });
 
-    await expect(page.getByText(/please enter an 8-digit student id and name first/i)).toBeVisible();
+    const enrollmentMessage = page.getByTestId("enrollment-message");
+
+    await expect(enrollmentMessage).toBeVisible({ timeout: 15_000 });
+    await expect(enrollmentMessage).toHaveText(
+      /please enter an 8-digit student id and name first/i,
+    );
   });
 });

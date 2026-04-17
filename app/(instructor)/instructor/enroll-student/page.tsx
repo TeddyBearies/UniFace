@@ -243,14 +243,20 @@ export default function InstructorEnrollStudentPage() {
     const normalizedStudentId = studentId.trim();
     const normalizedStudentName = studentName.trim();
 
-    if (!/^\d{8}$/.test(normalizedStudentId)) {
-      setEnrollMessage("Student ID must be exactly 8 digits.");
+    if (!normalizedStudentId || !normalizedStudentName || !/^\d{8}$/.test(normalizedStudentId)) {
+      setEnrollMessage("Please enter an 8-digit student ID and name first.");
       setEnrollStatus("error");
       return;
     }
 
-    if (!normalizedStudentId || !normalizedStudentName) {
-      setEnrollMessage("Please enter an 8-digit student ID and name first.");
+    if (isFaceApiLoading) {
+      setEnrollMessage("AI models are still loading. Please wait a moment and try again.");
+      setEnrollStatus("error");
+      return;
+    }
+
+    if (!isModelLoaded) {
+      setEnrollMessage("Face recognition models are not ready yet. Please try again.");
       setEnrollStatus("error");
       return;
     }
@@ -437,12 +443,31 @@ export default function InstructorEnrollStudentPage() {
               className="primaryAction largeAction"
               onClick={handleStartScan}
               disabled={
-                isFaceApiLoading || !isModelLoaded || cameraActive || isRoleChecking || !isAuthorized
+                cameraActive || isRoleChecking || !isAuthorized
               }
             >
               <StartEnrollIcon />
               <span>Start Enrollment Scan</span>
             </button>
+
+            {enrollMessage && (
+              <p
+                data-testid="enrollment-message"
+                role={enrollStatus === "error" ? "alert" : "status"}
+                aria-live={enrollStatus === "error" ? "assertive" : "polite"}
+                style={{
+                  color:
+                    enrollStatus === "error"
+                      ? "var(--danger-red)"
+                      : "var(--accent-teal)",
+                  marginTop: "0.75rem",
+                  fontSize: "0.875rem",
+                  fontWeight: 600,
+                }}
+              >
+                {enrollMessage}
+              </p>
+            )}
           </section>
 
           <section className="panelCard biometricCard">
@@ -487,12 +512,6 @@ export default function InstructorEnrollStudentPage() {
               />
             </div>
             
-            {enrollMessage && (
-              <p style={{ marginTop: '1rem', color: enrollStatus === 'error' ? 'var(--danger-red)' : 'var(--accent-teal)', textAlign: 'center', fontWeight: 600, fontSize: "0.9rem" }}>
-                {enrollMessage}
-              </p>
-            )}
-
             {enrollStatus === "captured" || enrollStatus === "saving" || enrollStatus === "success" ? (
               <button
                 type="button"
