@@ -21,12 +21,12 @@ const NAV_ITEMS: Array<{
   label: string;
   href: string;
 }> = [
-  { key: "dashboard", label: "Dashboard", href: "/admin/dashboard" },
-  { key: "user-management", label: "User Management", href: "/admin/user-management" },
-  { key: "course-assignment", label: "Course Assignment", href: "/admin/course-assignment" },
-  { key: "reset-face-data", label: "Reset Face Data", href: "/admin/reset-face-data" },
-  { key: "reports", label: "Reports", href: "/admin/reports" },
-];
+    { key: "dashboard", label: "Dashboard", href: "/admin/dashboard" },
+    { key: "user-management", label: "User Management", href: "/admin/user-management" },
+    { key: "course-assignment", label: "Course Assignment", href: "/admin/course-assignment" },
+    { key: "reset-face-data", label: "Reset Face Data", href: "/admin/reset-face-data" },
+    { key: "reports", label: "Reports", href: "/admin/reports" },
+  ];
 
 function SidebarLogo() {
   return (
@@ -165,19 +165,17 @@ function BellIcon() {
 
 function UserIcon() {
   return (
-    <svg
-      aria-hidden="true"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="#ffffff"
-      strokeWidth="1.9"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      style={{ width: 28, height: 28, flex: "none" }}
-    >
-      <circle cx="12" cy="8" r="3.2" />
-      <path d="M6.5 19c1.7-3 3.8-4.5 6.5-4.5s4.8 1.5 6.5 4.5" />
-    </svg>
+    <img
+      src="/user_placeholder.png"
+      alt="User"
+      style={{
+        width: "70%",
+        height: "70%",
+        display: "block",
+        objectFit: "cover",
+        borderRadius: "14px",
+      }}
+    />
   );
 }
 

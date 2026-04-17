@@ -192,19 +192,17 @@ function BellIcon() {
 
 function UserIcon() {
   return (
-    <svg
-      aria-hidden="true"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="#ffffff"
-      strokeWidth="1.9"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      style={{ width: 28, height: 28, flex: "none" }}
-    >
-      <circle cx="12" cy="8" r="3.2" />
-      <path d="M6.5 19c1.7-3 3.8-4.5 6.5-4.5s4.8 1.5 6.5 4.5" />
-    </svg>
+    <img
+      src="/user_placeholder.png"
+      alt="User"
+      style={{
+        width: "70%",
+        height: "70%",
+        display: "block",
+        objectFit: "cover",
+        borderRadius: "14px",
+      }}
+    />
   );
 }
 
@@ -266,113 +264,57 @@ function NavIcon({ kind, active }: { kind: string; active: boolean }) {
 
 function CardAccentIcon({ kind }: { kind: string }) {
   if (kind === "qr") {
-    return <ScanIcon color="#1098ae" size={18} />;
+    return <ScanIcon color="#1692a8" size={18} />;
   }
 
   if (kind === "student") {
-    return <StudentAddIcon color="#1098ae" size={18} />;
+    return <StudentAddIcon color="#1692a8" size={18} />;
   }
 
   if (kind === "attendance") {
-    return <AttendanceListIcon color="#1098ae" size={18} />;
+    return <AttendanceListIcon color="#1692a8" size={18} />;
   }
 
-  return <ReportsIcon color="#1098ae" size={18} />;
+  return <ReportsIcon color="#1692a8" size={18} />;
 }
 
 function ActionArtwork({ kind }: { kind: string }) {
   if (kind === "scan") {
     return (
-      <svg aria-hidden="true" viewBox="0 0 220 180" className="actionArtwork">
-        <g fill="none" stroke="#ffffff" strokeWidth="5" strokeLinecap="round" strokeLinejoin="round">
-          <rect x="42" y="34" width="136" height="114" rx="7" />
-          <path d="M42 64h136" />
-          <rect x="58" y="25" width="14" height="28" rx="7" />
-          <rect x="148" y="25" width="14" height="28" rx="7" />
-          <rect x="58" y="86" width="22" height="22" rx="2" />
-          <rect x="58" y="117" width="22" height="22" rx="2" />
-          <rect x="58" y="55" width="22" height="22" rx="2" />
-          <circle cx="110" cy="66" r="11" />
-          <path d="M95 85c3-8 8-12 15-12s12 4 15 12" />
-          <circle cx="110" cy="97" r="11" />
-          <path d="M95 116c3-8 8-12 15-12s12 4 15 12" />
-          <circle cx="110" cy="128" r="11" />
-          <path d="M95 147c3-8 8-12 15-12s12 4 15 12" />
-          <path d="M137 58h20" />
-          <path d="M137 70h20" />
-          <path d="M137 89h20" />
-          <path d="M137 101h20" />
-          <path d="M137 120h20" />
-          <path d="M137 132h20" />
-          <path d="m63 65 5 5 10-11" />
-          <path d="m63 96 5 5 10-11" />
-          <path d="m63 127 5 5 10-11" />
-        </g>
-      </svg>
+      <img
+        src="/take_attendance_placeholder.png"
+        alt="Take Attendance"
+        className="actionArtwork"
+      />
     );
   }
 
   if (kind === "enroll") {
     return (
-      <svg aria-hidden="true" viewBox="0 0 220 180" className="actionArtwork">
-        <g fill="none" stroke="#ffffff" strokeWidth="5" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M55 28h88l30 30v94H55z" />
-          <path d="M143 28v30h30" />
-          <circle cx="102" cy="58" r="12" />
-          <path d="M82 90c4-11 11-16 20-16s16 5 20 16" />
-          <circle cx="72" cy="96" r="8" />
-          <path d="m68 96 3 3 6-7" />
-          <path d="M78 110h54" />
-          <path d="M72 124h60" />
-          <path d="M72 138h49" />
-          <path d="m138 141 15-43 11 10-15 43" />
-          <path d="m153 94 11 10" />
-          <path d="M95 156c8 0 4-18 17-18" />
-        </g>
-      </svg>
+      <img
+        src="/enroll-new-student-placeholder.png"
+        alt="Enroll New Student"
+        className="actionArtwork"
+      />
     );
   }
 
   if (kind === "class") {
     return (
-      <svg aria-hidden="true" viewBox="0 0 220 180" className="actionArtwork">
-        <g fill="none" stroke="#ffffff" strokeWidth="5" strokeLinecap="round" strokeLinejoin="round">
-          <path d="m40 46 16 16 32-32" />
-          <path d="m92 46 16 16 32-32" />
-          <path d="m144 46 16 16 32-32" />
-          <circle cx="55" cy="100" r="17" />
-          <path d="M37 148v-15c0-11 8-19 18-19s18 8 18 19v15" />
-          <circle cx="110" cy="100" r="17" />
-          <path d="M92 148v-15c0-11 8-19 18-19s18 8 18 19v15" />
-          <circle cx="165" cy="100" r="17" />
-          <path d="M147 148v-15c0-11 8-19 18-19s18 8 18 19v15" />
-        </g>
-      </svg>
+      <img
+        src="/class-attendance-placeholder.png"
+        alt="Class Attendance"
+        className="actionArtwork"
+      />
     );
   }
 
   return (
-    <svg aria-hidden="true" viewBox="0 0 220 180" className="actionArtwork">
-      <g fill="none" stroke="#ffffff" strokeWidth="5" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M58 48h72c9 0 16 7 16 16v58c0 9-7 16-16 16H58c-9 0-16-7-16-16V64c0-9 7-16 16-16Z" />
-        <path d="M70 68h48" />
-        <path d="M70 89h56" />
-        <path d="M70 110h48" />
-        <path d="M70 131h34" />
-        <path d="M132 53h22c9 0 16 7 16 16v51" />
-        <path d="M132 72h38" />
-        <path d="M136 89h10" />
-        <path d="M151 89h10" />
-        <path d="M166 89h10" />
-        <path d="M136 82v25" />
-        <path d="M151 74v33" />
-        <path d="M166 65v42" />
-        <circle cx="168" cy="126" r="26" />
-        <path d="m156 126 8 8 17-18" />
-        <path d="M42 48 80 10h50c8 0 15 7 15 15v23" />
-        <path d="M80 10v38H42" />
-      </g>
-    </svg>
+    <img
+      src="/reports_placeholder.png"
+      alt="Reports"
+      className="actionArtwork"
+    />
   );
 }
 

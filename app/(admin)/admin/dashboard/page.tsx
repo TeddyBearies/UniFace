@@ -104,7 +104,7 @@ function OverviewIcon({ kind }: { kind: (typeof OVERVIEW_CARDS)[number]["icon"] 
 function QuickLinkIcon({ kind }: { kind: (typeof QUICK_LINKS)[number]["icon"] }) {
   if (kind === "users") {
     return (
-      <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="#1098ae" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" className="adminActionIcon">
+      <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="#1692a8" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" className="adminActionIcon">
         <circle cx="9" cy="8" r="2.6" />
         <path d="M4.8 18c.8-2.6 2.2-4 4.2-4s3.4 1.4 4.2 4" />
         <path d="M16 7h4" />
@@ -115,7 +115,7 @@ function QuickLinkIcon({ kind }: { kind: (typeof QUICK_LINKS)[number]["icon"] })
 
   if (kind === "courses") {
     return (
-      <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="#1098ae" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" className="adminActionIcon">
+      <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="#1692a8" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" className="adminActionIcon">
         <path d="M9 4h6" />
         <path d="M10 3h4a1 1 0 0 1 1 1v1H9V4a1 1 0 0 1 1-1Z" />
         <path d="M7 5.5H6a1.5 1.5 0 0 0-1.5 1.5v11A1.5 1.5 0 0 0 6 19.5h12a1.5 1.5 0 0 0 1.5-1.5V7A1.5 1.5 0 0 0 18 5.5h-1" />
@@ -126,7 +126,7 @@ function QuickLinkIcon({ kind }: { kind: (typeof QUICK_LINKS)[number]["icon"] })
 
   if (kind === "reset") {
     return (
-      <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="#1098ae" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" className="adminActionIcon">
+      <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="#1692a8" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" className="adminActionIcon">
         <path d="M4 12a8 8 0 1 0 3-6.2" />
         <path d="M4 5v5h5" />
         <circle cx="12" cy="12" r="3" />
@@ -135,7 +135,7 @@ function QuickLinkIcon({ kind }: { kind: (typeof QUICK_LINKS)[number]["icon"] })
   }
 
   return (
-    <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="#1098ae" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" className="adminActionIcon">
+    <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="#1692a8" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" className="adminActionIcon">
       <path d="M4 20h16" />
       <path d="M7 16V9" />
       <path d="M12 16V5" />
@@ -147,7 +147,7 @@ function QuickLinkIcon({ kind }: { kind: (typeof QUICK_LINKS)[number]["icon"] })
 function LogIcon({ kind }: { kind: "info" | "sync" | "shield" }) {
   if (kind === "info") {
     return (
-      <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="#1098ae" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="adminLogIcon">
+      <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="#1692a8" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="adminLogIcon">
         <circle cx="12" cy="12" r="8" />
         <path d="M12 10v5" />
         <path d="M12 7h.01" />
@@ -157,7 +157,7 @@ function LogIcon({ kind }: { kind: "info" | "sync" | "shield" }) {
 
   if (kind === "sync") {
     return (
-      <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="#1098ae" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="adminLogIcon">
+      <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="#1692a8" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="adminLogIcon">
         <path d="M7 7h4V3" />
         <path d="M17 17h-4v4" />
         <path d="M17 7a6 6 0 0 0-10-1" />
@@ -167,7 +167,7 @@ function LogIcon({ kind }: { kind: "info" | "sync" | "shield" }) {
   }
 
   return (
-    <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="#1098ae" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="adminLogIcon">
+    <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="#1692a8" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="adminLogIcon">
       <path d="M12 3 6 5.5v5.7c0 4.1 2.5 7.9 6 9.8 3.5-1.9 6-5.7 6-9.8V5.5z" />
       <path d="m9.5 12 1.7 1.7 3.3-3.8" />
     </svg>
@@ -176,7 +176,7 @@ function LogIcon({ kind }: { kind: "info" | "sync" | "shield" }) {
 
 function SectionSparkIcon() {
   return (
-    <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="#1098ae" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="adminSectionIcon">
+    <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="#1692a8" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="adminSectionIcon">
       <path d="m12 3 1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z" />
     </svg>
   );

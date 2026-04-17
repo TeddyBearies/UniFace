@@ -1,0 +1,2024 @@
+.instructor-tool-page.pageShell {
+  --accent: #1692a8;
+  --accent-dark: #0d8699;
+  --border: #e6ebf1;
+  --text: #101a39;
+  --muted: #667085;
+  display: flex;
+  min-height: 100vh;
+  background: #f7f8fc;
+  color: var(--text);
+}
+
+.instructor-tool-page .navItem.active {
+  min-height: 44px;
+  border-radius: 0 10px 10px 0;
+  background: var(--accent);
+  color: #ffffff;
+}
+
+.instructor-tool-page .workspace {
+  flex: 1;
+  min-width: 0;
+}
+
+.instructor-dashboard-page .actionCard:hover,
+.instructor-dashboard-page .bellButton:hover,
+.instructor-dashboard-page .logoutStrip:hover,
+.instructor-dashboard-page .navItem:hover,
+.instructor-page-content .primaryAction:hover,
+.instructor-page-content .secondaryAction:hover,
+.instructor-tool-page .logoutStrip:hover,
+.instructor-tool-page .navItem:hover {
+  filter: brightness(0.985);
+}
+
+.take-attendance-page .takeGrid {
+  display: grid;
+  grid-template-columns: 382px minmax(0, 1fr);
+  gap: 42px;
+  margin-top: 26px;
+  max-width: 1240px;
+}
+
+.take-attendance-page .takeControlsColumn {
+  display: flex;
+  flex-direction: column;
+  gap: 38px;
+}
+
+.take-attendance-page .controlCard {
+  padding: 32px 34px 34px;
+  border: 1px solid #e5eaf0;
+  border-radius: 12px;
+  background: #ffffff;
+  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.04);
+}
+
+.take-attendance-page .mutedCard {
+  min-height: 234px;
+}
+
+.take-attendance-page .sectionTitle h2 {
+  margin: 0;
+  font-size: 17px;
+  line-height: 1.15;
+  font-weight: 800;
+  color: #101a39;
+}
+
+.take-attendance-page .stepBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 999px;
+  background: #edf9fc;
+  color: #5baebd;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.take-attendance-page .stepBadge.muted {
+  background: #f5f7fb;
+  color: #cbd5e1;
+}
+
+.take-attendance-page .fieldBlock {
+  margin-top: 28px;
+}
+
+.take-attendance-page .fieldBlock label {
+  display: block;
+  margin-bottom: 12px;
+  color: #344054;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.take-attendance-page .primaryAction {
+  width: 100%;
+  margin-top: 24px;
+  min-height: 60px;
+  font-size: 17px;
+}
+
+.take-attendance-page .secondaryAction {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  min-height: 54px;
+  border-radius: 4px;
+  background: #ffffff;
+  font: inherit;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.take-attendance-page .disabledAction {
+  margin-top: 28px;
+  border: 1px solid #eef2f6;
+  color: #d2d8e3;
+  cursor: not-allowed;
+}
+
+.take-attendance-page .dangerAction {
+  margin-top: 18px;
+  border: 1px solid #f6d7d7;
+  color: #e48a8a;
+}
+
+.take-attendance-page .scanColumn {
+  display: flex;
+  flex-direction: column;
+  gap: 36px;
+}
+
+.take-attendance-page .cameraCard {
+  position: relative;
+  min-height: 445px;
+  display: flex;
+  align-items: stretch;
+  justify-content: stretch;
+  border: 1px solid #dfe5ee;
+  border-radius: 6px;
+  background: #020202;
+  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.08);
+  overflow: hidden;
+}
+
+.take-attendance-page .cameraStatus {
+  position: absolute;
+  top: 32px;
+  left: 40px;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: #f4f4f5;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+}
+
+.take-attendance-page .statusDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: #90a7d1;
+}
+
+.take-attendance-page .cameraPlaceholder {
+  width: 100%;
+  min-height: 445px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.take-attendance-page .cameraPlaceholder h3 {
+  margin: 14px 0 0;
+  color: #6b6b6b;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.take-attendance-page .cameraPlaceholder p {
+  margin: 8px 0 0;
+  color: #696969;
+  font-size: 13px;
+}
+
+.take-attendance-page .awaitCard {
+  min-height: 309px;
+  border: 2px dashed #c7eaef;
+  border-radius: 10px;
+  background: #eff7fb;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.take-attendance-page .awaitIconBox {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 78px;
+  height: 78px;
+  border-radius: 18px;
+  background: #ffffff;
+  box-shadow: 0 4px 10px rgba(15, 23, 42, 0.05);
+}
+
+.take-attendance-page .awaitCard h3 {
+  margin: 28px 0 0;
+  color: #8c99b2;
+  font-size: 22px;
+  line-height: 1.1;
+  font-weight: 800;
+}
+
+.take-attendance-page .awaitCard p {
+  margin: 18px 0 0;
+  color: #6d7b91;
+  font-size: 15px;
+  line-height: 1.45;
+}
+
+.take-attendance-page .scanFooterBar {
+  margin-top: 44px;
+  max-width: 1240px;
+  padding-top: 34px;
+  border-top: 1px solid #e7ebf0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.take-attendance-page .scanFooterStats {
+  display: flex;
+  align-items: center;
+  gap: 30px;
+}
+
+.take-attendance-page .footerStat {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: #6c778b;
+  font-size: 14px;
+}
+
+.take-attendance-page .footerDot {
+  width: 11px;
+  height: 11px;
+  border-radius: 999px;
+}
+
+.take-attendance-page .footerDot.present {
+  background: #22c55e;
+}
+
+.take-attendance-page .footerDot.enrolled {
+  background: #d7ddeb;
+}
+
+.take-attendance-page .lastScanText {
+  margin: 0;
+  color: #98a2b3;
+  font-size: 14px;
+}
+
+.take-attendance-page .scanFeedbackCard {
+  margin-top: 18px;
+  padding: 18px 18px 16px;
+  border: 1px solid #e5eaf0;
+  border-radius: 12px;
+  background: #f8fbfd;
+  box-sizing: border-box;
+}
+
+.take-attendance-page .scanFeedbackidle,
+.take-attendance-page .scanFeedbackscanning {
+  background: #f8fbfd;
+}
+
+.take-attendance-page .scanFeedbacklate,
+.take-attendance-page .scanFeedbacksuccess {
+  border-color: #cdeed7;
+  background: #f0fbf4;
+}
+
+.take-attendance-page .scanFeedbackunknown {
+  border-color: #fae2b6;
+  background: #fffaf0;
+}
+
+.take-attendance-page .scanFeedbackduplicate,
+.take-attendance-page .scanFeedbackerror {
+  border-color: #f7d0d0;
+  background: #fff6f6;
+}
+
+.take-attendance-page .scanFeedbackHeader {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.take-attendance-page .scanFeedbackIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  background: #ffffff;
+  box-shadow: 0 4px 10px rgba(15, 23, 42, 0.05);
+  flex: none;
+}
+
+.take-attendance-page .scanFeedbackCopy h3 {
+  margin: 6px 0 0;
+  color: #101828;
+  font-size: 18px;
+  line-height: 1.15;
+  font-weight: 800;
+}
+
+.take-attendance-page .scanFeedbackBadge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+  padding: 0 10px;
+  border-radius: 999px;
+  background: #edf6fb;
+  color: #2c7f8f;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.take-attendance-page .scanFeedbackDetail {
+  margin: 12px 0 0;
+  color: #526075;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.take-attendance-page .scanFeedbackGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.take-attendance-page .scanFeedbackGrid div {
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: #ffffff;
+  border: 1px solid #edf1f5;
+}
+
+.class-attendance-page .sessionArchiveStats span,
+.take-attendance-page .scanFeedbackGrid span {
+  display: block;
+  margin-bottom: 6px;
+  color: #7b8794;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.take-attendance-page .scanFeedbackGrid strong {
+  color: #0f172a;
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.take-attendance-page .takeEnterLockedModeButton {
+  margin-top: 16px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 36px;
+  padding: 0 14px;
+  border: 1px solid #dbe3ec;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #334155;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.take-attendance-page .takeLockedShell {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 340px;
+  width: 100%;
+  height: 100vh;
+  background: #05070b;
+}
+
+.take-attendance-page .takeLockedCameraCard.cameraCard {
+  position: relative;
+  min-height: 100vh;
+  border-radius: 0;
+  border: 0;
+  box-shadow: none;
+}
+
+.take-attendance-page .takeLockedFeedback {
+  position: absolute;
+  left: 28px;
+  right: 28px;
+  bottom: 24px;
+  margin-top: 0;
+  max-width: 780px;
+  z-index: 3;
+}
+
+.take-attendance-page .faceGuideOverlay {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.take-attendance-page .faceGuideCorner {
+  position: absolute;
+  width: 72px;
+  height: 72px;
+  border-color: rgba(255, 255, 255, 0.32);
+  border-style: solid;
+}
+
+.take-attendance-page .faceGuideCornerTopLeft {
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) translate(-170px, -132px);
+  border-width: 2px 0 0 2px;
+}
+
+.take-attendance-page .faceGuideCornerTopRight {
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) translate(98px, -132px);
+  border-width: 2px 2px 0 0;
+}
+
+.take-attendance-page .faceGuideCornerBottomLeft {
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) translate(-170px, 60px);
+  border-width: 0 0 2px 2px;
+}
+
+.take-attendance-page .faceGuideCornerBottomRight {
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) translate(98px, 60px);
+  border-width: 0 2px 2px 0;
+}
+
+.take-attendance-page .faceGuideCenterLine {
+  position: absolute;
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.take-attendance-page .faceGuideCenterVertical {
+  top: 16%;
+  bottom: 16%;
+  left: 50%;
+  width: 1px;
+  transform: translateX(-50%);
+}
+
+.take-attendance-page .faceGuideCenterHorizontal {
+  left: 12%;
+  right: 12%;
+  top: 50%;
+  height: 1px;
+  transform: translateY(-50%);
+}
+
+.take-attendance-page .takeLockedSidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 16px;
+  background: #0f172a;
+  border-left: 1px solid rgba(148, 163, 184, 0.2);
+  color: #e2e8f0;
+  overflow-y: auto;
+}
+
+.take-attendance-page .takeLockedSidebar .takeLockedControlCard .primaryAction:disabled,
+.take-attendance-page .takeLockedSidebar .takeLockedControlCard .secondaryAction:disabled {
+  opacity: 0.45;
+}
+
+.instructor-dashboard-page .actionCardHeader,
+.take-attendance-page .takeLockedHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.take-attendance-page .takeLockedHeader h2 {
+  margin: 0;
+  color: #f8fafc;
+  font-size: 20px;
+  line-height: 1.1;
+  font-weight: 800;
+}
+
+.take-attendance-page .takeLockedHeader p {
+  margin: 6px 0 0;
+  color: #94a3b8;
+  font-size: 13px;
+}
+
+.take-attendance-page .takeLockedShield {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 28px;
+  padding: 0 10px;
+  border-radius: 999px;
+  background: rgba(16, 185, 129, 0.12);
+  color: #34d399;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.take-attendance-page .takeLockedStats {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.take-attendance-page .takeLockedLastScan,
+.take-attendance-page .takeLockedStats div {
+  padding: 10px;
+  border: 1px solid rgba(148, 163, 184, 0.24);
+  border-radius: 8px;
+  background: rgba(15, 23, 42, 0.76);
+}
+
+.take-attendance-page .takeLockedLastScan {
+  grid-column: 1 / -1;
+}
+
+.take-attendance-page .takeLockedStats span {
+  display: block;
+  margin-bottom: 6px;
+  color: #93a4bf;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.take-attendance-page .takeLockedStats strong {
+  color: #f8fafc;
+  font-size: 13px;
+  line-height: 1.3;
+  font-weight: 700;
+}
+
+.take-attendance-page .takeLockedControlCard {
+  padding: 12px;
+  border: 1px solid rgba(148, 163, 184, 0.24);
+  border-radius: 10px;
+  background: rgba(15, 23, 42, 0.9);
+}
+
+.take-attendance-page .takeLockedControlCard label {
+  display: block;
+  margin-bottom: 8px;
+  color: #cbd5e1;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.take-attendance-page .takeLockedControlCard .selectField {
+  min-height: 42px;
+  border-color: rgba(148, 163, 184, 0.3);
+  background: rgba(30, 41, 59, 0.7);
+}
+
+.take-attendance-page .takeLockedControlCard .selectField select {
+  color: #e2e8f0;
+  font-size: 14px;
+}
+
+.take-attendance-page .takeLockedControlCard .primaryAction,
+.take-attendance-page .takeLockedControlCard .secondaryAction {
+  min-height: 44px;
+  margin-top: 10px;
+  font-size: 14px;
+}
+
+.take-attendance-page .takeLockedControlCard .disabledAction {
+  border-color: rgba(148, 163, 184, 0.2);
+  color: #93a4bf;
+}
+
+.take-attendance-page .takeLockedStatusMessage {
+  margin: 0;
+  color: #a8b6ca;
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.take-attendance-page .takeLockedExitActions {
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.take-attendance-page .takeLockedUtilityButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 38px;
+  padding: 0 12px;
+  border: 1px solid rgba(148, 163, 184, 0.34);
+  border-radius: 8px;
+  background: rgba(15, 23, 42, 0.85);
+  color: #e2e8f0;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.take-attendance-page .takeLockedExitButton {
+  border-color: rgba(248, 113, 113, 0.5);
+  color: #fecaca;
+}
+
+.take-attendance-page .takeUnlockOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(2, 6, 23, 0.76);
+}
+
+.take-attendance-page .takeUnlockDialog {
+  width: min(420px, 100%);
+  padding: 20px;
+  border: 1px solid #dbe3ec;
+  border-radius: 12px;
+  background: #ffffff;
+  box-shadow: 0 20px 40px rgba(15, 23, 42, 0.28);
+}
+
+.take-attendance-page .takeUnlockDialog h3 {
+  margin: 0;
+  color: #0f172a;
+  font-size: 22px;
+  line-height: 1.1;
+  font-weight: 800;
+}
+
+.take-attendance-page .takeUnlockDialog p {
+  margin: 10px 0 0;
+  color: #64748b;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.take-attendance-page .takeUnlockDialog label {
+  display: block;
+  margin-top: 16px;
+  color: #334155;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.take-attendance-page .takeUnlockDialog input {
+  width: 100%;
+  height: 42px;
+  margin-top: 8px;
+  padding: 0 12px;
+  border: 1px solid #d0d9e3;
+  border-radius: 8px;
+  color: #0f172a;
+  font: inherit;
+  font-size: 14px;
+  box-sizing: border-box;
+}
+
+.take-attendance-page .takeUnlockError {
+  margin: 10px 0 0;
+  color: #dc2626;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.take-attendance-page .takeUnlockActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.take-attendance-page .takeUnlockCancel,
+.take-attendance-page .takeUnlockConfirm {
+  min-height: 36px;
+  padding: 0 12px;
+  border-radius: 8px;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.take-attendance-page .takeUnlockCancel {
+  border: 1px solid #dbe3ec;
+  background: #ffffff;
+  color: #334155;
+}
+
+.take-attendance-page .takeUnlockConfirm {
+  border: 0;
+  background: #1692a8;
+  color: #ffffff;
+}
+
+.enroll-student-page .infoPill {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 16px;
+  min-height: 34px;
+  padding: 0 16px;
+  border-radius: 999px;
+  background: #eef6fa;
+  color: #2aa0b2;
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+}
+
+.enroll-student-page .enrollGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 638px;
+  gap: 40px;
+  margin-top: 44px;
+  max-width: 1320px;
+}
+
+.enroll-student-page .panelCard {
+  min-height: 652px;
+  padding: 46px 44px 38px;
+  border: 1px solid #e5eaf0;
+  border-radius: 12px;
+  background: #ffffff;
+  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.04);
+  box-sizing: border-box;
+}
+
+.enroll-student-page .panelTitle h2 {
+  margin: 0;
+  font-size: 18px;
+  line-height: 1.1;
+  font-weight: 800;
+  color: #101a39;
+}
+
+.enroll-student-page .formGroup,
+.instructor-dashboard-page .statsSection {
+  margin-top: 36px;
+}
+
+.enroll-student-page .formGroup label {
+  display: block;
+  margin-bottom: 12px;
+  color: #344054;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.enroll-student-page .formGroup input {
+  width: 100%;
+  height: 54px;
+  padding: 0 24px;
+  border: 1px solid #dfe5ee;
+  border-radius: 4px;
+  background: #ffffff;
+  box-sizing: border-box;
+  color: #1f2937;
+  font: inherit;
+  font-size: 15px;
+}
+
+.class-attendance-page .searchField input::placeholder,
+.enroll-student-page .formGroup input::placeholder,
+.reports-page .reportDateField input::placeholder {
+  color: #7c8798;
+}
+
+.enroll-student-page .largeAction {
+  width: 100%;
+  margin-top: 34px;
+  min-height: 60px;
+  font-size: 17px;
+}
+
+.enroll-student-page .enrollCameraFrame {
+  position: relative;
+  min-height: 336px;
+  margin-top: 46px;
+  border: 2px dashed #d3dae5;
+  border-radius: 12px;
+  background: #eff4fa;
+  overflow: hidden;
+}
+
+.enroll-student-page .frameCorner {
+  position: absolute;
+  width: 42px;
+  height: 42px;
+  border-color: #8ed0dd;
+  border-style: solid;
+  pointer-events: none;
+}
+
+.enroll-student-page .frameCorner.topLeft {
+  top: 22px;
+  left: 22px;
+  border-width: 3px 0 0 3px;
+}
+
+.enroll-student-page .frameCorner.topRight {
+  top: 22px;
+  right: 22px;
+  border-width: 3px 3px 0 0;
+}
+
+.enroll-student-page .frameCorner.bottomLeft {
+  bottom: 22px;
+  left: 22px;
+  border-width: 0 0 3px 3px;
+}
+
+.enroll-student-page .frameCorner.bottomRight {
+  right: 22px;
+  bottom: 22px;
+  border-width: 0 3px 3px 0;
+}
+
+.enroll-student-page .cameraInnerContent {
+  min-height: 336px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.enroll-student-page .cameraInnerContent h3 {
+  margin: 14px 0 0;
+  color: #8592a8;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.enroll-student-page .cameraInnerContent p {
+  margin: 8px 0 0;
+  color: #95a1b6;
+  font-size: 13px;
+}
+
+.enroll-student-page .helperText {
+  margin: 34px 0 0;
+  color: #6c778b;
+  font-size: 14px;
+  line-height: 1.5;
+  text-align: center;
+}
+
+.enroll-student-page .stepsGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 30px;
+  margin-top: 30px;
+  max-width: 1320px;
+}
+
+.enroll-student-page .stepCard {
+  min-height: 162px;
+  padding: 24px 28px 22px;
+  border-radius: 6px;
+  background: #edf4fa;
+  box-sizing: border-box;
+}
+
+.enroll-student-page .stepHeader h3 {
+  margin: 0;
+  color: #101a39;
+  font-size: 16px;
+  line-height: 1.1;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+}
+
+.enroll-student-page .stepSquare {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border: 2px solid #2aa0b2;
+  border-radius: 4px;
+  color: #2aa0b2;
+  font-size: 16px;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.enroll-student-page .stepCard p {
+  margin: 16px 0 0;
+  color: #4b5563;
+  font-size: 15px;
+  line-height: 1.45;
+}
+
+.class-attendance-page .classFiltersCard {
+  display: grid;
+  grid-template-columns: 296px 296px minmax(0, 1fr);
+  gap: 22px;
+  margin-top: 38px;
+  max-width: 1320px;
+  padding: 30px 34px 34px;
+  border: 1px solid #e5eaf0;
+  border-radius: 12px;
+  background: #ffffff;
+  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.04);
+  box-sizing: border-box;
+}
+
+.class-attendance-page .classFilterGroup label {
+  display: block;
+  margin-bottom: 10px;
+  color: #667085;
+  font-size: 14px;
+  font-weight: 800;
+  line-height: 1.15;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.class-attendance-page .searchField {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-height: 52px;
+  padding: 0 16px 0 14px;
+  border: 1px solid #dfe5ee;
+  border-radius: 4px;
+  background: #ffffff;
+  box-sizing: border-box;
+}
+
+.class-attendance-page .searchField input,
+.reports-page .reportDateField input {
+  width: 100%;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: #1f2937;
+  font: inherit;
+  font-size: 15px;
+}
+
+.class-attendance-page .classTableCard {
+  margin-top: 42px;
+  max-width: 1320px;
+  border: 1px solid #e5eaf0;
+  border-radius: 12px;
+  background: #ffffff;
+  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.04);
+  overflow: hidden;
+}
+
+.class-attendance-page .classTableHeader {
+  display: grid;
+  grid-template-columns: 1.14fr 1.38fr 0.78fr 0.8fr 0.5fr;
+  gap: 24px;
+  align-items: center;
+  min-height: 68px;
+  padding: 0 34px;
+  border-bottom: 1px solid #e6ebf1;
+  color: #667085;
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  box-sizing: border-box;
+}
+
+.class-attendance-page .classTableEmptyState {
+  min-height: 446px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  text-align: center;
+  box-sizing: border-box;
+}
+
+.class-attendance-page .classTableEmptyIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 88px;
+  height: 88px;
+  border-radius: 18px;
+  background: #f1f5f9;
+}
+
+.class-attendance-page .classTableEmptyState h2 {
+  margin: 24px 0 0;
+  color: #101828;
+  font-size: 22px;
+  line-height: 1.1;
+  font-weight: 800;
+}
+
+.class-attendance-page .classTableEmptyState p {
+  margin: 16px 0 0;
+  color: #667085;
+  font-size: 15px;
+  line-height: 1.45;
+}
+
+.class-attendance-page .classTableFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  min-height: 78px;
+  padding: 0 34px;
+  border-top: 1px solid #e6ebf1;
+  box-sizing: border-box;
+}
+
+.class-attendance-page .classTableFooter p {
+  margin: 0;
+  color: #667085;
+  font-size: 15px;
+}
+
+.class-attendance-page .paginationButtons {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.class-attendance-page .paginationButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: 1px solid #eaecf0;
+  border-radius: 4px;
+  background: #ffffff;
+  padding: 0;
+}
+
+.class-attendance-page .classArchive {
+  display: grid;
+  gap: 18px;
+  margin-top: 42px;
+  max-width: 1320px;
+}
+
+.class-attendance-page .dateArchiveCard {
+  border: 1px solid #e5eaf0;
+  border-radius: 14px;
+  background: #ffffff;
+  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.04);
+  overflow: hidden;
+}
+
+.class-attendance-page .dateArchiveHeader {
+  padding: 22px 28px 18px;
+  border-bottom: 1px solid #eef2f6;
+}
+
+.class-attendance-page .dateArchiveHeader h2 {
+  margin: 0;
+  color: #101828;
+  font-size: 20px;
+  line-height: 1.15;
+  font-weight: 800;
+}
+
+.class-attendance-page .dateArchiveHeader p {
+  margin: 8px 0 0;
+  color: #667085;
+  font-size: 14px;
+}
+
+.class-attendance-page .dateArchiveSessions {
+  display: grid;
+  gap: 14px;
+  padding: 18px 18px 20px;
+}
+
+.class-attendance-page .sessionArchiveCard {
+  border: 1px solid #e6ebf1;
+  border-radius: 12px;
+  background: #fbfcfe;
+  overflow: hidden;
+}
+
+.class-attendance-page .sessionArchiveCard[open] {
+  background: #ffffff;
+}
+
+.class-attendance-page .sessionArchiveSummary {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 18px 20px;
+  cursor: pointer;
+  list-style: none;
+}
+
+.class-attendance-page .sessionArchiveSummary::-webkit-details-marker {
+  display: none;
+}
+
+.class-attendance-page .sessionArchiveTitle {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 220px;
+}
+
+.class-attendance-page .sessionArchiveTitle strong {
+  color: #101828;
+  font-size: 16px;
+  line-height: 1.2;
+  font-weight: 800;
+}
+
+.class-attendance-page .sessionArchiveTitle span {
+  color: #6b7280;
+  font-size: 13px;
+}
+
+.class-attendance-page .sessionArchiveSummaryMeta {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.class-attendance-page .sessionArchiveSummaryMeta span {
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  padding: 0 10px;
+  border-radius: 999px;
+  background: #eef4f8;
+  color: #475467;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.class-attendance-page .sessionArchiveBody {
+  padding: 0 20px 20px;
+  border-top: 1px solid #eef2f6;
+}
+
+.class-attendance-page .sessionArchiveStats {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  padding: 18px 0 20px;
+}
+
+.class-attendance-page .sessionArchiveStats article {
+  padding: 14px 16px;
+  border: 1px solid #edf1f5;
+  border-radius: 10px;
+  background: #fafcff;
+}
+
+.class-attendance-page .sessionArchiveStats strong {
+  color: #101828;
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.class-attendance-page .sessionStudentArchive {
+  border: 1px solid #edf1f5;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.class-attendance-page .sessionStudentArchiveHeader,
+.class-attendance-page .sessionStudentArchiveRow {
+  display: grid;
+  grid-template-columns: 0.85fr 1.3fr 0.7fr 1fr 1.2fr;
+  gap: 14px;
+  align-items: center;
+  padding: 0 16px;
+  box-sizing: border-box;
+}
+
+.class-attendance-page .sessionStudentArchiveHeader {
+  min-height: 50px;
+  border-bottom: 1px solid #edf1f5;
+  background: #f8fafc;
+  color: #667085;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.class-attendance-page .sessionStudentArchiveRow {
+  min-height: 56px;
+  border-bottom: 1px solid #f2f5f8;
+  background: #ffffff;
+  color: #1f2937;
+  font-size: 14px;
+}
+
+.class-attendance-page .sessionStudentArchiveRow:last-child {
+  border-bottom: 0;
+}
+
+.class-attendance-page .attendanceStatusBadge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 26px;
+  padding: 0 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.class-attendance-page .attendanceStatusBadge.present {
+  background: #e8f8ef;
+  color: #15803d;
+}
+
+.class-attendance-page .attendanceStatusBadge.late {
+  background: #fff3da;
+  color: #b45309;
+}
+
+.class-attendance-page .attendanceStatusBadge.absent {
+  background: #fdecec;
+  color: #b91c1c;
+}
+
+.reports-page .reportsFiltersCard {
+  display: grid;
+  grid-template-columns: 224px minmax(0, 1fr) auto;
+  gap: 22px;
+  align-items: end;
+  max-width: 1320px;
+  margin-top: 34px;
+  padding: 22px 24px 24px;
+  border: 1px solid #e5eaf0;
+  border-radius: 8px;
+  background: #ffffff;
+  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.04);
+  box-sizing: border-box;
+}
+
+.reports-page .reportFilterGroup label {
+  display: block;
+  margin-bottom: 8px;
+  color: #5f6b7a;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.reports-page .reportDateRow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
+  gap: 10px;
+}
+
+.reports-page .reportDateField {
+  display: flex;
+  align-items: center;
+  min-height: 38px;
+  padding: 0 14px;
+  border: 1px solid #dfe5ee;
+  border-radius: 4px;
+  background: #ffffff;
+  box-sizing: border-box;
+}
+
+.reports-page .dateConnector {
+  color: #b0b6c3;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.reports-page .reportPrimaryAction {
+  min-height: 38px;
+  padding: 0 14px;
+  border-radius: 4px;
+  font-size: 14px;
+  box-shadow: none;
+}
+
+.reports-page .downloadAction {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border: 1px solid #eaecf0;
+  border-radius: 4px;
+  background: #ffffff;
+  padding: 0;
+}
+
+.reports-page .reportPanel {
+  position: relative;
+  max-width: 1320px;
+  margin-top: 24px;
+  min-height: 300px;
+  border: 1px solid #e5eaf0;
+  border-radius: 8px;
+  background: #ffffff;
+  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.04);
+  overflow: hidden;
+}
+
+.reports-page .reportEmptyState {
+  min-height: 300px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 28px 20px 26px;
+  text-align: center;
+  box-sizing: border-box;
+}
+
+.reports-page .reportEmptyIconBox {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+  border-radius: 4px;
+  background: #fbfcfe;
+  margin-top: 2px;
+}
+
+.reports-page .reportEmptyState h2 {
+  margin: 30px 0 0;
+  color: #101828;
+  font-size: 20px;
+  line-height: 1.1;
+  font-weight: 800;
+}
+
+.reports-page .reportEmptyState p {
+  margin: 10px 0 0;
+  color: #8b95a8;
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+.reports-page .reportDecorRow {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  margin-top: 30px;
+  opacity: 0.28;
+}
+
+.reports-page .reportResults {
+  display: grid;
+  gap: 22px;
+  padding: 24px;
+}
+
+.reports-page .reportSummaryGrid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.reports-page .reportSummaryStat {
+  padding: 16px 18px;
+  border: 1px solid #e5eaf0;
+  border-radius: 8px;
+  background: #fbfcfe;
+}
+
+.reports-page .reportSummaryStat span {
+  display: block;
+  color: #667085;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.reports-page .reportSummaryStat strong {
+  display: block;
+  margin-top: 10px;
+  color: #101828;
+  font-size: 26px;
+  line-height: 1.1;
+  font-weight: 800;
+}
+
+.reports-page .reportBreakdownCard {
+  border: 1px solid #e5eaf0;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.reports-page .reportBreakdownHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 18px 20px;
+  border-bottom: 1px solid #eef2f7;
+  background: #ffffff;
+}
+
+.reports-page .reportBreakdownHeader h2 {
+  margin: 0;
+  color: #101828;
+  font-size: 18px;
+  font-weight: 800;
+}
+
+.reports-page .reportBreakdownHeader p {
+  margin: 0;
+  color: #667085;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.reports-page .reportBreakdownTable {
+  display: grid;
+}
+
+.reports-page .reportBreakdownRow {
+  display: grid;
+  grid-template-columns: minmax(220px, 2fr) repeat(5, minmax(0, 1fr));
+  gap: 12px;
+  padding: 14px 20px;
+  border-top: 1px solid #eef2f7;
+  color: #475467;
+  font-size: 14px;
+  align-items: center;
+}
+
+.reports-page .reportBreakdownHead {
+  border-top: 0;
+  background: #fbfcfe;
+  color: #667085;
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.reports-page .exportCsvLink {
+  margin-left: auto;
+  margin-top: 18px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: 0;
+  background: transparent;
+  color: #6c778b;
+  font: inherit;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.instructor-dashboard-page.pageShell {
+  --accent: #1692a8;
+  --accent-dark: #0d8699;
+  --border: #e7eaf0;
+  --text: #16213d;
+  --muted: #667085;
+  display: flex;
+  min-height: 100vh;
+  background: #f7f8fc;
+  color: var(--text);
+}
+
+.instructor-dashboard-page .topBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  min-height: 68px;
+  padding: 0 44px;
+  background: #ffffff;
+  border-bottom: 1px solid var(--border);
+}
+
+.instructor-dashboard-page .topTitle {
+  font-size: 17px;
+  line-height: 1;
+  font-weight: 700;
+  color: #1f2937;
+}
+
+.instructor-dashboard-page .topActions {
+  display: flex;
+  align-items: center;
+  gap: 22px;
+}
+
+.instructor-dashboard-page .bellButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border: 0;
+  border-right: 1px solid #eceff4;
+  background: transparent;
+  cursor: pointer;
+  padding-right: 22px;
+}
+
+.instructor-dashboard-page .userMeta p {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 500;
+  color: #1f2937;
+}
+
+.instructor-dashboard-page .contentArea {
+  padding: 44px 44px 36px;
+}
+
+.instructor-dashboard-page .introBlock h1 {
+  margin: 0;
+  font-size: 40px;
+  line-height: 1.08;
+  letter-spacing: -0.04em;
+  font-weight: 800;
+  color: #101a39;
+}
+
+.instructor-dashboard-page .introBlock p {
+  margin: 16px 0 0;
+  max-width: 920px;
+  color: #667085;
+  font-size: 15px;
+  line-height: 1.45;
+}
+
+.instructor-dashboard-page .actionsSection {
+  margin-top: 54px;
+}
+
+.instructor-dashboard-page .actionsSection h2,
+.instructor-dashboard-page .coursesSection h2,
+.instructor-dashboard-page .statsSection h2 {
+  margin: 0 0 28px;
+  font-size: 27px;
+  line-height: 1.1;
+  font-weight: 800;
+  color: #101a39;
+}
+
+.instructor-dashboard-page .statsGrid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.instructor-dashboard-page .statCard {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 22px 24px;
+  border: 1px solid #dfe6ee;
+  border-radius: 12px;
+  background: #ffffff;
+  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.04);
+}
+
+.instructor-dashboard-page .sectionHeader span,
+.instructor-dashboard-page .statCard span {
+  color: #667085;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.instructor-dashboard-page .statCard strong {
+  color: #101a39;
+  font-size: 32px;
+  line-height: 1;
+  font-weight: 800;
+}
+
+.instructor-dashboard-page .coursesGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+}
+
+.instructor-dashboard-page .courseCard,
+.instructor-dashboard-page .emptyStateCard {
+  padding: 24px;
+  border: 1px solid #dfe6ee;
+  border-radius: 12px;
+  background: #ffffff;
+  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.04);
+}
+
+.instructor-dashboard-page .courseCardHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.instructor-dashboard-page .courseCode {
+  margin: 0 0 8px;
+  color: #1692a8;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.instructor-dashboard-page .courseCardHeader h3,
+.instructor-dashboard-page .emptyStateCard h3 {
+  margin: 0;
+  color: #101a39;
+  font-size: 20px;
+  line-height: 1.2;
+  font-weight: 800;
+}
+
+.instructor-dashboard-page .courseSemester {
+  padding: 7px 10px;
+  border-radius: 999px;
+  background: #eff7f9;
+  color: #0d8699;
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.instructor-dashboard-page .courseMetaGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  margin-top: 20px;
+}
+
+.instructor-dashboard-page .courseMetaItem {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 14px 16px;
+  border-radius: 10px;
+  background: #f8fafc;
+}
+
+.instructor-dashboard-page .courseMetaItem span {
+  color: #667085;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.instructor-dashboard-page .courseMetaItem strong {
+  color: #101a39;
+  font-size: 16px;
+  line-height: 1.25;
+  font-weight: 800;
+}
+
+.instructor-dashboard-page .emptyStateCard p {
+  margin: 12px 0 0;
+  color: #667085;
+  font-size: 15px;
+  line-height: 1.45;
+}
+
+.instructor-dashboard-page .actionsGrid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 28px;
+}
+
+.instructor-dashboard-page .actionCard {
+  display: flex;
+  flex-direction: column;
+  min-height: 456px;
+  border: 1px solid #dfe6ee;
+  border-radius: 12px;
+  background: #ffffff;
+  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.04);
+  overflow: hidden;
+  text-decoration: none;
+}
+
+.instructor-dashboard-page .actionCardVisual {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 288px;
+  padding: 6px;
+  background: #1692a8;
+}
+
+.instructor-dashboard-page .actionArtwork {
+  width: 100%;
+  height: 100%;
+  max-width: 250px;
+  max-height: 250px;
+}
+
+.instructor-dashboard-page .actionCardBody {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  padding: 26px 28px 22px;
+}
+
+.instructor-dashboard-page .actionCardHeader h3 {
+  margin: 0;
+  font-size: 19px;
+  line-height: 1.15;
+  font-weight: 800;
+  color: #101a39;
+}
+
+.instructor-dashboard-page .actionCardBody p {
+  margin: 12px 0 0;
+  color: #667085;
+  font-size: 15px;
+  line-height: 1.4;
+}
+
+@media (max-width: 1200px) {
+  .take-attendance-page .takeLockedShell {
+    grid-template-columns: minmax(0, 1fr) 300px;
+  }
+}
+
+@media (max-width: 900px) {
+  .take-attendance-page .takeLockedShell {
+    grid-template-columns: 1fr;
+    height: auto;
+    min-height: 100vh;
+  }
+}
+
+@media (max-width: 900px) {
+  .take-attendance-page .takeLockedCameraCard.cameraCard {
+    min-height: 58vh;
+  }
+}
+
+@media (max-width: 900px) {
+  .take-attendance-page .takeLockedSidebar {
+    border-left: 0;
+    border-top: 1px solid rgba(148, 163, 184, 0.2);
+  }
+}
+
+@media (max-width: 1400px) {
+  .enroll-student-page .enrollGrid,
+.enroll-student-page .stepsGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 1400px) {
+  .class-attendance-page .classFiltersCard,
+.class-attendance-page .sessionArchiveStats,
+.reports-page .reportSummaryGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 1400px) {
+  .class-attendance-page .searchGroup {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 1400px) {
+  .reports-page .reportsFiltersCard {
+    grid-template-columns: 1fr;
+    align-items: stretch;
+  }
+}
+
+@media (max-width: 1400px) {
+  .reports-page .reportActionGroup {
+    justify-content: flex-start;
+  }
+}
+
+@media (max-width: 1260px) {
+  .take-attendance-page .takeGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 900px) {
+  .class-attendance-page .classTableHeader {
+    grid-template-columns: repeat(5, minmax(120px, 1fr));
+    overflow-x: auto;
+  }
+}
+
+@media (max-width: 900px) {
+  .class-attendance-page .classTableFooter {
+    padding: 18px 20px;
+  }
+}
+
+@media (max-width: 900px) {
+  .reports-page .dateConnector {
+    justify-self: start;
+  }
+}
+
+@media (max-width: 900px) {
+  .reports-page .reportBreakdownRow {
+    grid-template-columns: 1.4fr repeat(5, minmax(72px, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .enroll-student-page .panelCard,
+.take-attendance-page .controlCard {
+    padding: 24px 20px 24px;
+  }
+}
+
+@media (max-width: 640px) {
+  .class-attendance-page .classTableEmptyState,
+.take-attendance-page .cameraCard,
+.take-attendance-page .cameraPlaceholder {
+    min-height: 320px;
+  }
+}
+
+@media (max-width: 640px) {
+  .class-attendance-page .sessionArchiveStats,
+.instructor-dashboard-page .actionsGrid,
+.instructor-dashboard-page .courseMetaGrid,
+.instructor-dashboard-page .statsGrid,
+.reports-page .reportSummaryGrid,
+.take-attendance-page .scanFeedbackGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .take-attendance-page .awaitCard {
+    min-height: 240px;
+    padding: 20px;
+  }
+}
+
+@media (max-width: 640px) {
+  .class-attendance-page .sessionArchiveSummary {
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 640px) {
+  .class-attendance-page .sessionArchiveSummaryMeta {
+    justify-content: flex-start;
+  }
+}
+
+@media (max-width: 640px) {
+  .class-attendance-page .sessionStudentArchive {
+    overflow-x: auto;
+  }
+}
+
+@media (max-width: 640px) {
+  .class-attendance-page .sessionStudentArchiveHeader,
+.class-attendance-page .sessionStudentArchiveRow {
+    min-width: 760px;
+  }
+}
+
+@media (max-width: 640px) {
+  .enroll-student-page .cameraInnerContent,
+.enroll-student-page .enrollCameraFrame {
+    min-height: 280px;
+  }
+}
+
+@media (max-width: 640px) {
+  .enroll-student-page .stepCard {
+    min-height: auto;
+  }
+}
+
+@media (max-width: 640px) {
+  .class-attendance-page .classFiltersCard {
+    grid-template-columns: 1fr;
+    padding: 24px 20px;
+  }
+}
+
+@media (max-width: 640px) {
+  .class-attendance-page .classTableHeader {
+    display: none;
+  }
+}
+
+@media (max-width: 640px) {
+  .class-attendance-page .classTableFooter,
+.instructor-dashboard-page .courseCardHeader,
+.instructor-dashboard-page .sectionHeader,
+.instructor-dashboard-page .topBar,
+.reports-page .reportBreakdownHeader {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+@media (max-width: 640px) {
+  .reports-page .reportActionGroup {
+    flex-wrap: wrap;
+  }
+}
+
+@media (max-width: 640px) {
+  .reports-page .reportBreakdownRow {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .reports-page .exportCsvLink {
+    margin-top: 16px;
+  }
+}
+
+@media (max-width: 1320px) {
+  .instructor-dashboard-page .actionsGrid,
+.instructor-dashboard-page .statsGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 900px) {
+  .instructor-dashboard-page .topBar {
+    padding: 14px 20px;
+  }
+}
+
+@media (max-width: 640px) {
+  .instructor-dashboard-page .bellButton {
+    padding-right: 14px;
+  }
+}
+
+@media (max-width: 640px) {
+  .instructor-dashboard-page .introBlock h1 {
+    font-size: 32px;
+  }
+}
+
+@media (max-width: 640px) {
+  .instructor-dashboard-page .actionsSection {
+    margin-top: 34px;
+  }
+}
+
+@media (max-width: 640px) {
+  .instructor-dashboard-page .actionCard {
+    min-height: 390px;
+  }
+}
+
+@media (max-width: 640px) {
+  .instructor-dashboard-page .actionCardVisual {
+    height: 230px;
+  }
+}
+
