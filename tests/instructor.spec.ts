@@ -5,9 +5,12 @@ import {
   loginAs,
   selectFirstUsableOption,
 } from "./helpers/auth";
+import { DEFAULT_STUDENT_FIXTURES } from "./helpers/test-data";
 
-const biometricStudentId = process.env.E2E_EXISTING_STUDENT_ID || "";
-const biometricStudentName = process.env.E2E_EXISTING_STUDENT_NAME || "Playwright Student";
+const biometricStudentId =
+  process.env.E2E_EXISTING_STUDENT_ID || DEFAULT_STUDENT_FIXTURES.enrollmentStudentId;
+const biometricStudentName =
+  process.env.E2E_EXISTING_STUDENT_NAME || DEFAULT_STUDENT_FIXTURES.enrollmentStudentName;
 
 test.describe("Instructor flows", () => {
   test.beforeEach(async ({ page }) => {
@@ -53,7 +56,28 @@ test.describe("Instructor flows", () => {
 
     const courseSelect = page.getByLabel(/course \/ group/i);
     if (await courseSelect.isVisible()) {
-      await selectFirstUsableOption(courseSelect);
+      const selectedCourse = await courseSelect.evaluate((node) => {
+        const select = node as HTMLSelectElement;
+        const generalOption = Array.from(select.options).find(
+          (option) => option.value === "general" && !option.disabled,
+        );
+
+        if (generalOption) {
+          return generalOption.value;
+        }
+
+        const firstUsableOption = Array.from(select.options).find(
+          (option) => option.value && !option.disabled,
+        );
+
+        return firstUsableOption?.value || "";
+      });
+
+      if (selectedCourse) {
+        await courseSelect.selectOption(selectedCourse);
+      } else {
+        await selectFirstUsableOption(courseSelect);
+      }
     }
 
     const startScanButton = page.getByRole("button", { name: /start enrollment scan/i });

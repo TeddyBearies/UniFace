@@ -5,8 +5,9 @@ import {
   loginAs,
   selectFirstUsableOption,
 } from "./helpers/auth";
+import { DEFAULT_STUDENT_FIXTURES } from "./helpers/test-data";
 
-const resetStudentQuery = process.env.E2E_RESET_STUDENT_QUERY || "";
+const resetStudentQuery = process.env.E2E_RESET_STUDENT_QUERY || DEFAULT_STUDENT_FIXTURES.resetStudentQuery;
 
 test.describe("Admin flows", () => {
   test.beforeEach(async ({ page }) => {
@@ -64,7 +65,8 @@ test.describe("Admin flows", () => {
 
     await page.goto("/admin/course-assignment");
 
-    const instructorSelected = await selectFirstUsableOption(page.getByLabel(/assign instructor \(optional\)/i));
+    const instructorSelect = page.locator("#create-course-instructor");
+    const instructorSelected = await selectFirstUsableOption(instructorSelect);
     test.skip(!instructorSelected, "No instructors are available for assignment tests.");
 
     const uniqueCode = `PW${Date.now().toString().slice(-5)}`;
@@ -74,7 +76,7 @@ test.describe("Admin flows", () => {
     await page.getByLabel(/^semester$/i).first().fill("Spring 2026");
     await page.getByRole("button", { name: /create course/i }).click();
 
-    await expect(page.getByText(/course created/i)).toBeVisible({ timeout: 20_000 });
+    await expect(page.getByText(/course created successfully/i)).toBeVisible({ timeout: 20_000 });
   });
 
   test("TC-A4 - admin can reset biometric data", async ({ page }) => {

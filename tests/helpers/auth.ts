@@ -1,4 +1,5 @@
 import { expect, type Locator, type Page } from "@playwright/test";
+import { DEFAULT_PLAYWRIGHT_FLAGS, DEFAULT_ROLE_CREDENTIALS } from "./test-data";
 
 export type AppRole = "student" | "instructor" | "admin";
 
@@ -28,13 +29,18 @@ const ROLE_ENV_MAP: Record<AppRole, { email: string; password: string; expectedP
 
 export function hasRoleCredentials(role: AppRole) {
   const envMap = ROLE_ENV_MAP[role];
-  return Boolean(process.env[envMap.email] && process.env[envMap.password]);
+  return Boolean(
+    process.env[envMap.email] ||
+      process.env[envMap.password] ||
+      DEFAULT_ROLE_CREDENTIALS[role].email ||
+      DEFAULT_ROLE_CREDENTIALS[role].password,
+  );
 }
 
 export function getRoleCredentials(role: AppRole): RoleCredentials {
   const envMap = ROLE_ENV_MAP[role];
-  const email = process.env[envMap.email];
-  const password = process.env[envMap.password];
+  const email = process.env[envMap.email] || DEFAULT_ROLE_CREDENTIALS[role].email;
+  const password = process.env[envMap.password] || DEFAULT_ROLE_CREDENTIALS[role].password;
 
   if (!email || !password) {
     throw new Error(`Missing credentials for ${role}. Set ${envMap.email} and ${envMap.password}.`);
@@ -43,16 +49,24 @@ export function getRoleCredentials(role: AppRole): RoleCredentials {
   return {
     email,
     password,
-    expectedPath: envMap.expectedPath,
+    expectedPath: DEFAULT_ROLE_CREDENTIALS[role].expectedPath,
   };
 }
 
 export function isMutationTestingEnabled() {
-  return process.env.PLAYWRIGHT_ENABLE_MUTATION_TESTS === "1";
+  if (process.env.PLAYWRIGHT_ENABLE_MUTATION_TESTS) {
+    return process.env.PLAYWRIGHT_ENABLE_MUTATION_TESTS === "1";
+  }
+
+  return DEFAULT_PLAYWRIGHT_FLAGS.mutationTestsEnabled;
 }
 
 export function isReportDownloadTestingEnabled() {
-  return process.env.PLAYWRIGHT_ENABLE_REPORT_DOWNLOAD_TESTS === "1";
+  if (process.env.PLAYWRIGHT_ENABLE_REPORT_DOWNLOAD_TESTS) {
+    return process.env.PLAYWRIGHT_ENABLE_REPORT_DOWNLOAD_TESTS === "1";
+  }
+
+  return DEFAULT_PLAYWRIGHT_FLAGS.reportDownloadTestsEnabled;
 }
 
 export async function gotoLogin(page: Page) {
@@ -93,11 +107,20 @@ export async function clickLogout(page: Page) {
 }
 
 export async function selectFirstUsableOption(select: Locator) {
-  const value = await select.evaluate((node) => {
-    const options = Array.from((node as HTMLSelectElement).options);
-    const candidate = options.find((option) => !option.disabled && option.value);
-    return candidate?.value || "";
-  });
+  await select.waitFor({ state: "visible", timeout: 15_000 });
+
+  const options = await select.locator("option").evaluateAll((nodes) =>
+    nodes.map((node) => {
+      const option = node as HTMLOptionElement;
+      return {
+        value: option.value,
+        disabled: option.disabled,
+      };
+    }),
+  );
+
+  const candidate = options.find((option) => !option.disabled && option.value);
+  const value = candidate?.value || "";
 
   if (!value) {
     return false;
