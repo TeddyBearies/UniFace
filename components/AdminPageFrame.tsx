@@ -238,6 +238,7 @@ export default function AdminPageFrame({
             <Link
               key={item.key}
               href={item.href}
+              prefetch={false}
               className={`navItem ${item.key === activeNav ? "active" : ""}`}
             >
               <NavIcon kind={item.key} active={item.key === activeNav} />

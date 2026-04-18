@@ -12,16 +12,10 @@
 # Error details
 
 ```
-Error: expect(page).toHaveURL(expected) failed
-
-Expected pattern: /\/admin\/reset-face-data\?query=20260001/
-Received string:  "https://haga-faceid.vercel.app/login"
-Timeout: 10000ms
-
-Call log:
-  - Expect "toHaveURL" with timeout 10000ms
-    14 × unexpected value "https://haga-faceid.vercel.app/login"
-
+TimeoutError: page.waitForURL: Timeout 20000ms exceeded.
+=========================== logs ===========================
+waiting for navigation until "load"
+============================================================
 ```
 
 # Page snapshot
@@ -82,108 +76,176 @@ Call log:
 # Test source
 
 ```ts
-  1   | import { expect, test } from "@playwright/test";
-  2   | import {
-  3   |   hasRoleCredentials,
-  4   |   isMutationTestingEnabled,
-  5   |   loginAs,
-  6   |   selectFirstUsableOption,
-  7   | } from "./helpers/auth";
-  8   | import { DEFAULT_STUDENT_FIXTURES } from "./helpers/test-data";
-  9   | 
-  10  | const resetStudentQuery = process.env.E2E_RESET_STUDENT_QUERY || DEFAULT_STUDENT_FIXTURES.resetStudentQuery;
+  1   | import { expect, type Locator, type Page } from "@playwright/test";
+  2   | import { DEFAULT_PLAYWRIGHT_FLAGS, DEFAULT_ROLE_CREDENTIALS } from "./test-data";
+  3   | 
+  4   | export type AppRole = "student" | "instructor" | "admin";
+  5   | 
+  6   | type RoleCredentials = {
+  7   |   email: string;
+  8   |   password: string;
+  9   |   expectedPath: string;
+  10  | };
   11  | 
-  12  | test.describe("Admin flows", () => {
-  13  |   test.beforeEach(async ({ page }) => {
-  14  |     test.skip(!hasRoleCredentials("admin"), "Set E2E_ADMIN_EMAIL and E2E_ADMIN_PASSWORD.");
-  15  |     await loginAs(page, "admin");
-  16  |   });
-  17  | 
-  18  |   let createdUserEmail = "";
-  19  | 
-  20  |   test.describe("User lifecycle", () => {
-  21  |     test.describe.configure({ mode: "serial" });
-  22  | 
-  23  |     test("TC-A1 - admin can add a user", async ({ page }) => {
-  24  |       test.skip(
-  25  |         !isMutationTestingEnabled(),
-  26  |         "Set PLAYWRIGHT_ENABLE_MUTATION_TESTS=1 to run mutation-based admin tests.",
-  27  |       );
-  28  | 
-  29  |       createdUserEmail = `playwright.user.${Date.now()}@university.edu`;
-  30  | 
-  31  |       await page.goto("/admin/user-management/create");
-  32  |       await page.getByLabel(/full name/i).fill("Playwright Managed User");
-  33  |       await page.getByLabel(/^email$/i).fill(createdUserEmail);
-  34  |       await page.getByLabel(/^role$/i).selectOption("student");
-  35  |       await page.getByLabel(/enrollment year/i).fill("2026");
-  36  |       await page.getByRole("button", { name: /create user/i }).click();
-  37  | 
-  38  |       await expect(page.getByText(/invite sent successfully/i)).toBeVisible({ timeout: 20_000 });
-  39  |     });
-  40  | 
-  41  |     test("TC-A2 - admin can modify and delete a managed user", async ({ page }) => {
-  42  |       test.skip(
-  43  |         !isMutationTestingEnabled(),
-  44  |         "Set PLAYWRIGHT_ENABLE_MUTATION_TESTS=1 to run mutation-based admin tests.",
-  45  |       );
-  46  |       test.skip(!createdUserEmail, "TC-A1 must create a user first in this serial suite.");
-  47  | 
-  48  |       await page.goto(`/admin/user-management?role=student&q=${encodeURIComponent(createdUserEmail)}`);
-  49  |       await expect(page.getByText(createdUserEmail)).toBeVisible({ timeout: 20_000 });
-  50  | 
-  51  |       await page.getByRole("button", { name: /make instructor/i }).click();
-  52  |       await expect(page.getByText(/user role updated successfully/i)).toBeVisible({ timeout: 20_000 });
-  53  | 
-  54  |       await page.goto(`/admin/user-management?role=instructor&q=${encodeURIComponent(createdUserEmail)}`);
-  55  |       await expect(page.getByText(createdUserEmail)).toBeVisible({ timeout: 20_000 });
-  56  | 
-  57  |       await page.getByRole("button", { name: /^delete$/i }).click();
-  58  |       await expect(page.getByText(/user deleted successfully/i)).toBeVisible({ timeout: 20_000 });
-  59  |     });
-  60  |   });
-  61  | 
-  62  |   test("TC-A3 - admin can assign a course to an instructor", async ({ page }) => {
-  63  |     test.skip(
-  64  |       !isMutationTestingEnabled(),
-  65  |       "Set PLAYWRIGHT_ENABLE_MUTATION_TESTS=1 to run mutation-based admin tests.",
-  66  |     );
-  67  | 
-  68  |     await page.goto("/admin/course-assignment");
-  69  | 
-  70  |     const instructorSelect = page.locator("#create-course-instructor");
-  71  |     const instructorSelected = await selectFirstUsableOption(instructorSelect);
-  72  |     test.skip(!instructorSelected, "No instructors are available for assignment tests.");
-  73  | 
-  74  |     const uniqueCode = `PW${Date.now().toString().slice(-5)}`;
-  75  | 
-  76  |     await page.getByLabel(/course code/i).fill(uniqueCode);
-  77  |     await page.getByLabel(/course title/i).fill("Playwright Course");
-  78  |     await page.getByLabel(/^semester$/i).first().fill("Spring 2026");
-  79  |     await page.getByRole("button", { name: /create course/i }).click();
-  80  | 
-  81  |     await expect(page.getByText(/course created and instructor assigned successfully/i)).toBeVisible({ timeout: 20_000 });
-  82  |   });
-  83  | 
-  84  |   test("TC-A4 - admin can reset biometric data", async ({ page }) => {
-  85  |     test.skip(
-  86  |       !isMutationTestingEnabled() || !resetStudentQuery,
-  87  |       "Set PLAYWRIGHT_ENABLE_MUTATION_TESTS=1 and E2E_RESET_STUDENT_QUERY to run biometric reset tests.",
-  88  |     );
+  12  | const ROLE_ENV_MAP: Record<AppRole, { email: string; password: string; expectedPath: string }> = {
+  13  |   student: {
+  14  |     email: "E2E_STUDENT_EMAIL",
+  15  |     password: "E2E_STUDENT_PASSWORD",
+  16  |     expectedPath: "/student/dashboard",
+  17  |   },
+  18  |   instructor: {
+  19  |     email: "E2E_INSTRUCTOR_EMAIL",
+  20  |     password: "E2E_INSTRUCTOR_PASSWORD",
+  21  |     expectedPath: "/instructor/dashboard",
+  22  |   },
+  23  |   admin: {
+  24  |     email: "E2E_ADMIN_EMAIL",
+  25  |     password: "E2E_ADMIN_PASSWORD",
+  26  |     expectedPath: "/admin/dashboard",
+  27  |   },
+  28  | };
+  29  | 
+  30  | export function hasRoleCredentials(role: AppRole) {
+  31  |   const envMap = ROLE_ENV_MAP[role];
+  32  |   return Boolean(
+  33  |     process.env[envMap.email] ||
+  34  |       process.env[envMap.password] ||
+  35  |       DEFAULT_ROLE_CREDENTIALS[role].email ||
+  36  |       DEFAULT_ROLE_CREDENTIALS[role].password,
+  37  |   );
+  38  | }
+  39  | 
+  40  | export function getRoleCredentials(role: AppRole): RoleCredentials {
+  41  |   const envMap = ROLE_ENV_MAP[role];
+  42  |   const email = process.env[envMap.email] || DEFAULT_ROLE_CREDENTIALS[role].email;
+  43  |   const password = process.env[envMap.password] || DEFAULT_ROLE_CREDENTIALS[role].password;
+  44  | 
+  45  |   if (!email || !password) {
+  46  |     throw new Error(`Missing credentials for ${role}. Set ${envMap.email} and ${envMap.password}.`);
+  47  |   }
+  48  | 
+  49  |   return {
+  50  |     email,
+  51  |     password,
+  52  |     expectedPath: DEFAULT_ROLE_CREDENTIALS[role].expectedPath,
+  53  |   };
+  54  | }
+  55  | 
+  56  | export function isMutationTestingEnabled() {
+  57  |   if (process.env.PLAYWRIGHT_ENABLE_MUTATION_TESTS) {
+  58  |     return process.env.PLAYWRIGHT_ENABLE_MUTATION_TESTS === "1";
+  59  |   }
+  60  | 
+  61  |   return DEFAULT_PLAYWRIGHT_FLAGS.mutationTestsEnabled;
+  62  | }
+  63  | 
+  64  | export function isReportDownloadTestingEnabled() {
+  65  |   if (process.env.PLAYWRIGHT_ENABLE_REPORT_DOWNLOAD_TESTS) {
+  66  |     return process.env.PLAYWRIGHT_ENABLE_REPORT_DOWNLOAD_TESTS === "1";
+  67  |   }
+  68  | 
+  69  |   return DEFAULT_PLAYWRIGHT_FLAGS.reportDownloadTestsEnabled;
+  70  | }
+  71  | 
+  72  | export async function gotoLogin(page: Page) {
+  73  |   await page.goto("/login");
+  74  |   await expect(page.getByRole("heading", { name: /welcome back/i })).toBeVisible();
+  75  | }
+  76  | 
+  77  | export async function loginAs(page: Page, role: AppRole) {
+  78  |   const creds = getRoleCredentials(role);
+  79  | 
+  80  |   await gotoLogin(page);
+  81  |   await page.getByLabel(/email address/i).fill(creds.email);
+  82  |   await page.getByLabel(/password/i).fill(creds.password);
+  83  |   await page.getByRole("button", { name: /^login$/i }).click();
+  84  | 
+  85  |   await page.waitForURL(
+  86  |     (url) => url.pathname === creds.expectedPath,
+  87  |     { timeout: 20_000 },
+  88  |   );
   89  | 
-  90  |     await page.goto(`/admin/reset-face-data?query=${encodeURIComponent(resetStudentQuery)}`);
-> 91  |     await expect(page).toHaveURL(new RegExp(`/admin/reset-face-data\\?query=${resetStudentQuery}`));
-      |                        ^ Error: expect(page).toHaveURL(expected) failed
-  92  | 
-  93  |     await expect(page.getByText(/name:/i)).toBeVisible({ timeout: 20_000 });
-  94  |     await expect(page.locator('input[name="profileId"]')).not.toHaveValue("", { timeout: 20_000 });
-  95  | 
-  96  |     const resetButton = page.getByRole("button", { name: /reset face data/i });
-  97  |     await expect(resetButton).toBeEnabled();
-  98  |     await resetButton.click();
-  99  | 
-  100 |     await expect(page.getByText(/face data reset successfully/i)).toBeVisible({ timeout: 20_000 });
-  101 |   });
-  102 | });
-  103 | 
+  90  |   // Ensure the authenticated session cookie is fully persisted for subsequent
+  91  |   // server-rendered pages and server actions.
+  92  |   await page.waitForLoadState("networkidle");
+  93  |   await page.reload();
+> 94  |   await page.waitForURL((url) => url.pathname === creds.expectedPath, {
+      |              ^ TimeoutError: page.waitForURL: Timeout 20000ms exceeded.
+  95  |     timeout: 20_000,
+  96  |   });
+  97  | 
+  98  |   await expect
+  99  |     .poll(
+  100 |       async () => {
+  101 |         const cookies = await page.context().cookies();
+  102 |         return cookies.some((cookie) => cookie.name.includes("auth-token"));
+  103 |       },
+  104 |       {
+  105 |         timeout: 15_000,
+  106 |         message: "Waiting for the Supabase auth cookie to persist in the browser context",
+  107 |       },
+  108 |     )
+  109 |     .toBeTruthy();
+  110 | 
+  111 |   await page.goto(creds.expectedPath, { waitUntil: "networkidle" });
+  112 |   await page.waitForURL((url) => url.pathname === creds.expectedPath, {
+  113 |     timeout: 20_000,
+  114 |   });
+  115 | }
+  116 | 
+  117 | export async function expectRedirectedToLogin(page: Page) {
+  118 |   const loginHeading = page.getByRole("heading", { name: /welcome back/i });
+  119 |   const loginButton = page.getByRole("button", { name: /^login$/i });
+  120 | 
+  121 |   await Promise.race([
+  122 |     page.waitForURL((url) => url.pathname === "/login", { timeout: 15_000 }),
+  123 |     loginHeading.waitFor({ state: "visible", timeout: 15_000 }),
+  124 |   ]);
+  125 | 
+  126 |   await expect(loginHeading).toBeVisible();
+  127 |   await expect(loginButton).toBeVisible();
+  128 | }
+  129 | 
+  130 | export async function clickLogout(page: Page) {
+  131 |   await page.getByRole("button", { name: /logout/i }).click();
+  132 |   await expectRedirectedToLogin(page);
+  133 | }
+  134 | 
+  135 | export async function selectFirstUsableOption(select: Locator) {
+  136 |   await select.waitFor({ state: "visible", timeout: 15_000 });
+  137 | 
+  138 |   let value = "";
+  139 | 
+  140 |   await expect
+  141 |     .poll(
+  142 |       async () => {
+  143 |         const options = await select.locator("option").evaluateAll((nodes) =>
+  144 |           nodes.map((node) => {
+  145 |             const option = node as HTMLOptionElement;
+  146 |             return {
+  147 |               value: option.value,
+  148 |               disabled: option.disabled,
+  149 |             };
+  150 |           }),
+  151 |         );
+  152 | 
+  153 |         const candidate = options.find((option) => !option.disabled && option.value);
+  154 |         value = candidate?.value || "";
+  155 |         return value;
+  156 |       },
+  157 |       {
+  158 |         timeout: 20_000,
+  159 |         message: "Waiting for the first usable select option to load",
+  160 |       },
+  161 |     )
+  162 |     .not.toBe("");
+  163 | 
+  164 |   if (!value) {
+  165 |     return false;
+  166 |   }
+  167 | 
+  168 |   await select.selectOption(value);
+  169 |   return true;
+  170 | }
+  171 | 
 ```

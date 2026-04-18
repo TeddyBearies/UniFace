@@ -2,6 +2,35 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import { getSupabasePublicEnv, hasSupabasePublicEnv } from "./config";
 
+async function getUserWithRetry(
+  getUser: () => Promise<{ data: { user: unknown | null } }>,
+  attempts = 3,
+) {
+  let lastError: unknown = null;
+
+  for (let attempt = 0; attempt < attempts; attempt += 1) {
+    try {
+      const result = await getUser();
+      return {
+        user: result.data.user,
+        hadError: false,
+      };
+    } catch (error) {
+      lastError = error;
+
+      if (attempt < attempts - 1) {
+        await new Promise((resolve) => setTimeout(resolve, 150));
+      }
+    }
+  }
+
+  return {
+    user: null,
+    hadError: true,
+    error: lastError,
+  };
+}
+
 function isProtectedPath(pathname: string) {
   return (
     pathname.startsWith("/student") ||
@@ -70,19 +99,9 @@ export async function updateSession(request: NextRequest) {
     return NextResponse.redirect(loginUrl);
   }
 
-  let user = null;
+  const { user, hadError } = await getUserWithRetry(() => supabase.auth.getUser());
 
-  try {
-    const {
-      data: { user: currentUser },
-    } = await supabase.auth.getUser();
-
-    user = currentUser;
-  } catch {
-    user = null;
-  }
-
-  if (!user && isProtectedPath(request.nextUrl.pathname)) {
+  if (!user && !hadError && isProtectedPath(request.nextUrl.pathname)) {
     const loginUrl = request.nextUrl.clone();
     loginUrl.pathname = "/login";
     loginUrl.search = "";
