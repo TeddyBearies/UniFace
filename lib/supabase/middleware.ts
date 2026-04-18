@@ -39,12 +39,6 @@ function isProtectedPath(pathname: string) {
   );
 }
 
-function hasSupabaseAuthCookie(request: NextRequest) {
-  return request.cookies
-    .getAll()
-    .some((cookie) => cookie.name.includes("auth-token"));
-}
-
 export async function updateSession(request: NextRequest) {
   if (!hasSupabasePublicEnv()) {
     if (isProtectedPath(request.nextUrl.pathname)) {
@@ -91,13 +85,6 @@ export async function updateSession(request: NextRequest) {
       },
     },
   });
-
-  if (isProtectedPath(request.nextUrl.pathname) && !hasSupabaseAuthCookie(request)) {
-    const loginUrl = request.nextUrl.clone();
-    loginUrl.pathname = "/login";
-    loginUrl.search = "";
-    return NextResponse.redirect(loginUrl);
-  }
 
   const { user, hadError } = await getUserWithRetry(() => supabase.auth.getUser());
 

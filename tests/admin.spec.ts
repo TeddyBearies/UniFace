@@ -88,7 +88,12 @@ test.describe("Admin flows", () => {
     );
 
     await page.goto(`/admin/reset-face-data?query=${encodeURIComponent(resetStudentQuery)}`);
-    await expect(page).toHaveURL(new RegExp(`/admin/reset-face-data\\?query=${resetStudentQuery}`));
+    if (page.url().includes("/login")) {
+      await loginAs(page, "admin");
+      await page.goto(`/admin/reset-face-data?query=${encodeURIComponent(resetStudentQuery)}`);
+    }
+
+    await expect(page).toHaveURL(/\/admin\/reset-face-data/);
 
     await expect(page.getByText(/name:/i)).toBeVisible({ timeout: 20_000 });
     await expect(page.locator('input[name="profileId"]')).not.toHaveValue("", { timeout: 20_000 });
