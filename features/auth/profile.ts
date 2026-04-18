@@ -1,11 +1,45 @@
 import { createClient } from "@/lib/supabase/server";
 
+async function getAuthenticatedUserWithRetry(
+  getUser: () => Promise<{
+    data: { user: Awaited<ReturnType<ReturnType<typeof createClient>["auth"]["getUser"]>>["data"]["user"] };
+    error: Awaited<ReturnType<ReturnType<typeof createClient>["auth"]["getUser"]>>["error"];
+  }>,
+  attempts = 3,
+) {
+  let lastError: unknown = null;
+
+  for (let attempt = 0; attempt < attempts; attempt += 1) {
+    const {
+      data: { user },
+      error,
+    } = await getUser();
+
+    if (!error) {
+      return {
+        user,
+        error: null,
+      };
+    }
+
+    lastError = error;
+
+    if (attempt < attempts - 1) {
+      await new Promise((resolve) => setTimeout(resolve, 150));
+    }
+  }
+
+  return {
+    user: null,
+    error: lastError,
+  };
+}
+
 export async function getCurrentProfile() {
   const supabase = createClient();
-  const {
-    data: { user },
-    error: userError,
-  } = await supabase.auth.getUser();
+  const { user, error: userError } = await getAuthenticatedUserWithRetry(() =>
+    supabase.auth.getUser(),
+  );
 
   if (userError) {
     throw userError;

@@ -86,6 +86,32 @@ export async function loginAs(page: Page, role: AppRole) {
     (url) => url.pathname === creds.expectedPath,
     { timeout: 20_000 },
   );
+
+  // Ensure the authenticated session cookie is fully persisted for subsequent
+  // server-rendered pages and server actions.
+  await page.waitForLoadState("networkidle");
+  await page.reload();
+  await page.waitForURL((url) => url.pathname === creds.expectedPath, {
+    timeout: 20_000,
+  });
+
+  await expect
+    .poll(
+      async () => {
+        const cookies = await page.context().cookies();
+        return cookies.some((cookie) => cookie.name.includes("auth-token"));
+      },
+      {
+        timeout: 15_000,
+        message: "Waiting for the Supabase auth cookie to persist in the browser context",
+      },
+    )
+    .toBeTruthy();
+
+  await page.goto(creds.expectedPath, { waitUntil: "networkidle" });
+  await page.waitForURL((url) => url.pathname === creds.expectedPath, {
+    timeout: 20_000,
+  });
 }
 
 export async function expectRedirectedToLogin(page: Page) {
@@ -109,18 +135,31 @@ export async function clickLogout(page: Page) {
 export async function selectFirstUsableOption(select: Locator) {
   await select.waitFor({ state: "visible", timeout: 15_000 });
 
-  const options = await select.locator("option").evaluateAll((nodes) =>
-    nodes.map((node) => {
-      const option = node as HTMLOptionElement;
-      return {
-        value: option.value,
-        disabled: option.disabled,
-      };
-    }),
-  );
+  let value = "";
 
-  const candidate = options.find((option) => !option.disabled && option.value);
-  const value = candidate?.value || "";
+  await expect
+    .poll(
+      async () => {
+        const options = await select.locator("option").evaluateAll((nodes) =>
+          nodes.map((node) => {
+            const option = node as HTMLOptionElement;
+            return {
+              value: option.value,
+              disabled: option.disabled,
+            };
+          }),
+        );
+
+        const candidate = options.find((option) => !option.disabled && option.value);
+        value = candidate?.value || "";
+        return value;
+      },
+      {
+        timeout: 20_000,
+        message: "Waiting for the first usable select option to load",
+      },
+    )
+    .not.toBe("");
 
   if (!value) {
     return false;

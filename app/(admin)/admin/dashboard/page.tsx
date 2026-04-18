@@ -218,7 +218,12 @@ export default async function AdminDashboardPage() {
 
           <div className="adminQuickLinksGrid">
             {QUICK_LINKS.map((link) => (
-              <Link key={link.title} href={link.href} className="adminQuickLinkCard">
+              <Link
+                key={link.title}
+                href={link.href}
+                prefetch={false}
+                className="adminQuickLinkCard"
+              >
                 <QuickLinkIcon kind={link.icon} />
                 <h3>{link.title}</h3>
                 <p>{link.description}</p>
@@ -230,7 +235,7 @@ export default async function AdminDashboardPage() {
         <section className="adminLogsCard" aria-labelledby="admin-system-logs-title">
           <div className="adminLogsHeader">
             <h2 id="admin-system-logs-title">System Logs</h2>
-            <Link href="/admin/reports" className="adminLogsViewAll">
+            <Link href="/admin/reports" prefetch={false} className="adminLogsViewAll">
               View All
             </Link>
           </div>

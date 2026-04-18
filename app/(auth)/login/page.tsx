@@ -125,6 +125,32 @@ export default function LoginPage() {
 
   const clearMessage = () => { if (message) setMessage(""); };
 
+  const waitForServerSessionCookie = async () => {
+    if (!supabase) {
+      return false;
+    }
+
+    const timeoutAt = Date.now() + 5_000;
+
+    while (Date.now() < timeoutAt) {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+
+      const hasAuthCookie = document.cookie
+        .split(";")
+        .some((entry) => entry.includes("auth-token"));
+
+      if (session?.access_token && hasAuthCookie) {
+        return true;
+      }
+
+      await new Promise((resolve) => window.setTimeout(resolve, 100));
+    }
+
+    return false;
+  };
+
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const trimmedEmail = email.trim();
@@ -186,9 +212,12 @@ export default function LoginPage() {
     }
 
     setMessageTone("success");
-    setMessage("Login successful. Redirecting to your dashboard...");
-    router.replace(getDashboardPathForRole(profile?.role));
-    router.refresh();
+    setMessage("Login successful. Finalizing secure session...");
+
+    await waitForServerSessionCookie();
+
+    const dashboardPath = getDashboardPathForRole(profile?.role);
+    window.location.replace(dashboardPath);
   };
 
   const handleForgotPassword = async (event: MouseEvent<HTMLAnchorElement>) => {
