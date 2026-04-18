@@ -19,12 +19,6 @@
   border-bottom: 1px solid var(--border);
 }
 
-.admin-page-shell .topTitle {
-  font-size: 16px;
-  line-height: 1;
-  font-weight: 700;
-  color: #1f2937;
-}
 
 .admin-page-shell .bellButton {
   display: inline-flex;
@@ -77,7 +71,7 @@
 .adminUserManagementPage .adminUserIntro h1 {
   margin: 0;
   color: #101a39;
-  font-size: 31px;
+  font-size: 38px;
   line-height: 1.08;
   letter-spacing: -0.04em;
   font-weight: 800;
@@ -1055,7 +1049,7 @@
 .adminCreateUserPage .adminCreateUserHeader h1 {
   margin: 10px 0 0;
   color: #101a39;
-  font-size: 31px;
+  font-size: 38px;
   line-height: 1.08;
   letter-spacing: -0.04em;
   font-weight: 800;

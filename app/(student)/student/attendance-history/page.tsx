@@ -53,7 +53,7 @@ function LogoutIcon() {
       aria-hidden="true"
       viewBox="0 0 24 24"
       fill="none"
-      stroke="#4b5563"
+      stroke="currentColor"
       strokeWidth="1.9"
       strokeLinecap="round"
       strokeLinejoin="round"
@@ -179,16 +179,18 @@ function LateIcon() {
 
 function SidebarLogo() {
   return (
-    <img
-      src="/haga-site-logo.svg"
-      alt="Haga"
-      style={{
-        width: "42px",
-        height: "42px",
-        display: "block",
-        objectFit: "contain",
-      }}
-    />
+    <Link href="/student/dashboard" style={{ display: 'flex', alignItems: 'center', width: '100%', padding: '0 4px' }}>
+      <img
+        src="/faceScan_logo.png"
+        alt="FaceScan Logo"
+        style={{
+          width: "auto",
+          height: "100px",
+          display: "block",
+          objectFit: "contain",
+        }}
+      />
+    </Link>
   );
 }
 

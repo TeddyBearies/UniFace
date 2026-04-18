@@ -3,11 +3,16 @@
 .instructor-dashboard-page .sidebar,
 .instructor-tool-page .sidebar,
 .student-history-page .sidebar {
-  width: 192px;
+  width: 232px;
   display: flex;
   flex-direction: column;
   background: #ffffff;
   border-right: 1px solid var(--border);
+  position: -webkit-sticky;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
 }
 
 .admin-page-shell .brandArea,
@@ -24,36 +29,53 @@
 
 .admin-page-shell .navList,
 .instructor-dashboard-page .navList,
-.instructor-tool-page .navList {
-  padding: 22px 0 0;
+.instructor-tool-page .navList,
+.dashboard-page .navList,
+.student-history-page .navList {
+  padding: 22px 14px 0 14px;
 }
 
 .admin-page-shell .navItem,
 .instructor-dashboard-page .navItem,
-.instructor-tool-page .navItem {
+.instructor-tool-page .navItem,
+.dashboard-page .navItem,
+.student-history-page .navItem {
   display: flex;
   align-items: center;
   gap: 14px;
   width: 100%;
-  min-height: 32px;
+  min-height: 40px;
   padding: 0 16px;
   color: #475467;
   font-size: 14px;
   font-weight: 500;
   text-decoration: none;
   box-sizing: border-box;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  text-align: left;
 }
 
 .admin-page-shell .navItem+.navItem,
 .instructor-dashboard-page .navItem+.navItem,
-.instructor-tool-page .navItem+.navItem {
-  margin-top: 24px;
+.instructor-tool-page .navItem+.navItem,
+.dashboard-page .navItem+.navItem,
+.student-history-page .navItem+.navItem {
+  margin-top: 8px;
 }
 
 .admin-page-shell .logoutStrip,
 .instructor-dashboard-page .logoutStrip,
-.instructor-tool-page .logoutStrip {
+.instructor-tool-page .logoutStrip,
+.dashboard-page .logoutStrip,
+.student-history-page .logoutStrip {
   margin-top: auto;
+  position: -webkit-sticky;
+  position: sticky;
+  bottom: 0;
   display: flex;
   align-items: center;
   gap: 10px;
@@ -69,6 +91,18 @@
   font-weight: 700;
   letter-spacing: 0.04em;
   text-align: left;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.admin-page-shell .logoutStrip:hover,
+.instructor-dashboard-page .logoutStrip:hover,
+.instructor-tool-page .logoutStrip:hover,
+.dashboard-page .logoutStrip:hover,
+.student-history-page .logoutStrip:hover {
+  background: #fef2f2;
+  color: #ef4444;
 }
 
 .instructor-page-content {
@@ -146,12 +180,30 @@
 }
 
 .admin-page-shell .navItem.active,
-.instructor-dashboard-page .navItem.active {
-  min-height: 43px;
-  border-radius: 0 10px 10px 0;
+.instructor-dashboard-page .navItem.active,
+.instructor-tool-page .navItem.active,
+.dashboard-page .navItem.active,
+.student-history-page .navItem.active {
   background: var(--accent);
   color: #ffffff;
-  box-shadow: inset 0 -1px 0 rgba(255, 255, 255, 0.08);
+  font-weight: 600;
+}
+
+.admin-page-shell .navItem:hover:not(.active),
+.instructor-dashboard-page .navItem:hover:not(.active),
+.instructor-tool-page .navItem:hover:not(.active),
+.dashboard-page .navItem:hover:not(.active),
+.student-history-page .navItem:hover:not(.active) {
+  background: rgba(22, 146, 168, 0.08); /* slightly darken */
+  color: #101a39;
+}
+
+.admin-page-shell .navItem.active:hover,
+.instructor-dashboard-page .navItem.active:hover,
+.instructor-tool-page .navItem.active:hover,
+.dashboard-page .navItem.active:hover,
+.student-history-page .navItem.active:hover {
+  filter: brightness(0.9);
 }
 
 .admin-page-shell .mainPanel,
@@ -381,7 +433,7 @@
 
 @media (max-width: 640px) {
   .instructor-page-content .pageHeader h1 {
-    font-size: 31px;
+    font-size: 38px;
   }
 }
 
@@ -398,7 +450,7 @@
 
   .adminDashboardPage .adminIntro h1,
   .student-history-page .historyIntro h1 {
-    font-size: 28px;
+    font-size: 38px;
   }
 }
 
@@ -425,4 +477,18 @@
   .instructor-dashboard-page .userBadge {
     margin-left: auto;
   }
+}
+
+.admin-page-shell .topTitle,
+.dashboard-page .topTitle,
+.instructor-dashboard-page .topTitle,
+.instructor-tool-page .topTitle,
+.student-history-page .topTitle {
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  font-size: 16px !important;
+  font-weight: 700 !important;
+  color: #101a39 !important;
+  line-height: 1 !important;
 }

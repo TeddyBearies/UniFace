@@ -26,7 +26,7 @@ function UserCreateIcon() {
       aria-hidden="true"
       viewBox="0 0 24 24"
       fill="none"
-      stroke="#1098ae"
+      stroke="#1692a8"
       strokeWidth="1.8"
       strokeLinecap="round"
       strokeLinejoin="round"

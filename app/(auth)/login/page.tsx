@@ -8,8 +8,6 @@ import { createClient } from "@/lib/supabase/client";
 import { hasSupabasePublicEnv } from "@/lib/supabase/config";
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const BACKGROUND_PATTERN =
-  "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='116' height='116' viewBox='0 0 116 116'%3E%3Cg fill='none' stroke='%231098ae' stroke-width='4.5' stroke-opacity='.86'%3E%3Ccircle cx='0' cy='0' r='58'/%3E%3Ccircle cx='116' cy='0' r='58'/%3E%3Ccircle cx='0' cy='116' r='58'/%3E%3Ccircle cx='116' cy='116' r='58'/%3E%3C/g%3E%3Cg stroke='%231098ae' stroke-width='1.8' stroke-linecap='round' stroke-opacity='.72'%3E%3Cpath d='M54 58h8'/%3E%3Cpath d='M58 54v8'/%3E%3Cpath d='M55.2 55.2l5.6 5.6'/%3E%3Cpath d='M60.8 55.2l-5.6 5.6'/%3E%3C/g%3E%3C/svg%3E";
 
 function Logo() {
   return (
@@ -17,7 +15,7 @@ function Logo() {
       src="/haga-login-logo.svg"
       alt="Haga Inc"
       style={{
-        width: "76px",
+        width: "90px",
         height: "auto",
         display: "block",
       }}
@@ -35,12 +33,7 @@ function MailIcon() {
       strokeWidth="1.8"
       strokeLinecap="round"
       strokeLinejoin="round"
-      style={{
-        width: "20px",
-        height: "20px",
-        color: "#a3adbb",
-        flex: "none",
-      }}
+      style={{ width: "20px", height: "20px", color: "#a3adbb", flex: "none" }}
     >
       <rect x="3" y="5" width="18" height="14" rx="1.5" />
       <path d="m4.5 7 7.5 6 7.5-6" />
@@ -58,12 +51,7 @@ function LockIcon() {
       strokeWidth="1.8"
       strokeLinecap="round"
       strokeLinejoin="round"
-      style={{
-        width: "20px",
-        height: "20px",
-        color: "#a3adbb",
-        flex: "none",
-      }}
+      style={{ width: "20px", height: "20px", color: "#a3adbb", flex: "none" }}
     >
       <rect x="5" y="11" width="14" height="10" rx="1.5" />
       <path d="M8 11V8a4 4 0 1 1 8 0v3" />
@@ -72,99 +60,42 @@ function LockIcon() {
   );
 }
 
-function StudentIcon() {
+
+function FlowerPattern() {
   return (
-    <svg
+    <img
+      src="/flower_pattern.svg"
+      alt=""
+      className="bgStar"
       aria-hidden="true"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.8"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      style={{
-        width: "22px",
-        height: "22px",
-        color: "#1098ae",
-        flex: "none",
-      }}
-    >
-      <path d="M3 9.5 12 5l9 4.5-9 4.5-9-4.5Z" />
-      <path d="M7 12v4.2c1.1 1.2 2.8 1.8 5 1.8s3.9-.6 5-1.8V12" />
-      <path d="M21 9.5v5" />
-    </svg>
+    />
   );
 }
 
-function InstructorIcon() {
+function InteractiveBackground() {
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+  if (!mounted) return null;
+
   return (
-    <svg
-      aria-hidden="true"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.8"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      style={{
-        width: "22px",
-        height: "22px",
-        color: "#1098ae",
-        flex: "none",
-      }}
-    >
-      <path d="M4 19v-2.2c0-2 1.6-3.6 3.6-3.6h8.8c2 0 3.6 1.6 3.6 3.6V19" />
-      <circle cx="12" cy="8" r="3.5" />
-      <path d="M4 5h5" />
-      <path d="M4 9h3" />
-    </svg>
+    <div className="interactiveBg" aria-hidden="true">
+      {Array.from({ length: 850 }).map((_, i) => (
+        <div key={i} className="bgCell">
+          <div className="bgCircle" />
+          <FlowerPattern />
+        </div>
+      ))}
+    </div>
   );
 }
-
-function AdminIcon() {
-  return (
-    <svg
-      aria-hidden="true"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.8"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      style={{
-        width: "22px",
-        height: "22px",
-        color: "#1098ae",
-        flex: "none",
-      }}
-    >
-      <path d="M12 3 6 6.2v5.6c0 4.2 2.7 7.9 6 9.2 3.3-1.3 6-5 6-9.2V6.2L12 3Z" />
-      <circle cx="16.5" cy="16.5" r="2.5" />
-      <path d="m18.2 18.2 2.3 2.3" />
-    </svg>
-  );
-}
-
-const QUICK_ACCESS_OPTIONS = [
-  { label: "Continue as Student", icon: <StudentIcon />, role: "student" },
-  { label: "Continue as Instructor", icon: <InstructorIcon />, role: "instructor" },
-  { label: "Continue as Admin", icon: <AdminIcon />, role: "admin" },
-];
 
 const FOOTER_LINKS = ["Privacy Policy", "Terms of Service", "Support"];
 const IS_SUPABASE_CONFIGURED = hasSupabasePublicEnv();
 
 function getDashboardPathForRole(role: string | null | undefined) {
   const normalizedRole = role?.trim().toLowerCase();
-
-  if (normalizedRole === "admin") {
-    return "/admin/dashboard";
-  }
-
-  if (normalizedRole === "instructor") {
-    return "/instructor/dashboard";
-  }
-
+  if (normalizedRole === "admin") return "/admin/dashboard";
+  if (normalizedRole === "instructor") return "/instructor/dashboard";
   return "/student/dashboard";
 }
 
@@ -182,7 +113,6 @@ export default function LoginPage() {
 
     async function redirectIfAlreadySignedIn() {
       const sessionRole = await getClientSessionRole();
-
       if (!cancelled && sessionRole) {
         router.replace(getDashboardPathForRole(sessionRole.role));
         router.refresh();
@@ -190,21 +120,13 @@ export default function LoginPage() {
     }
 
     redirectIfAlreadySignedIn();
-
-    return () => {
-      cancelled = true;
-    };
+    return () => { cancelled = true; };
   }, [router]);
 
-  const clearMessage = () => {
-    if (message) {
-      setMessage("");
-    }
-  };
+  const clearMessage = () => { if (message) setMessage(""); };
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-
     const trimmedEmail = email.trim();
     const trimmedPassword = password.trim();
 
@@ -230,10 +152,7 @@ export default function LoginPage() {
     setMessageTone("info");
     setMessage("Signing you in...");
 
-    const {
-      data: signInData,
-      error,
-    } = await supabase.auth.signInWithPassword({
+    const { data: signInData, error } = await supabase.auth.signInWithPassword({
       email: trimmedEmail,
       password: trimmedPassword,
     });
@@ -246,7 +165,6 @@ export default function LoginPage() {
     }
 
     const userId = signInData.user?.id;
-
     if (!userId) {
       setMessageTone("error");
       setMessage("Login succeeded, but the user profile could not be loaded.");
@@ -275,7 +193,6 @@ export default function LoginPage() {
 
   const handleForgotPassword = async (event: MouseEvent<HTMLAnchorElement>) => {
     event.preventDefault();
-
     const trimmedEmail = email.trim();
     if (!EMAIL_PATTERN.test(trimmedEmail)) {
       setMessageTone("error");
@@ -309,11 +226,6 @@ export default function LoginPage() {
     setIsSubmitting(false);
   };
 
-  const handleQuickAccess = (role: string) => {
-    router.replace(getDashboardPathForRole(role));
-    router.refresh();
-  };
-
   return (
     <div className="pageShell login-page">
       <header className="topBar">
@@ -324,6 +236,7 @@ export default function LoginPage() {
       </header>
 
       <main className="mainArea">
+        <InteractiveBackground />
         <section className="loginCard" aria-labelledby="login-title">
           <div className="cardHeading">
             <h1 id="login-title">Welcome back</h1>
@@ -356,11 +269,7 @@ export default function LoginPage() {
               <label className="fieldLabel" htmlFor="password">
                 Password
               </label>
-              <a
-                href="#"
-                className="forgotLink"
-                onClick={handleForgotPassword}
-              >
+              <a href="#" className="forgotLink" onClick={handleForgotPassword}>
                 Forgot password?
               </a>
             </div>
@@ -396,36 +305,11 @@ export default function LoginPage() {
               {isSubmitting ? "Signing in..." : "Login"}
             </button>
           </form>
-
-          <div className="quickAccess">
-            <div className="divider">
-              <span>QUICK ACCESS (DEV MODE)</span>
-            </div>
-
-            <div className="quickAccessList">
-              {QUICK_ACCESS_OPTIONS.map((option) => (
-                <button
-                  key={option.label}
-                  type="button"
-                  className="quickAccessButton"
-                  disabled={isSubmitting}
-                  onClick={() => handleQuickAccess(option.role)}
-                >
-                  {option.icon}
-                  <span>{option.label}</span>
-                </button>
-              ))}
-            </div>
-          </div>
         </section>
 
         <div className="supportLinks" aria-label="Support links">
           {FOOTER_LINKS.map((label) => (
-            <a
-              key={label}
-              href="#"
-              onClick={(event) => event.preventDefault()}
-            >
+            <a key={label} href="#" onClick={(event) => event.preventDefault()}>
               {label}
             </a>
           ))}
