@@ -59,7 +59,11 @@ test.describe("Non-functional and report checks", () => {
     if (hasRoleCredentials("admin")) {
       await loginAs(page, "admin");
       await page.getByRole("link", { name: /manage users/i }).click();
-      await expect(page.getByRole("link", { name: /add user/i })).toBeVisible();
+      const addUserLink = page.getByRole("link", { name: /add user/i });
+      await expect(addUserLink).toBeVisible();
+      await addUserLink.click();
+      await expect(page).toHaveURL(/\/admin\/user-management\/create$/);
+      await expect(page.getByRole("heading", { name: /create user/i })).toBeVisible();
     }
   });
 

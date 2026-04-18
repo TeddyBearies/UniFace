@@ -98,10 +98,30 @@ test.describe("Admin flows", () => {
     await expect(page.getByText(/name:/i)).toBeVisible({ timeout: 20_000 });
     await expect(page.locator('input[name="profileId"]')).not.toHaveValue("", { timeout: 20_000 });
 
+    const enrollmentStatusRow = page.getByText(/enrollment status:/i);
+    await expect(enrollmentStatusRow).toBeVisible({ timeout: 20_000 });
+    const enrollmentStatusText = (await enrollmentStatusRow.textContent())?.toLowerCase() || "";
+
+    test.skip(
+      enrollmentStatusText.includes("reset_required") || enrollmentStatusText.includes("not_started"),
+      `TC-A4 requires a student with resettable biometric data. Current test fixture ${resetStudentQuery} is already in state: ${enrollmentStatusText.trim()}.`,
+    );
+
     const resetButton = page.getByRole("button", { name: /reset face data/i });
     await expect(resetButton).toBeEnabled();
     await resetButton.click();
 
-    await expect(page.getByText(/face data reset successfully/i)).toBeVisible({ timeout: 20_000 });
+    const successMessage = page.getByText(/face data reset successfully/i);
+    const errorMessage = page.getByText(
+      /invalid reset request|no face profile found for that user|failed to remove stored face template|failed to remove face template record|failed to reset biometric data/i,
+    );
+
+    await Promise.race([
+      successMessage.waitFor({ state: "visible", timeout: 20_000 }),
+      errorMessage.waitFor({ state: "visible", timeout: 20_000 }),
+    ]);
+
+    await expect(errorMessage).toHaveCount(0);
+    await expect(successMessage).toBeVisible({ timeout: 20_000 });
   });
 });

@@ -85,6 +85,11 @@ test.describe("Instructor flows", () => {
       }
     }
 
+    const aiModelsLoadingMessage = page.getByText(/loading ai models/i);
+    if (await aiModelsLoadingMessage.isVisible().catch(() => false)) {
+      await aiModelsLoadingMessage.waitFor({ state: "hidden", timeout: 30_000 });
+    }
+
     const startScanButton = page.getByRole("button", { name: /start enrollment scan/i });
     await expect(startScanButton).toBeEnabled({ timeout: 30_000 });
     await startScanButton.click();
