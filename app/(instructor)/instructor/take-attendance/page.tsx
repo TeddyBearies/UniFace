@@ -390,13 +390,26 @@ export default function InstructorTakeAttendancePage() {
     setScanFeedback(next);
   }, []);
 
-  const playSuccessTone = useCallback(() => {
-    if (typeof window === "undefined" || !("AudioContext" in window)) {
-      return;
+  // Provide cached AudioContext to bypass user-gesture restrictions safely across multiple calls after first unlock
+  const [, setForceAudioRender] = useState(0);
+  const audioContextRef = useRef<AudioContext | null>(null);
+
+  const getAudioContext = useCallback(() => {
+    if (typeof window === "undefined" || !("AudioContext" in window)) return null;
+    if (!audioContextRef.current) {
+      audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
     }
+    if (audioContextRef.current.state === "suspended") {
+      audioContextRef.current.resume().catch(() => {});
+    }
+    return audioContextRef.current;
+  }, []);
+
+  const playSuccessTone = useCallback(() => {
+    const audioContext = getAudioContext();
+    if (!audioContext) return;
 
     try {
-      const audioContext = new window.AudioContext();
       const oscillator = audioContext.createOscillator();
       const gainNode = audioContext.createGain();
 
@@ -411,7 +424,7 @@ export default function InstructorTakeAttendancePage() {
     } catch {
       // ignore audio failures on unsupported browsers
     }
-  }, []);
+  }, [getAudioContext]);
 
   // Load instructor's assigned courses on mount
   useEffect(() => {
@@ -1039,8 +1052,9 @@ export default function InstructorTakeAttendancePage() {
                 </span>
               </div>
 
-              <div className="takeLockedStats">
-                <div>
+              <div className="takeLockedSidebarContent">
+                <div className="takeLockedStats">
+                  <div>
                   <span>Course</span>
                   <strong>{sessionCourseLabel}</strong>
                 </div>
@@ -1119,7 +1133,7 @@ export default function InstructorTakeAttendancePage() {
 
                 <button
                   type="button"
-                  className={`secondaryAction ${sessionActive ? "" : "disabledAction"}`}
+                  className={`takeLockedDarkAction secondaryAction ${sessionActive ? "" : "disabledAction"}`}
                   disabled={!sessionActive}
                   onClick={handleScanNextStudent}
                 >
@@ -1129,7 +1143,7 @@ export default function InstructorTakeAttendancePage() {
 
                 <button
                   type="button"
-                  className="secondaryAction dangerAction"
+                  className="takeLockedDarkAction secondaryAction dangerAction"
                   onClick={handleProtectedEndSession}
                   disabled={!sessionActive}
                 >
@@ -1139,6 +1153,7 @@ export default function InstructorTakeAttendancePage() {
               </div>
 
               {statusMessage && <p className="takeLockedStatusMessage">{statusMessage}</p>}
+              </div>
 
               <div className="takeLockedExitActions">
                 {!isBrowserFullscreen && (

@@ -109,7 +109,7 @@ export default async function AdminReportsPage({
       title="Reports"
       profileLabel={currentProfile.profile?.full_name || currentProfile.user.email || "Admin"}
     >
-      <div className="reports-page adminReportsPage">
+      <div className="reports-page adminReportsPage instructor-page-content">
         <header className="pageHeader">
           <h1>Admin Reports</h1>
           <p>Generate and export global attendance reports across all courses.</p>

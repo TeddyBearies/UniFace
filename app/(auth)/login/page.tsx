@@ -276,8 +276,8 @@ export default function LoginPage() {
         <InteractiveBackground />
         <section className="loginCard" aria-labelledby="login-title">
           <div className="cardHeading">
-            <h1 id="login-title">Welcome back</h1>
-            <p>Enter your credentials to access UniFace</p>
+            <h1 id="login-title">Welcome!</h1>
+            <p>Enter your credentials to access Haga Face ID</p>
           </div>
 
           <form className="loginForm" onSubmit={handleSubmit} noValidate>

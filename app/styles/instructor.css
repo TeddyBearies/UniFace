@@ -494,17 +494,47 @@
 .take-attendance-page .takeLockedSidebar {
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 12px;
   padding: 16px;
   background: #0f172a;
   border-left: 1px solid rgba(148, 163, 184, 0.2);
   color: #e2e8f0;
-  overflow-y: auto;
+  height: 100vh;
+  box-sizing: border-box;
 }
 
-.take-attendance-page .takeLockedSidebar .takeLockedControlCard .primaryAction:disabled,
-.take-attendance-page .takeLockedSidebar .takeLockedControlCard .secondaryAction:disabled {
+.take-attendance-page .takeLockedSidebarContent {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  flex: 1;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.take-attendance-page .takeLockedSidebar .takeLockedSidebarContent .primaryAction:disabled,
+.take-attendance-page .takeLockedSidebar .takeLockedSidebarContent .secondaryAction:disabled {
   opacity: 0.45;
+}
+
+.take-attendance-page .takeLockedSidebar .secondaryAction.takeLockedDarkAction {
+  background: rgba(30, 41, 59, 0.7);
+  color: #e2e8f0;
+  border-color: rgba(148, 163, 184, 0.3);
+}
+
+.take-attendance-page .takeLockedSidebar .secondaryAction.takeLockedDarkAction:not(:disabled):hover {
+  background: rgba(40, 52, 71, 0.8);
+}
+
+.take-attendance-page .takeLockedSidebar .dangerAction.takeLockedDarkAction {
+  background: rgba(110, 25, 25, 0.7);
+  color: #fca5a5;
+  border-color: rgba(220, 38, 38, 0.3);
+}
+
+.take-attendance-page .takeLockedSidebar .dangerAction.takeLockedDarkAction:not(:disabled):hover {
+  background: rgba(135, 30, 30, 0.8);
 }
 
 .instructor-dashboard-page .actionCardHeader,
