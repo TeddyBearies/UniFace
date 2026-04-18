@@ -30,6 +30,8 @@ export async function getAdminDashboardData(): Promise<AdminDashboardData> {
   const currentProfile = await requireCurrentProfile(["admin"]);
   const supabase = createClient();
 
+  // These are lightweight count queries used to render the top dashboard cards.
+  // The "pending reports" label is currently backed by open attendance sessions.
   const [totalUsersResult, activeCoursesResult, faceDataScansResult, pendingReportsResult] =
     await Promise.all([
       supabase.from("profiles").select("id", { count: "exact", head: true }),
@@ -89,6 +91,8 @@ export async function getAdminDashboardData(): Promise<AdminDashboardData> {
 
   const logs: AdminDashboardData["logs"] = [];
 
+  // The dashboard log cards are a human-readable activity summary, not a full
+  // audit table. We build them from the newest rows in a few core tables.
   const recentUser = recentUsersResult.data?.[0];
   if (recentUser?.created_at) {
     logs.push({

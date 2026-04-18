@@ -213,6 +213,8 @@ export function buildNormalizedAttendanceSnapshot({
       continue;
     }
 
+    // We only keep events that still make sense for the live roster. This avoids
+    // showing stale scans for students who were never on the course or were dropped later.
     if (!activeEnrollmentKeys.has(buildEnrollmentKey(session.courseId, event.student_profile_id))) {
       continue;
     }
@@ -221,6 +223,8 @@ export function buildNormalizedAttendanceSnapshot({
     const studentId = profile?.university_id?.trim() || "";
     const studentName = profile?.full_name?.trim() || "";
 
+    // History/report screens are built around human-readable IDs and names, so
+    // incomplete profile rows are skipped instead of leaking partial records into the UI.
     if (!studentId || !studentName) {
       continue;
     }
@@ -316,6 +320,9 @@ export function buildAttendanceDateGroups({
     const instructorName = session.createdByProfileId
       ? instructorNamesById.get(session.createdByProfileId) || "Instructor"
       : "Instructor";
+    // We rebuild the student list from active enrollments, then layer scan events
+    // on top. That is what lets the archive show present, late, and absent students
+    // in one grouped session view instead of only listing successful scans.
     const enrolledIds = (enrollments ?? [])
       .filter((enrollment) => enrollment.course_id === session.courseId)
       .map((enrollment) => enrollment.student_profile_id);

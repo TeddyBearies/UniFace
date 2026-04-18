@@ -174,6 +174,8 @@ async function loadInstructorCourseOptions(
   supabase: ReturnType<typeof createClient>,
 ) {
   if (context.role === "admin") {
+    // Admin reports and archive pages intentionally work across the whole course
+    // catalog, so admins are not restricted to one instructor assignment list here.
     const { data: courses, error } = await supabase
       .from("courses")
       .select("id, code, title")
@@ -321,6 +323,8 @@ async function getInstructorAttendanceSnapshot(
     events = attendanceEvents ?? [];
   }
 
+  // The archive and report screens need names for both students and instructors,
+  // so we collect every profile we might need in one follow-up lookup here.
   const studentIds = Array.from(
     new Set(
       [...(enrollments ?? []), ...(events ?? [])]
@@ -400,6 +404,8 @@ export async function getInstructorClassAttendanceData({
 
   let filteredDateGroups = dateGroups;
   if (normalizedSearch) {
+    // Search works at both session and student level: if the session metadata
+    // matches, we keep the full session; otherwise we narrow it down to matching students.
     filteredDateGroups = dateGroups
       .map((group) => ({
         ...group,
@@ -532,6 +538,8 @@ export async function getInstructorReportData({
 
   const courseBreakdown = snapshot.scopedCourses.map((course) => {
     const sessions = sessionsByCourse.get(course.id) ?? 0;
+    // Expected check-ins are not stored directly. We derive them from the number
+    // of sessions multiplied by the active roster size for that course.
     const expected = sessions * (enrollmentsByCourse.get(course.id) ?? 0);
     const recorded = recordedByCourse.get(course.id) ?? 0;
     const absent = Math.max(expected - recorded, 0);

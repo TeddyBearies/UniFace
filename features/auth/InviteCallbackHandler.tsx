@@ -47,6 +47,8 @@ export default function InviteCallbackHandler({
 
       let errorMessage: string | null = null;
 
+      // Supabase can send invite state back in a few different formats depending
+      // on how the email link was generated, so we support the main variants here.
       if (hashErrorDescription || hashErrorCode) {
         errorMessage =
           hashErrorCode === "otp_expired"

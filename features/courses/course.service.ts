@@ -62,6 +62,8 @@ export async function ensureStudentEnrolledInCourseAction(
     }
   }
 
+  // We use the admin client for the actual upsert because normal instructor RLS
+  // access is read-focused; the write is still protected by the explicit checks above.
   const admin = createAdminClient();
   const { data, error } = await admin
     .from("course_enrollments")

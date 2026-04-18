@@ -542,6 +542,9 @@ export default function InstructorTakeAttendancePage() {
           continue;
         }
 
+        // We require both a solid absolute distance and a meaningful gap from the
+        // second-best match. That keeps the kiosk from marking attendance when two
+        // students look similar or the frame is noisy.
         if (bestDistance > 0.5 || secondBestDistance - bestDistance < 0.035) {
           setScanOutcome({
             kind: "unknown",
@@ -793,6 +796,8 @@ export default function InstructorTakeAttendancePage() {
       attendanceSessionIdRef.current = "";
       setAttendanceSessionId("");
 
+      // If the database session was opened but the camera/template setup failed,
+      // we close it right away so instructors do not end up with orphaned "open" sessions.
       if (openedNewSession) {
         try {
           if (startedSessionId) {
@@ -901,6 +906,8 @@ export default function InstructorTakeAttendancePage() {
       const action = pendingProtectedAction;
       setPendingProtectedAction(null);
 
+      // Locked mode gates sensitive actions behind a fresh password check instead
+      // of trusting the existing browser session alone.
       if (action === "exit-lock") {
         setIsLockedMode(false);
         await exitBrowserFullscreen();

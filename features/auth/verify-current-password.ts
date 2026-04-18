@@ -24,6 +24,9 @@ export async function verifyCurrentUserPassword(password: string) {
     };
   }
 
+  // Locked scan mode asks for the current password instead of inventing a second
+  // unlock secret. Re-authing the same email is the quickest way to prove the
+  // person exiting kiosk mode is still the legitimate operator.
   const { error: signInError } = await supabase.auth.signInWithPassword({
     email: user.email,
     password: normalizedPassword,

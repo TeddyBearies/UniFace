@@ -46,6 +46,8 @@ async function requireInstructorForCourse(
 ) {
   const actor = await getAttendanceActor(supabase);
 
+  // Admins are allowed to supervise any course, but instructors must prove they
+  // are assigned to the selected course before a session can be opened.
   if (actor.role !== "admin") {
     const { data: isInstructor } = await supabase.rpc("is_instructor_for_course", {
       course_id: courseId,
@@ -106,6 +108,8 @@ export async function startAttendanceSessionAction(courseId: string) {
   }
 
   if (existingSession) {
+    // Reusing the open session keeps the scanner resilient if the instructor
+    // refreshes the page or briefly loses the camera mid-class.
     const sessionState = await getSessionAttendanceState(supabase, existingSession.id);
 
     return {
@@ -117,6 +121,8 @@ export async function startAttendanceSessionAction(courseId: string) {
 
   const startsAt = new Date();
   const endsAt = new Date();
+  // The end time is mainly a validity window for the session record. The UI
+  // still closes sessions explicitly when scanning ends.
   endsAt.setHours(endsAt.getHours() + 4);
 
   const { data: newSession, error } = await supabase
@@ -176,6 +182,8 @@ export async function closeAttendanceSessionAction(sessionId: string) {
   }
 
   if (session.status !== "open") {
+    // Closing an already-closed session should be harmless for the page, so we
+    // return a clean success shape instead of treating it like a hard error.
     return { success: true, closedCount: 0 };
   }
 

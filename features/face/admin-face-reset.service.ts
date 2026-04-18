@@ -60,6 +60,9 @@ function buildFaceResetUrl(params: {
 async function findProfileByLookup(lookupQuery: string) {
   const supabase = createClient();
 
+  // Admins can come in with different identifiers depending on the situation:
+  // a pasted UUID from Supabase, an email from support, or the university ID
+  // used by instructors in the enrollment flow.
   if (isUuid(lookupQuery)) {
     const { data, error } = await supabase
       .from("profiles")
@@ -191,6 +194,8 @@ export async function resetFaceDataAction(formData: FormData) {
     ? faceProfile.face_templates[0]
     : faceProfile.face_templates;
 
+  // Resetting biometric data has two separate cleanup steps: remove the private
+  // stored template file, then remove the relational pointer that references it.
   if (faceTemplate?.storage_object_path) {
     const { error: storageDeleteError } = await admin.storage
       .from("face-templates")

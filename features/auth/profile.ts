@@ -49,6 +49,8 @@ export async function getCurrentProfile() {
     return null;
   }
 
+  // Auth tells us who the user is, but the app still needs the companion
+  // profile row because that is where role and university-specific metadata live.
   const { data: profile, error: profileError } = await supabase
     .from("profiles")
     .select("id, email, full_name, role, university_id, created_at, updated_at")

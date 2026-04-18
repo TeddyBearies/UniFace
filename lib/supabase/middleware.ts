@@ -10,6 +10,9 @@ async function getUserWithRetry(
 
   for (let attempt = 0; attempt < attempts; attempt += 1) {
     try {
+      // Supabase auth refresh can occasionally be a little ahead of the cookie
+      // state in middleware, so we give it a couple of short retries before
+      // treating the request like a real auth failure.
       const result = await getUser();
       return {
         user: result.data.user,
@@ -69,6 +72,8 @@ export async function updateSession(request: NextRequest) {
         return request.cookies.getAll();
       },
       setAll(cookiesToSet) {
+        // We mirror cookie writes onto both the request and the response so the
+        // rest of this middleware run sees the freshest auth state right away.
         cookiesToSet.forEach(({ name, value }) => {
           request.cookies.set(name, value);
         });

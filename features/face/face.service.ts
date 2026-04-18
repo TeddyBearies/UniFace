@@ -78,6 +78,8 @@ async function resolveEnrollmentCandidate(
 
   const supabase = createClient();
   if (auth.role !== "admin" && normalizedCourseId) {
+    // Instructors are only allowed to enroll students against courses they actually own.
+    // Admins bypass this because they handle cross-course recovery and setup tasks.
     const { data: isInstructor } = await supabase.rpc("is_instructor_for_course", {
       course_id: normalizedCourseId,
     });
@@ -283,6 +285,8 @@ export async function getCourseFaceTemplatesAction(courseId: string) {
     const faceProf = Array.isArray(prof.face_profiles) ? prof.face_profiles[0] : prof.face_profiles;
     if (faceProf && faceProf.enrollment_status === 'complete') {
       faceReadyCount += 1;
+      // A template is only useful for live matching if the student still has the
+      // profile fields the UI needs to show after a successful scan.
       if (!prof.full_name?.trim() || !prof.university_id?.trim()) {
         continue;
       }
@@ -391,6 +395,8 @@ export async function markAttendanceAction(
      throw new Error("This student is not actively enrolled in the current class session.");
    }
 
+   // The browser may see the same face over several frames in a row, so we treat
+   // duplicate attendance as a harmless success instead of turning it into an error.
    const { data: existingAttendance, error: existingAttendanceError } = await supabase
     .from("attendance_events")
     .select("id")

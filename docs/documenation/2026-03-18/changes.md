@@ -302,3 +302,29 @@ This file records project changes in chronological order. Each date gets its own
    - Purpose: make live sessions, roster checks, and facial recognition behave more consistently under real usage.
    - Scope: expanded `features/attendance/attendance.service.ts`, `features/attendance/instructor-dashboard.ts`, `features/attendance/instructor-records.service.ts`, `features/attendance/student-attendance.service.ts`, `features/courses/course.service.ts`, `features/face/face.service.ts`, and `features/face/useFaceApi.ts` with session ownership checks, unique student counting, grouped date/session snapshots, course auto-enrollment support, duplicate attendance prevention, late-status handling, stricter webcam readiness checks, and better detection defaults.
    - Outcome: attendance capture, reporting, and face enrollment now share a more robust backend foundation that reduces duplicate writes and makes the live UI data more accurate.
+
+8. Made admin user invitations work cleanly on Vercel deployments.
+   - Purpose: keep the invite-based account creation flow working when the app is deployed without a custom `NEXT_PUBLIC_APP_URL`.
+   - Scope: updated `features/auth/admin-user-management.service.ts` so invite links fall back to `NEXT_PUBLIC_VERCEL_URL` when needed, continue redirecting to the invite-setup page, and sync generated university IDs from auth metadata back into `profiles` after an invite is created.
+   - Outcome: admin-created user invites now work more reliably in Vercel-hosted environments, and student/instructor IDs are preserved even when they originate from auth metadata.
+
+
+## 2026-04-17
+
+1. Added the browser favicon asset for the project.
+   - Purpose: give the app a proper browser tab and bookmark icon so the interface feels more finished and recognizable.
+   - Scope: added `app/favicon.ico` as the app-level favicon asset that Next.js can serve automatically.
+   - Outcome: the project now has a visible branded icon in the browser chrome instead of relying on the default placeholder icon.
+
+
+## 2026-04-18
+
+1. Reorganized the app styling into route-specific stylesheets and tightened the landing flow.
+   - Purpose: keep the shared app shell lean while moving role-specific styling into dedicated files and making the default route land users in the login flow.
+   - Scope: added `app/styles/layout.css`, `app/styles/auth.css`, `app/styles/student.css`, `app/styles/instructor.css`, and `app/styles/admin.css`; updated `app/page.tsx` to redirect to `/login`; refreshed the admin, instructor, and student pages so they use the new styling structure; and added the new public placeholder images that support the dashboard and FaceID screens.
+   - Outcome: the app now has a clearer navigation entry point and a cleaner styling architecture that is easier to maintain across roles.
+
+2. Refreshed the end-to-end tests and shared test fixtures to match the current app behavior.
+   - Purpose: keep the Playwright suite aligned with the latest admin and instructor flows after the UI and message updates.
+   - Scope: updated `tests/admin.spec.ts` and `tests/instructor.spec.ts` to match the current page text and interactions; expanded `tests/helpers/auth.ts` and added `tests/helpers/test-data.ts` to centralize credentials, flags, and fixture values; and regenerated the Playwright report outputs from the latest runs.
+   - Outcome: the automated tests now reflect the current screens and helper data more reliably, which makes future regressions easier to catch.

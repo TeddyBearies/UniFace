@@ -15,12 +15,17 @@ export async function getClientSessionRole() {
     return null;
   }
 
+  // We intentionally follow the lightweight session check with getUser() so we
+  // confirm the browser still has a valid authenticated identity, not just a
+  // stale cached session object.
   const {
     data: { user },
     error: userError,
   } = await supabase.auth.getUser();
 
   if (userError || !user) {
+    // Locked scan mode can briefly interfere with client-side auth reads in some
+    // browsers, so we fail closed here instead of throwing noisy UI errors.
     if (userError?.message?.toLowerCase().includes("lock")) {
       return null;
     }

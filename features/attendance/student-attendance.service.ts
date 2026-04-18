@@ -122,6 +122,8 @@ export async function getStudentAttendanceHistoryData(
   }
 
   const selectedCourseId = filters.courseId || "";
+  // If a course filter is passed, we narrow the session query to that subset.
+  // Otherwise we build the student's history across every active enrollment.
   const scopedCourseIds = selectedCourseId
     ? courses.filter((course) => course.id === selectedCourseId).map((course) => course.id)
     : courses.map((course) => course.id);
@@ -219,6 +221,8 @@ export async function getStudentAttendanceHistoryData(
     normalizedSnapshot.validEvents.map((event) => [event.attendanceSessionId, event]),
   );
 
+  // We map over sessions, not only attendance events, so the student view can
+  // show real absences instead of silently hiding sessions with no check-in.
   const records: StudentAttendanceRecord[] = normalizedSnapshot.sessions.map((session) => {
     const event = eventBySession.get(session.id);
     const timing = getAttendanceTiming(session.startsAt, event?.recordedAt ?? null);

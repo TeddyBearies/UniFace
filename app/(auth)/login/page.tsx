@@ -129,6 +129,9 @@ export default function LoginPage() {
   const clearMessage = () => { if (message) setMessage(""); };
 
   const waitForServerSessionCookie = async () => {
+    // Supabase signs the user in immediately on the client, but our protected
+    // server routes still depend on the auth cookie being visible to middleware.
+    // This short wait keeps us from racing into a dashboard before SSR can see the session.
     if (!supabase) {
       return false;
     }
@@ -220,6 +223,8 @@ export default function LoginPage() {
     await waitForServerSessionCookie();
 
     const dashboardPath = getDashboardPathForRole(profile?.role);
+    // We intentionally use a hard navigation here so the next request definitely
+    // goes through middleware with the freshly persisted auth cookie.
     window.location.replace(dashboardPath);
   };
 

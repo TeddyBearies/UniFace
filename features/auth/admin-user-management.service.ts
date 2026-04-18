@@ -180,6 +180,9 @@ async function syncUniversityIdFromAuthMetadata(
     return profile;
   }
 
+  // Invites can create the auth user before the profile row has all derived fields.
+  // This backfill keeps the admin table readable even if the trigger/profile update
+  // landed before the generated university ID was copied over.
   const { data: authUserResult, error } = await admin.auth.admin.getUserById(profile.id);
   if (error || !authUserResult.user) {
     return profile;
@@ -660,6 +663,8 @@ export async function createAdminUserAction(formData: FormData) {
 
   for (let attempt = 0; attempt < 6; attempt += 1) {
     try {
+      // University IDs are generated optimistically and retried because invite
+      // creation and profile syncing can collide under fast repeated admin actions.
       if (shouldGenerateUniversityId) {
         generatedUniversityId = await getNextUniversityIdForYear(admin, enrollmentYear as string);
       } else {
