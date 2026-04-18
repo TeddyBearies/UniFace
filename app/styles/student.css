@@ -279,51 +279,74 @@
 }
 
 .dashboard-page .statCard {
-  padding: 16px 18px 22px;
-          border: 1px solid #eceef4;
-          border-radius: 6px;
-          background: #ffffff;
-          box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
-          text-align: center;
-}
-
-.dashboard-page .cardVisual {
   display: flex;
-          align-items: center;
-          justify-content: center;
-          height: 118px;
-          margin-bottom: 12px;
-          border: 1px dashed #e6ebf2;
-          border-radius: 4px;
-          background: #ffffff;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 20px 24px;
+  border: 1px solid #eceef4;
+  border-radius: 12px;
+  background: #ffffff;
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.04);
+  text-align: left;
+  min-height: 140px;
 }
 
-.dashboard-page .statCard h2 {
+.dashboard-page .statCard .statCardHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.dashboard-page .statCard .statCardHeader h2 {
   margin: 0;
-          font-size: 16px;
-          font-weight: 700;
-          color: #25314b;
+  font-size: 14px;
+  font-weight: 700;
+  color: #667085;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.dashboard-page .statCard .statCardHeader img {
+  width: 44px;
+  height: 44px;
+  flex: none;
 }
 
 .dashboard-page .statCard strong {
   display: block;
-          margin-top: 14px;
-          color: var(--accent);
-          font-size: 28px;
-          line-height: 1;
-          font-weight: 800;
+  margin-top: 20px;
+  color: var(--accent);
+  font-size: 42px;
+  line-height: 1;
+  font-weight: 800;
 }
 
 .dashboard-page .statCard .summaryMuted {
   color: #7f8898;
-          font-size: 14px;
-          font-weight: 500;
+  font-size: 16px;
+  font-weight: 500;
 }
 
 .dashboard-page .statCard p {
-  margin: 12px 0 0;
-          color: #98a1af;
-          font-size: 14px;
+  margin: 10px 0 0;
+  color: #9aa3b1;
+  font-size: 14px;
+}
+
+.dashboard-page .actionStatCard {
+  position: relative;
+  cursor: pointer;
+  border-color: var(--accent);
+}
+
+.dashboard-page .actionStatCard:hover .cardVisual {
+  border-color: var(--accent);
+}
+
+.dashboard-page .historyLinkStretch {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  z-index: 10;
 }
 
 .dashboard-page .historyButton {

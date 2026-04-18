@@ -278,6 +278,32 @@ export default async function AttendanceHistoryPage({
           <p>Review your historical attendance logs across all courses.</p>
         </section>
 
+        <section className="summaryGrid" aria-label="Attendance summary metrics">
+          <article className="summaryCard">
+            <div className="summaryLabel">
+              <SummaryCardIcon tone="success" />
+              <span>PRESENT RATE</span>
+            </div>
+            <strong>{historyData.summary.presentRate}%</strong>
+          </article>
+
+          <article className="summaryCard">
+            <div className="summaryLabel">
+              <SummaryCardIcon tone="danger" />
+              <span>ABSENT RATE</span>
+            </div>
+            <strong>{historyData.summary.absentRate}%</strong>
+          </article>
+
+          <article className="summaryCard">
+            <div className="summaryLabel">
+              <SummaryCardIcon tone="warning" />
+              <span>LATE CHECK-INS</span>
+            </div>
+            <strong>{historyData.summary.lateCount}</strong>
+          </article>
+        </section>
+
         <form className="filtersCard" aria-label="Attendance filters" method="get">
           <div className="filterGroup">
             <label htmlFor="course-filter">COURSE</label>
@@ -354,32 +380,6 @@ export default async function AttendanceHistoryPage({
               </p>
             </div>
           )}
-        </section>
-
-        <section className="summaryGrid" aria-label="Attendance summary metrics">
-          <article className="summaryCard">
-            <div className="summaryLabel">
-              <SummaryCardIcon tone="success" />
-              <span>PRESENT RATE</span>
-            </div>
-            <strong>{historyData.summary.presentRate}%</strong>
-          </article>
-
-          <article className="summaryCard">
-            <div className="summaryLabel">
-              <SummaryCardIcon tone="danger" />
-              <span>ABSENT RATE</span>
-            </div>
-            <strong>{historyData.summary.absentRate}%</strong>
-          </article>
-
-          <article className="summaryCard">
-            <div className="summaryLabel">
-              <SummaryCardIcon tone="warning" />
-              <span>LATE CHECK-INS</span>
-            </div>
-            <strong>{historyData.summary.lateCount}</strong>
-          </article>
         </section>
       </main>
     </div>

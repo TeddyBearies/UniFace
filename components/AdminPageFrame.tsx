@@ -146,24 +146,6 @@ function ReportsIcon({ color = "#475467", size = 18 }: { color?: string; size?: 
   );
 }
 
-function BellIcon() {
-  return (
-    <svg
-      aria-hidden="true"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="#4b5563"
-      strokeWidth="1.8"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      style={{ width: 18, height: 18, flex: "none" }}
-    >
-      <path d="M15 17H5.5c1-1.2 1.5-2.9 1.5-5v-1a5 5 0 0 1 10 0v1c0 2.1.5 3.8 1.5 5H17" />
-      <path d="M10 20a2 2 0 0 0 4 0" />
-      <path d="M17.5 6.5h.01" />
-    </svg>
-  );
-}
 
 function UserIcon() {
   return (
@@ -264,12 +246,6 @@ export default function AdminPageFrame({
           </div>
 
           <div className="topActions">
-            <form method="get">
-              <button type="submit" className="bellButton" aria-label="Refresh page">
-                <BellIcon />
-              </button>
-            </form>
-
             <div className="userBadge">
               <div className="userMeta">
                 <p>{profileLabel}</p>

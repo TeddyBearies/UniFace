@@ -15,7 +15,8 @@ function Logo() {
       src="/haga-login-logo.svg"
       alt="Haga Inc"
       style={{
-        width: "90px",
+        width: "120px",
+        marginLeft: "20px",
         height: "auto",
         display: "block",
       }}
@@ -68,6 +69,8 @@ function FlowerPattern() {
       alt=""
       className="bgStar"
       aria-hidden="true"
+      draggable={false}
+      style={{ pointerEvents: "none", userSelect: "none", WebkitUserSelect: "none", msUserSelect: "none" }}
     />
   );
 }
@@ -269,7 +272,7 @@ export default function LoginPage() {
         <section className="loginCard" aria-labelledby="login-title">
           <div className="cardHeading">
             <h1 id="login-title">Welcome back</h1>
-            <p>Enter your credentials to access EduScan</p>
+            <p>Enter your credentials to access UniFace</p>
           </div>
 
           <form className="loginForm" onSubmit={handleSubmit} noValidate>
@@ -346,7 +349,7 @@ export default function LoginPage() {
       </main>
 
       <footer className="copyright">
-        <p>©2024 EduScan Platform. All rights reserved.</p>
+        <p>©2024 UniFace Platform. All rights reserved.</p>
       </footer>
     </div>
   );

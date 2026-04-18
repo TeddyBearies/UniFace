@@ -6,26 +6,26 @@ const OVERVIEW_CARDS = [
   {
     title: "TOTAL USERS",
     valueKey: "totalUsers",
-    hint: "Registered accounts",
-    icon: "users",
+    hint: "Registered Accounts",
+    icon: "total_users_placeholder.png",
   },
   {
     title: "ACTIVE COURSES",
     valueKey: "activeCourses",
     hint: "Available this term",
-    icon: "courses",
+    icon: "active_courses_placeholder.png",
   },
   {
     title: "FACE DATA SCANS",
     valueKey: "faceDataScans",
     hint: "Total attendance events",
-    icon: "scan",
+    icon: "face_data_scans_placeholder.png",
   },
   {
     title: "PENDING REPORTS",
     valueKey: "pendingReports",
     hint: "Open attendance sessions",
-    icon: "reports",
+    icon: "pending_reports_placeholder.png",
   },
 ] as const;
 
@@ -56,50 +56,7 @@ const QUICK_LINKS = [
   },
 ] as const;
 
-function OverviewIcon({ kind }: { kind: (typeof OVERVIEW_CARDS)[number]["icon"] }) {
-  if (kind === "users") {
-    return (
-      <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="#9bdbe5" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="adminMiniIcon">
-        <circle cx="8" cy="10" r="2.3" />
-        <circle cx="15.5" cy="9" r="1.9" />
-        <path d="M4.7 17c.7-2.1 1.9-3.2 3.3-3.2 1.5 0 2.7 1.1 3.4 3.2" />
-        <path d="M13.1 15.9c.5-1.5 1.4-2.2 2.5-2.2s2 .7 2.5 2.2" />
-      </svg>
-    );
-  }
 
-  if (kind === "courses") {
-    return (
-      <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="#9bdbe5" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="adminMiniIcon">
-        <rect x="5" y="4.5" width="14" height="15" rx="1.5" />
-        <path d="M8 8h8" />
-        <path d="M8 12h8" />
-        <path d="M8 16h5" />
-      </svg>
-    );
-  }
-
-  if (kind === "scan") {
-    return (
-      <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="#9bdbe5" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="adminMiniIcon">
-        <path d="M8 4H5a1 1 0 0 0-1 1v3" />
-        <path d="M16 4h3a1 1 0 0 1 1 1v3" />
-        <path d="M8 20H5a1 1 0 0 1-1-1v-3" />
-        <path d="M16 20h3a1 1 0 0 0 1-1v-3" />
-        <circle cx="12" cy="12" r="3.3" />
-        <path d="M12 8.7v.01" />
-      </svg>
-    );
-  }
-
-  return (
-    <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="#b6e7df" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="adminMiniIcon">
-      <path d="M7.5 4.5h9l1.5 2v12a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1v-12z" />
-      <path d="M9.5 8.5h5" />
-      <path d="M12 11v5" />
-    </svg>
-  );
-}
 
 function QuickLinkIcon({ kind }: { kind: (typeof QUICK_LINKS)[number]["icon"] }) {
   if (kind === "users") {
@@ -202,10 +159,12 @@ export default async function AdminDashboardPage() {
             <article key={card.title} className="adminOverviewCard">
               <div className="adminOverviewHeader">
                 <span>{card.title}</span>
-                <OverviewIcon kind={card.icon} />
               </div>
               <strong>{dashboardData.stats[card.valueKey]}</strong>
-              <p>{card.hint}</p>
+              <div className="adminOverviewFooter">
+                <p>{card.hint}</p>
+                <img src={`/${card.icon}`} alt={card.title} />
+              </div>
             </article>
           ))}
         </section>

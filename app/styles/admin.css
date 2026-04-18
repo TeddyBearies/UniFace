@@ -123,10 +123,23 @@
 }
 
 .adminDashboardPage .adminOverviewCard strong {
-  color: #101a39;
-  font-size: 31px;
+  color: #1692a8;
+  font-size: 56px;
   line-height: 1;
   font-weight: 800;
+  text-align: center;
+  margin: auto 0;
+}
+
+.adminDashboardPage .adminOverviewFooter {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.adminDashboardPage .adminOverviewFooter img {
+  width: 42px;
+  height: auto;
 }
 
 .adminDashboardPage .adminOverviewCard p {

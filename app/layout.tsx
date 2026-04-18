@@ -6,6 +6,9 @@ import StyledJsxRegistry from "./styled-jsx-registry";
 export const metadata: Metadata = {
   title: "Haga FaceID",
   description: "Facial Recognition Attendance System",
+  icons: {
+    icon: '/favicon.ico',
+  },
 };
 
 type RootLayoutProps = {
@@ -15,6 +18,9 @@ type RootLayoutProps = {
 export default function RootLayout({ children }: RootLayoutProps) {
   return (
     <html lang="en">
+      <head>
+        <link rel="icon" href="/favicon.ico" sizes="any" />
+      </head>
       <body
         style={{
           margin: 0,

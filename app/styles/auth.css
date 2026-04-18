@@ -12,11 +12,9 @@
 
 .login-page .topBar {
   position: relative;
-  background:
-    radial-gradient(circle at 24px 24px, rgba(16, 152, 174, 0.025) 0, rgba(16, 152, 174, 0.025) 18px, transparent 18px),
-    #ffffff;
-  background-size: 72px 72px;
-  border-bottom: 1px solid #eef2f5;
+  background: linear-gradient(90deg, #eef9fb 0%, #ffffff 100%);
+  border-bottom: 1px solid #e5ecef;
+  box-shadow: 0 2px 10px rgba(22, 146, 168, 0.03);
 }
 
 .login-page .topBarInner {
@@ -391,7 +389,7 @@
 }
 
 .login-page .bgCircle:hover {
-  background-color: #dcf2f7;
+  background-color: #cde4eb;
   transition: background-color 0s;
 }
 

@@ -418,6 +418,28 @@ export default async function InstructorDashboardPage() {
             </div>
           </section>
 
+          <section className="actionsSection" aria-labelledby="quick-actions-title">
+            <h2 id="quick-actions-title">Quick Actions</h2>
+
+            <div className="actionsGrid">
+              {QUICK_ACTIONS.map((action) => (
+                <Link key={action.title} href={action.href} className="actionCard">
+                  <div className="actionCardVisual">
+                    <ActionArtwork kind={action.icon} />
+                  </div>
+
+                  <div className="actionCardBody">
+                    <div className="actionCardHeader">
+                      <h3>{action.title}</h3>
+                      <CardAccentIcon kind={action.accent} />
+                    </div>
+                    <p>{action.description}</p>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </section>
+
           <section className="coursesSection" aria-labelledby="assigned-courses-title">
             <div className="sectionHeader">
               <h2 id="assigned-courses-title">Assigned Courses</h2>
@@ -466,28 +488,6 @@ export default async function InstructorDashboardPage() {
                 </p>
               </div>
             )}
-          </section>
-
-          <section className="actionsSection" aria-labelledby="quick-actions-title">
-            <h2 id="quick-actions-title">Quick Actions</h2>
-
-            <div className="actionsGrid">
-              {QUICK_ACTIONS.map((action) => (
-                <Link key={action.title} href={action.href} className="actionCard">
-                  <div className="actionCardVisual">
-                    <ActionArtwork kind={action.icon} />
-                  </div>
-
-                  <div className="actionCardBody">
-                    <div className="actionCardHeader">
-                      <h3>{action.title}</h3>
-                      <CardAccentIcon kind={action.accent} />
-                    </div>
-                    <p>{action.description}</p>
-                  </div>
-                </Link>
-              ))}
-            </div>
           </section>
         </main>
       </div>
