@@ -1117,7 +1117,7 @@ export default function InstructorTakeAttendancePage() {
                 <button
                   type="button"
                   className={`primaryAction ${sessionActive ? "disabledAction" : ""}`}
-                  onClick={handleProtectedStartSession}
+                  onClick={handleStartSession}
                   disabled={
                     sessionActive ||
                     !isModelLoaded ||

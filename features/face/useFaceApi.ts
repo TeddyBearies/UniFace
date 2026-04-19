@@ -16,6 +16,7 @@ export function useFaceApi() {
   const [isModelLoaded, setIsModelLoaded] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [stream, setStream] = useState<MediaStream | null>(null);
 
   // References to video and canvas, typically attached to refs in the component
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -77,6 +78,7 @@ export function useFaceApi() {
         },
         audio: false,
       });
+      setStream(stream);
       videoRef.current.srcObject = stream;
       
       // Return a promise that resolves when video plays
@@ -102,14 +104,32 @@ export function useFaceApi() {
   }, []);
 
   const stopWebcam = useCallback(() => {
-    if (videoRef.current && videoRef.current.srcObject) {
-      const stream = videoRef.current.srcObject as MediaStream;
-      stream.getTracks().forEach((track) => track.stop());
+    setStream((currentStream) => {
+      if (currentStream) {
+        currentStream.getTracks().forEach((track) => track.stop());
+      }
+      return null;
+    });
+
+    if (videoRef.current) {
       videoRef.current.pause();
       videoRef.current.onloadedmetadata = null;
+      if (videoRef.current.srcObject) {
+        const str = videoRef.current.srcObject as MediaStream;
+        str.getTracks().forEach((track) => track.stop());
+      }
       videoRef.current.srcObject = null;
     }
   }, []);
+
+  useEffect(() => {
+    if (videoRef.current && stream && videoRef.current.srcObject !== stream) {
+      videoRef.current.srcObject = stream;
+      videoRef.current.onloadedmetadata = () => {
+        videoRef.current?.play().catch(() => {});
+      };
+    }
+  });
 
   useEffect(() => {
     return () => {
