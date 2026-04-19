@@ -1116,8 +1116,8 @@ export default function InstructorTakeAttendancePage() {
 
                 <button
                   type="button"
-                  className="primaryAction"
-                  onClick={handleStartSession}
+                  className={`primaryAction ${sessionActive ? "disabledAction" : ""}`}
+                  onClick={handleProtectedStartSession}
                   disabled={
                     sessionActive ||
                     !isModelLoaded ||
@@ -1128,7 +1128,7 @@ export default function InstructorTakeAttendancePage() {
                   }
                 >
                   <PlayIcon />
-                  <span>{isStarting ? "Starting..." : "Start Session"}</span>
+                  <span>{sessionActive ? "Session Active" : isStarting ? "Starting..." : "Start Session"}</span>
                 </button>
 
                 <button

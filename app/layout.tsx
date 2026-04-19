@@ -7,7 +7,10 @@ export const metadata: Metadata = {
   title: "Haga FaceID",
   description: "Facial Recognition Attendance System",
   icons: {
-    icon: '/favicon.ico',
+    icon: [
+      { url: "/favicon.ico", sizes: "any" },
+    ],
+    shortcut: "/favicon.ico",
   },
 };
 
@@ -18,9 +21,6 @@ type RootLayoutProps = {
 export default function RootLayout({ children }: RootLayoutProps) {
   return (
     <html lang="en">
-      <head>
-        <link rel="icon" href="/favicon.ico" sizes="any" />
-      </head>
       <body
         style={{
           margin: 0,
