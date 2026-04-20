@@ -1,5 +1,5 @@
 <div align="center">
-  <h1>🎓 UniFace (Haga-FaceID)</h1>
+  <h1>🎓 Haga-FaceID</h1>
   <p><strong>Advanced Facial Recognition Attendance Management System</strong></p>
   
   <p>
