@@ -15,9 +15,19 @@
 
 ## 📖 Overview
 
-**UniFace (Haga-FaceID)** is a cutting-edge web application designed to streamline attendance tracking in educational institutions. By leveraging facial recognition technology (`face-api.js`), UniFace offers a seamless, secure, and modern experience for administrators, instructors, and students alike. 
+**Haga-FaceID** is a cutting-edge web application designed to streamline attendance tracking in educational institutions. By leveraging facial recognition technology (`face-api.js`), UniFace offers a seamless, secure, and modern experience for administrators, instructors, and students alike. 
 
 The platform features tailored dashboards, robust locked-mode kiosk support for tablets, and a visually stunning, responsive interface built with modular CSS architectures.
+
+---
+
+
+## 👨‍💻 Team Members
+
+- **Hassan** Ahmed Hassan Mousa Rasmy
+- **Anas** Ayman Elsayed Abdelghaffar Hassan  
+- Mohamed **Gasser** Yousry Abdelhamid Nour 
+- **Ali** Rashad Ali Albakri
 
 ---
 
@@ -25,8 +35,7 @@ The platform features tailored dashboards, robust locked-mode kiosk support for 
 
 - 🔐 **Role-Based Workspaces**: Tailored dashboards and tools specifically designed for **Students**, **Instructors**, and **Administrators**.
 - 📸 **Face-ID Attendance Kiosk**: A robust, locked-mode tablet interface that seamlessly captures student attendance via live web-camera streams.
-- 🎨 **Premium UI/UX**: Includes an interactive geometric background for the login portal, tactile hover actions, and custom brand graphics dynamically scaling across desktop and mobile devices.
-- ⚡ **Modular CSS Architecture**: Highly maintainable, role-specific styling (e.g., `admin.css`, `instructor.css`) orchestrated by a global CSS layer to prevent style collisions and simplify updates.
+- 🎨 **Interactive UI/UX**: Includes an interactive geometric background for the login portal, tactile hover actions, and custom brand graphics dynamically scaling across desktop and mobile devices.
 - ☁️ **Supabase Integration**: Secure and rapid authentication (Email/Password) backed by a fully integrated cloud database setup.
 
 ---
@@ -37,7 +46,7 @@ The platform features tailored dashboards, robust locked-mode kiosk support for 
 - **UI Library**: [React 18](https://react.dev/)
 - **Typing**: [TypeScript](https://www.typescriptlang.org/)
 - **Backend & Auth**: [Supabase](https://supabase.com/)
-- **Machine Learning**: [`face-api.js`](https://github.com/vladmandic/face-api) (Optimized fork maintained by *vladmandic*)
+- **Machine Learning**: [`face-api.js`](https://github.com/justadudewhohacks/face-api.js/)
 - **Styling**: Modular Vanilla CSS with comprehensive fluid layout techniques (Flexbox/Grid).
 
 ---
@@ -83,11 +92,8 @@ Navigate to `http://localhost:3000` in your web browser. *(Note: Restart the dev
 
 For an in-depth look at our design decisions and setup, please review the files located in the `docs/reports/` directory.
 
-- **UI/UX Architecture**: See `ui_ux_design_documentation.md` for our modular styling approach and component definitions.
-- **Project Structure**: Clean separation between pages `app/(role)/role/dashboard` and features `features/face/useFaceApi.ts`.
-
 ---
 
 <div align="center">
-  <sub>Built with ❤️ by the UniFace Team</sub>
+  <sub>Built with ❤️ by the HAGA Inc Team</sub>
 </div>
